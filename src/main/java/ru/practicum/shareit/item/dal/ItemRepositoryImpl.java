@@ -43,8 +43,6 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Override
     public Item updateItem(Long userId, Long itemId, Item item) {
 
-        //заметка: пересмотреть на itemDto
-
         //проверяем существуует ли юзер
         User user = userRepository.getUserById(userId);
 
@@ -80,11 +78,13 @@ public class ItemRepositoryImpl implements ItemRepository {
             return new ArrayList<>();
         }
 
+        String text = searchText.toLowerCase();
+
         User user = userRepository.getUserById(userId);
         Map<Long, Item> items = user.getUserItems();
 
         return items.values().stream()
-                .filter(item -> item.getName().toLowerCase().contains(searchText.toLowerCase()))
+                .filter(item -> item.getName().toLowerCase().contains(text))
                 .filter(item -> !item.getAvailable().equals("false"))
                 .toList();
     }

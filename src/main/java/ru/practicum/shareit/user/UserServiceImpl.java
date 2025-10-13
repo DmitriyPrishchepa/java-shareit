@@ -7,7 +7,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Map;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,18 +17,21 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public User createUser(UserDto userDto) {
-        return userRepository.createUser(userMapper.mapFromDto(userDto));
+    public UserDto createUser(UserDto userDto) {
+        User user = userRepository.createUser(mapFromDto(userDto));
+        return mapToDto(user);
     }
 
     @Override
-    public User updateUser(long id, UserDto userDto) {
-        return userRepository.updateUser(id, userMapper.mapFromDto(userDto));
+    public UserDto updateUser(long id, UserDto userDto) {
+        User user = userRepository.updateUser(id, mapFromDto(userDto));
+        return mapToDto(user);
     }
 
     @Override
-    public User getUserById(long id) {
-        return userRepository.getUserById(id);
+    public UserDto getUserById(long id) {
+        User user = userRepository.getUserById(id);
+        return mapToDto(user);
     }
 
     @Override
@@ -37,7 +40,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<Long, User> getUsers() {
-        return userRepository.getUsers();
+    public List<UserDto> getUsers() {
+        return userRepository.getUsers().values()
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    private User mapFromDto(UserDto userDto) {
+        return userMapper.mapFromDto(userDto);
+    }
+
+    private UserDto mapToDto(User user) {
+        return userMapper.mapToDto(user);
     }
 }

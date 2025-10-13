@@ -28,6 +28,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User updateUser(long id, User newUser) {
+
         User user1 = getUserById(id);
 
         for (User u : users.values()) {

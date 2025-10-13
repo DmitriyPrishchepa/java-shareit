@@ -18,33 +18,48 @@ public class ItemServiceImpl implements ItemService {
     private final ItemMapper itemMapper;
 
     @Override
-    public Item addItem(Long userId, ItemDto item) {
-        return itemRepository.addItem(userId, itemMapper.mapFromDto(item));
+    public ItemDto addItem(Long userId, ItemDto item) {
+        Item returnedItem = itemRepository.addItem(userId, mapFromDto(item));
+        return mapToDto(returnedItem);
     }
 
     @Override
-    public Item updateItem(Long userId, Long itemId, ItemDto itemDto) {
+    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
         if (userId == null) {
             throw new MissingParameterException("userId was missing");
         }
 
-        Item item = itemMapper.mapFromDto(itemDto);
-
-        return itemRepository.updateItem(userId, itemId, item);
+        Item returnedItem = itemRepository.updateItem(userId, itemId, mapFromDto(itemDto));
+        return mapToDto(returnedItem);
     }
 
     @Override
-    public Item getItemById(Long userId, Long itemId) {
-        return itemRepository.getItemById(userId, itemId);
+    public ItemDto getItemById(Long userId, Long itemId) {
+        Item returnedItem = itemRepository.getItemById(userId, itemId);
+        return mapToDto(returnedItem);
     }
 
     @Override
-    public List<Item> getAllItemsFromUser(Long userId) {
-        return itemRepository.getAllItemsFromUser(userId);
+    public List<ItemDto> getAllItemsFromUser(Long userId) {
+        return itemRepository.getAllItemsFromUser(userId)
+                .stream()
+                .map(this::mapToDto)
+                .toList();
     }
 
     @Override
-    public List<Item> searchItem(Long userId, String searchText) {
-        return itemRepository.searchItem(userId, searchText);
+    public List<ItemDto> searchItem(Long userId, String searchText) {
+        return itemRepository.searchItem(userId, searchText)
+                .stream()
+                .map(this::mapToDto)
+                .toList();
+    }
+
+    private Item mapFromDto(ItemDto itemDto) {
+        return itemMapper.mapFromDto(itemDto);
+    }
+
+    private ItemDto mapToDto(Item item) {
+        return itemMapper.mapToDto(item);
     }
 }

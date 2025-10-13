@@ -52,4 +52,11 @@ public class GlobalExceptionHandler {
         log.error("Nothing to update");
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse manageUnhandledExceptions(Exception e) {
+        log.error("Unhandled exception");
+        return new ErrorResponse(e.getMessage());
+    }
 }
