@@ -1,12 +1,14 @@
 package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.UserDto;
 
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -29,6 +31,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public void deleteUser(@PathVariable("userId") long userId) {
+        log.debug("userId {}", userId);
         userService.deleteUser(userId);
     }
 }

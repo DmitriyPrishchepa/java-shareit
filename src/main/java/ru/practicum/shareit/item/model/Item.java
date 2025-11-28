@@ -1,21 +1,30 @@
 package ru.practicum.shareit.item.model;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
-@Data
-public class Item {
-    private long id;
-    private long ownerId;
-    @NotBlank
+@Entity
+@Table(name = "items")
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = {"id"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+public class Item implements Serializable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "owner_id", nullable = false)
+    private Long ownerId;
     private String name;
-    @NotBlank
     private String description;
-    private String category;
-    private String state; //состояние товара
-    private String available; //статус товара
-    private final List<Review> reviews = new ArrayList<>();
+    private Boolean available;
 }

@@ -1,11 +1,107 @@
 package ru.practicum.shareit.booking;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoToReturnValue;
+import ru.practicum.shareit.booking.util.BookingStateSearchParams;
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 
+import java.util.List;
+
+@Slf4j
 @RestController
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 public class BookingController {
+
+    private final BookingService bookingService;
+
+    @PostMapping
+    public BookingDtoToReturnValue createBooking(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestBody BookingDto bookingDto
+    ) {
+        return bookingService.createBooking(userId, bookingDto);
+    }
+
+    @PatchMapping("/{bookingId}")
+    public BookingDto updateBookingApproval(
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @PathVariable(value = "bookingId", required = false) String bookingId,
+            @RequestParam(value = "approved") Boolean approved) {
+        if (bookingId == null || bookingId.isEmpty()) {
+            throw new MissingParameterException("booking id is missing");
+        }
+        long id;
+        try {
+            id = Long.parseLong(bookingId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid booking id: " + bookingId);
+        }
+        return bookingService.updateBookingApproval(userId, id, approved);
+    }
+
+    @GetMapping("/{bookingId}")
+    public BookingDto getBookingById(
+            @RequestHeader("X-Sharer-User-Id") long userId,
+            @PathVariable("bookingId") Long bookingId
+    ) {
+        return bookingService.findBookingById(userId, bookingId);
+    }
+
+    @GetMapping
+    public List<BookingDto> getBookingsByState(
+            @RequestHeader("X-Sharer-User-Id") long bookerId,
+            @RequestParam(value = "state", defaultValue = "ALL") String state
+    ) {
+        BookingStateSearchParams bookingStateParams;
+
+        switch (state) {
+            case "CURRENT":
+                bookingStateParams = BookingStateSearchParams.CURRENT;
+                break;
+            case "PAST":
+                bookingStateParams = BookingStateSearchParams.PAST;
+                break;
+            case "FUTURE":
+                bookingStateParams = BookingStateSearchParams.FUTURE;
+                break;
+            case "WAITING":
+                bookingStateParams = BookingStateSearchParams.WAITING;
+                break;
+            default:
+                return bookingService.findAllByBookerId(bookerId);
+        }
+
+        return bookingService.findByBookerIdAndStateSorted(bookerId, bookingStateParams);
+    }
+
+    @GetMapping("/owner")
+    public List<BookingDto> getAllBookings(
+            @RequestHeader("X-Sharer-User-Id") long ownerId,
+            @RequestParam(value = "state") String state
+    ) {
+        BookingStateSearchParams bookingStateParams;
+
+        switch (state) {
+            case "CURRENT":
+                bookingStateParams = BookingStateSearchParams.CURRENT;
+                break;
+            case "PAST":
+                bookingStateParams = BookingStateSearchParams.PAST;
+                break;
+            case "FUTURE":
+                bookingStateParams = BookingStateSearchParams.FUTURE;
+                break;
+            case "WAITING":
+                bookingStateParams = BookingStateSearchParams.WAITING;
+                break;
+            default:
+                return bookingService.findAllByItemOwnerId(ownerId);
+        }
+
+        return bookingService.findAllByBookingItemOwnerIdAndStatus(ownerId, bookingStateParams);
+    }
 }

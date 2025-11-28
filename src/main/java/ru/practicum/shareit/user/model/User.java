@@ -1,15 +1,25 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.Data;
-import ru.practicum.shareit.item.model.Item;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Data
+@Entity
+@Table(name = "users")
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode(of = {"id"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String email;
-    private final Map<Long, Item> userItems = new HashMap<>();
 }
