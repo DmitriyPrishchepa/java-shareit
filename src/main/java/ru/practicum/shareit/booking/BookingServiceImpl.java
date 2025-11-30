@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingDtoToReturnValue;
+import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.util.BookingState;
@@ -36,7 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final EntityUtils entityUtils;
 
     @Override
-    public BookingDtoToReturnValue createBooking(Long userId, BookingDto bookingDto) {
+    public BookingDtoToReturn createBooking(Long userId, BookingDto bookingDto) {
         if (!userRepository.existsById(userId)) {
             throw new ElementNotFoundException("User not found");
         }
@@ -61,7 +61,8 @@ public class BookingServiceImpl implements BookingService {
 
         Booking bookingSaved = bookingRepository.save(booking);
 
-        BookingDtoToReturnValue returnedDto = new BookingDtoToReturnValue();
+        BookingDtoToReturn returnedDto = new BookingDtoToReturn();
+        returnedDto.setId(bookingSaved.getId());
         returnedDto.setItem(bookingSaved.getItem());
         returnedDto.setBooker(bookingSaved.getBooker());
         returnedDto.setStart(bookingSaved.getStart());
@@ -72,7 +73,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public BookingDto updateBookingApproval(Long userId, Long bookingId, Boolean approved) {
+    public BookingDtoToReturn updateBookingApproval(Long userId, Long bookingId, Boolean approved) {
 
         if (bookingId == null) {
             throw new MissingParameterException("booking id is missing");
@@ -80,8 +81,8 @@ public class BookingServiceImpl implements BookingService {
 
         Booking booking = checkExitstingBooking(bookingId);
 
-        if (!booking.getBooker().getId().equals(userId)) {
-            throw new ElementNotFoundException("Wrong user");
+        if (!booking.getItem().getOwnerId().equals(userId)) {
+            throw new WrongUserException("You are not the owner of the item and cannot update the booking.");
         }
 
         if (approved) {
@@ -91,56 +92,64 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking updatedBooking = bookingRepository.save(booking);
-        return bookingMapper.mapToDto(updatedBooking);
+
+        BookingDtoToReturn returnedDto = bookingMapper.mapToBookingDtoReturned(updatedBooking);
+        returnedDto.setStatus(BookingState.APPROVED);
+
+        return returnedDto;
     }
 
     @Override
-    public BookingDto findBookingById(Long userId, Long bookingId) {
+    public BookingDtoToReturn findBookingById(Long userId, Long bookingId) {
         entityUtils.checkExistingUser(userId);
         Booking booking = checkExitstingBooking(bookingId);
 
         Long ownerId = booking.getItem().getOwnerId();
         Long bookerId = booking.getBooker().getId();
 
+        BookingDtoToReturn returnedValue;
+
         if (userId.equals(ownerId) || userId.equals(bookerId)) {
-            return bookingMapper.mapToDto(booking);
+            returnedValue = bookingMapper.mapToBookingDtoReturned(booking);
         } else {
             throw new WrongUserException("Only owner or booker can get information about booking");
         }
+
+        return returnedValue;
     }
 
     @Override
-    public List<BookingDto> findByBookerIdAndStateSorted(Long bookerId, BookingStateSearchParams state) {
+    public List<BookingDtoToReturn> findByBookerIdAndStateSorted(Long bookerId, BookingStateSearchParams state) {
 
         List<Booking> bookings;
 
         return switch (state) {
             case PAST -> {
                 bookings = bookingRepository.findPastBookingsByBookerId(bookerId, LocalDateTime.now());
-                yield mapToListDto(bookings);
+                yield bookingMapper.mapToBookingDtoReturned(bookings);
             }
             case FUTURE -> {
                 bookings = bookingRepository.findFutureBookingsByBookerId(bookerId, LocalDateTime.now());
-                yield mapToListDto(bookings);
+                yield bookingMapper.mapToBookingDtoReturned(bookings);
             }
             case CURRENT -> {
                 bookings = bookingRepository.findCurrentBookingsByBookerId(bookerId, LocalDateTime.now());
-                yield mapToListDto(bookings);
+                yield bookingMapper.mapToBookingDtoReturned(bookings);
             }
 
             case WAITING -> {
                 bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStateSearchParams.WAITING);
-                yield mapToListDto(bookings);
+                yield bookingMapper.mapToBookingDtoReturned(bookings);
             }
 
             case REJECTED -> {
                 bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStateSearchParams.REJECTED);
-                yield mapToListDto(bookings);
+                yield bookingMapper.mapToBookingDtoReturned(bookings);
             }
 
             default -> {
                 bookings = bookingRepository.findAllByItemOwnerId(bookerId);
-                yield mapToListDto(bookings);
+                yield bookingMapper.mapToBookingDtoReturned(bookings);
             }
         };
     }
@@ -149,41 +158,24 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> findAllByBookingItemOwnerIdAndStatus(Long ownerId, BookingStateSearchParams state) {
         List<Booking> bookings;
 
-        return switch (state) {
-            case PAST -> {
-                bookings = bookingRepository.findPastBookingsByOwnerId(ownerId, LocalDateTime.now());
-                yield mapToListDto(bookings);
-            }
-            case FUTURE -> {
-                bookings = bookingRepository.findFutureBookingsByOwnerId(ownerId, LocalDateTime.now());
-                yield mapToListDto(bookings);
-            }
-            case CURRENT -> {
-                bookings = bookingRepository.findCurrentBookingsByOwnerId(ownerId, LocalDateTime.now());
-                yield mapToListDto(bookings);
-            }
+        switch (state) {
+            case PAST -> bookings = bookingRepository.findPastBookingsByOwnerId(ownerId, LocalDateTime.now());
+            case FUTURE -> bookings = bookingRepository.findFutureBookingsByOwnerId(ownerId, LocalDateTime.now());
+            case CURRENT -> bookings = bookingRepository.findCurrentBookingsByOwnerId(ownerId, LocalDateTime.now());
+            case WAITING ->
+                    bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStateSearchParams.WAITING);
+            case REJECTED ->
+                    bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStateSearchParams.REJECTED);
+            default -> bookings = bookingRepository.findAllByItemOwnerId(ownerId);
+        }
 
-            case WAITING -> {
-                bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStateSearchParams.WAITING);
-                yield mapToListDto(bookings);
-            }
-
-            case REJECTED -> {
-                bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStateSearchParams.REJECTED);
-                yield mapToListDto(bookings);
-            }
-
-            default -> {
-                bookings = bookingRepository.findAllByItemOwnerId(ownerId);
-                yield mapToListDto(bookings);
-            }
-        };
+        return mapToListDto(bookings);
     }
 
     @Override
-    public List<BookingDto> findAllByBookerId(Long bookerId) {
+    public List<BookingDtoToReturn> findAllByBookerId(Long bookerId) {
         List<Booking> bookings = bookingRepository.findAllByBookerId(bookerId);
-        return mapToListDto(bookings);
+        return bookingMapper.mapToBookingDtoReturned(bookings);
     }
 
     @Override

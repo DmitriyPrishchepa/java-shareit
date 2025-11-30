@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingDtoToReturnValue;
+import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
 import ru.practicum.shareit.booking.util.BookingStateSearchParams;
 import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 
@@ -19,7 +19,7 @@ public class BookingController {
     private final BookingService bookingService;
 
     @PostMapping
-    public BookingDtoToReturnValue createBooking(
+    public BookingDtoToReturn createBooking(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestBody BookingDto bookingDto
     ) {
@@ -27,7 +27,7 @@ public class BookingController {
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto updateBookingApproval(
+    public BookingDtoToReturn updateBookingApproval(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable(value = "bookingId", required = false) String bookingId,
             @RequestParam(value = "approved") Boolean approved) {
@@ -44,7 +44,7 @@ public class BookingController {
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBookingById(
+    public BookingDtoToReturn getBookingById(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable("bookingId") Long bookingId
     ) {
@@ -52,7 +52,7 @@ public class BookingController {
     }
 
     @GetMapping
-    public List<BookingDto> getBookingsByState(
+    public List<BookingDtoToReturn> getBookingsByState(
             @RequestHeader("X-Sharer-User-Id") long bookerId,
             @RequestParam(value = "state", defaultValue = "ALL") String state
     ) {

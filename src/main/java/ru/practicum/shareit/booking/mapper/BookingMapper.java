@@ -1,16 +1,14 @@
 package ru.practicum.shareit.booking.mapper;
 
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.util.BookingState;
 import ru.practicum.shareit.item.ItemRepository;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
 
@@ -44,9 +42,26 @@ public class BookingMapper {
         return booking;
     }
 
+    public BookingDtoToReturn mapToBookingDtoReturned(Booking booking) {
+        BookingDtoToReturn dto = new BookingDtoToReturn();
+        dto.setId(booking.getId());
+        dto.setItem(booking.getItem());
+        dto.setBooker(booking.getBooker());
+        dto.setStart(booking.getStart());
+        dto.setEnd(booking.getEnd());
+        dto.setStatus(booking.getStatus());
+        return dto;
+    }
+
     public List<BookingDto> mapToDto(List<Booking> bookings) {
         return bookings.stream()
                 .map(this::mapToDto)
+                .toList();
+    }
+
+    public List<BookingDtoToReturn> mapToBookingDtoReturned(List<Booking> bookings) {
+        return bookings.stream()
+                .map(this::mapToBookingDtoReturned)
                 .toList();
     }
 }

@@ -14,9 +14,10 @@ import ru.practicum.shareit.exception.exceptions.AccessToCommentDeniedException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
 import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.exception.exceptions.WrongUserException;
-import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.dto.ItemWithCommentsToReturn;
 import ru.practicum.shareit.item.mapper.CommentMapper;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
@@ -90,13 +91,23 @@ public class ItemServiceImpl implements ItemService {
 
     @Transactional(readOnly = true)
     @Override
-    public ItemDto getItemById(Long userId, Long itemId) {
+    public ItemWithCommentsToReturn getItemById(Long userId, Long itemId) {
 
         entityUtils.checkExistingUser(userId);
         entityUtils.checkExistingItem(itemId);
 
         Item item = itemRepository.getReferenceById(itemId);
-        return itemMapper.mapToDto(item);
+        List<Comment> comments = commentRepository.findAllByItemAndUserId(item.getOwnerId(), itemId);
+        ItemWithCommentsToReturn dto = new ItemWithCommentsToReturn();
+        dto.setId(item.getId());
+        dto.setName(item.getName());
+        dto.setDescription(item.getDescription());
+        dto.setOwnerId(item.getOwnerId());
+        dto.setAvailable(item.getAvailable());
+        dto.setLastBooking(null);
+        dto.setNextBooking(null);
+        dto.setComments(comments);
+        return dto;
     }
 
     @Transactional(readOnly = true)
@@ -130,10 +141,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Transactional
-    public CommentDto addComment(Long userId, Long itemId, String text) {
-
-        entityUtils.checkExistingUser(userId);
-        entityUtils.checkExistingItem(itemId);
+    public CommentDtoToReturn addComment(Long userId, Long itemId, String text) {
 
         User user = userRepository.getReferenceById(userId);
 
@@ -153,14 +161,14 @@ public class ItemServiceImpl implements ItemService {
         }
 
         Comment comment = new Comment();
-        comment.setText(text);
+        comment.setText(text.trim());
         comment.setItem(item);
         comment.setAuthor(user);
         comment.setCreated(dateTime);
 
-        commentRepository.save(comment);
+        Comment commentSaved = commentRepository.save(comment);
 
-        return commentMapper.mapToDto(comment);
+        return commentMapper.mapToReturnDto(commentSaved);
     }
 
     public ItemDtoWithBookings getItemWithBookings(Long itemId) {

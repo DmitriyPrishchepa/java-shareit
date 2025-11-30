@@ -3,9 +3,10 @@ package ru.practicum.shareit.item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.dto.ItemWithCommentsToReturn;
 
 import java.util.List;
 
@@ -34,7 +35,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(
+    public ItemWithCommentsToReturn getItemById(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable("itemId") Long itemId) {
         return itemService.getItemById(userId, itemId);
@@ -55,7 +56,7 @@ public class ItemController {
     }
 
     @PostMapping("{itemId}/comment")
-    public CommentDto addComment(
+    public CommentDtoToReturn addComment(
             @RequestHeader("X-Sharer-User-Id") Long userId,
             @PathVariable("itemId") Long itemId,
             @RequestBody String text
