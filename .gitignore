@@ -5,8 +5,6 @@ db/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-!**/src/main/**/volumes/
-!**/src/test/**/volumes/
 
 ### STS ###
 .apt_generated
@@ -35,6 +33,10 @@ db/
 *.sqlite
 *.cache
 *.tmp
+*.yml
+*.xml
+*.mvn
+*.log
 
 ### NetBeans ###
 /nbproject/private/
