@@ -23,7 +23,6 @@ target/
 *.DS_Store
 *.exe
 *.dll
-*.o
 *.object
 *.so
 *.dylib
