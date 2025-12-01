@@ -21,6 +21,16 @@ target/
 *.class
 *.jar
 *.DS_Store
+*.exe
+*.dll
+*.o
+*.object
+*.so
+*.dylib
+*.db
+*.sqlite
+*.cache
+*.tmp
 
 ### NetBeans ###
 /nbproject/private/
