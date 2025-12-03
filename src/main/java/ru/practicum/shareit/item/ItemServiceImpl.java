@@ -28,9 +28,8 @@ import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -118,9 +117,33 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> itemsOfUser = itemRepository.findAllByOwnerId(userId, pageRequest)
                 .getContent().stream().map(itemMapper::mapToDto).toList();
 
+        // Загружаем все бронирования для всех элементов пользователя
+        List<Long> itemsIds = itemsOfUser.stream().map(ItemDto::getId).toList();
+        List<Booking> allBookingsForAllItems = bookingRepository.findAllByItemIdIn(itemsIds);
+
+        // Группируем бронирования по идентификаторам элементов
+        Map<Long, List<Booking>> bookingsByItemId = allBookingsForAllItems.stream()
+                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+
         return itemsOfUser.stream()
-                .map(itemDto -> getItemWithBookings(itemDto.getId()))
-                .toList();
+                .map(itemDto -> {
+                    ItemDtoWithBookings itemDtoWithBookings = new ItemDtoWithBookings();
+                    itemDtoWithBookings.setId(itemDto.getId());
+                    itemDtoWithBookings.setName(itemDto.getName());
+                    itemDtoWithBookings.setDescription(itemDto.getDescription());
+                    itemDtoWithBookings.setAvailable(itemDto.getAvailable());
+
+                    List<BookingDto> bookingsDto = bookingsByItemId.getOrDefault(
+                                    itemDto.getId(), Collections.emptyList()
+                            )
+                            .stream()
+                            .map(bookingMapper::mapToDto)
+                            .toList();
+
+                    itemDtoWithBookings.setBookings(bookingsDto);
+
+                    return itemDtoWithBookings;
+                }).toList();
     }
 
     @Transactional(readOnly = true)
@@ -171,23 +194,24 @@ public class ItemServiceImpl implements ItemService {
         return commentMapper.mapToReturnDto(commentSaved);
     }
 
-    public ItemDtoWithBookings getItemWithBookings(Long itemId) {
-
-        itemRepository.existsById(itemId);
-
-        Item item = itemRepository.getReferenceById(itemId);
-        ItemDto itemDto = itemMapper.mapToDto(item);
-
-        ItemDtoWithBookings itemDtoWithBookings = new ItemDtoWithBookings();
-        itemDtoWithBookings.setId(itemDto.getId());
-        itemDtoWithBookings.setName(itemDto.getName());
-        itemDtoWithBookings.setDescription(itemDto.getDescription());
-        itemDtoWithBookings.setAvailable(itemDto.getAvailable());
-
-        List<Booking> bookings = bookingRepository.findAllByItemId(itemId);
-        List<BookingDto> bookingsDto = bookingMapper.mapToDto(bookings);
-        itemDtoWithBookings.setBookings(bookingsDto);
-
-        return itemDtoWithBookings;
-    }
+//    @Transactional(readOnly = true)
+//    public ItemDtoWithBookings getItemWithBookings(Long itemId) {
+//
+//        itemRepository.existsById(itemId);
+//
+//        Item item = itemRepository.getReferenceById(itemId);
+//        ItemDto itemDto = itemMapper.mapToDto(item);
+//
+//        ItemDtoWithBookings itemDtoWithBookings = new ItemDtoWithBookings();
+//        itemDtoWithBookings.setId(itemDto.getId());
+//        itemDtoWithBookings.setName(itemDto.getName());
+//        itemDtoWithBookings.setDescription(itemDto.getDescription());
+//        itemDtoWithBookings.setAvailable(itemDto.getAvailable());
+//
+//        List<Booking> bookings = bookingRepository.findAllByItemId(itemId);
+//        List<BookingDto> bookingsDto = bookingMapper.mapToDto(bookings);
+//        itemDtoWithBookings.setBookings(bookingsDto);
+//
+//        return itemDtoWithBookings;
+//    }
 }

@@ -3,20 +3,20 @@ package ru.practicum.shareit.booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.util.BookingStateSearchParams;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Override
     <S extends Booking> S save(S entity);
 
     @Override
     Booking getReferenceById(Long aLong);
+
+    List<Booking> findAllByItemIdIn(List<Long> itemIds);
 
     List<Booking> findAllByBookerId(Long bookerId);
 

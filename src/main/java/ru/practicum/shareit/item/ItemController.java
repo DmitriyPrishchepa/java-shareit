@@ -1,5 +1,7 @@
 package ru.practicum.shareit.item;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -19,46 +21,46 @@ public class ItemController {
 
     @PostMapping
     public ItemDto addItem(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody ItemDto item) {
+            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Valid @RequestBody ItemDto item) {
         log.debug("userId {}", userId);
         return itemService.addItem(userId, item);
     }
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(
-            @PathVariable("itemId") Long itemId,
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @RequestBody ItemDto itemDto
+            @Positive @PathVariable("itemId") Long itemId,
+            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Valid @RequestBody ItemDto itemDto
     ) {
         return itemService.updateItem(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
     public ItemWithCommentsToReturn getItemById(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable("itemId") Long itemId) {
+            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Positive @PathVariable("itemId") Long itemId) {
         return itemService.getItemById(userId, itemId);
     }
 
     @GetMapping
     public List<ItemDtoWithBookings> getAllItemsFromUser(
-            @RequestHeader("X-Sharer-User-Id") Long userId
+            @Positive @RequestHeader("X-Sharer-User-Id") Long userId
     ) {
         return itemService.getAllItemsFromUser(userId);
     }
 
     @GetMapping("/search")
     public List<ItemDto> searchItem(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
             @RequestParam("text") String searchText) {
         return itemService.searchItem(userId, searchText);
     }
 
     @PostMapping("{itemId}/comment")
     public CommentDtoToReturn addComment(
-            @RequestHeader("X-Sharer-User-Id") Long userId,
-            @PathVariable("itemId") Long itemId,
+            @Positive @RequestHeader("X-Sharer-User-Id") Long userId,
+            @Positive @PathVariable("itemId") Long itemId,
             @RequestBody String text
     ) {
         return itemService.addComment(userId, itemId, text);

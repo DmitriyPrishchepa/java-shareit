@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
@@ -35,6 +36,7 @@ public class BookingServiceImpl implements BookingService {
     private final BookingMapper bookingMapper;
     private final EntityUtils entityUtils;
 
+    @Transactional
     @Override
     public BookingDtoToReturn createBooking(Long userId, BookingDto bookingDto) {
         if (!userRepository.existsById(userId)) {
@@ -72,6 +74,7 @@ public class BookingServiceImpl implements BookingService {
         return returnedDto;
     }
 
+    @Transactional
     @Override
     public BookingDtoToReturn updateBookingApproval(Long userId, Long bookingId, Boolean approved) {
 
@@ -99,6 +102,7 @@ public class BookingServiceImpl implements BookingService {
         return returnedDto;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public BookingDtoToReturn findBookingById(Long userId, Long bookingId) {
         entityUtils.checkExistingUser(userId);
@@ -118,6 +122,7 @@ public class BookingServiceImpl implements BookingService {
         return returnedValue;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookingDtoToReturn> findByBookerIdAndStateSorted(Long bookerId, BookingStateSearchParams state) {
 
@@ -154,6 +159,7 @@ public class BookingServiceImpl implements BookingService {
         };
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookingDto> findAllByBookingItemOwnerIdAndStatus(Long ownerId, BookingStateSearchParams state) {
         List<Booking> bookings;
@@ -172,12 +178,14 @@ public class BookingServiceImpl implements BookingService {
         return mapToListDto(bookings);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookingDtoToReturn> findAllByBookerId(Long bookerId) {
         List<Booking> bookings = bookingRepository.findAllByBookerId(bookerId);
         return bookingMapper.mapToBookingDtoReturned(bookings);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<BookingDto> findAllByItemOwnerId(Long ownerId) {
         List<Booking> bookings = bookingRepository.findAllByItemOwnerId(ownerId);
