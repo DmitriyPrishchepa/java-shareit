@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping(path = "/requests")
 @Validated
 @Slf4j
-public class RequestController {
+public class RequestGatewayController {
 
     private final RequestClient requestClient;
 

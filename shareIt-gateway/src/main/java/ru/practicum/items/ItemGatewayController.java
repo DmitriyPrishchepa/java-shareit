@@ -14,7 +14,7 @@ import ru.practicum.items.dto.ItemDto;
 @RequiredArgsConstructor
 @Validated
 @Slf4j
-public class ItemController {
+public class ItemGatewayController {
     private final ItemClient itemClient;
 
     @PostMapping

@@ -14,7 +14,7 @@ import ru.practicum.users.dto.UserDto;
 @RequiredArgsConstructor
 @Validated
 @Slf4j
-public class UserController {
+public class UserGatewayController {
 
     private final UserClient userClient;
 

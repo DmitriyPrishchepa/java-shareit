@@ -16,7 +16,7 @@ import ru.practicum.bookings.dto.BookingState;
 @RequiredArgsConstructor
 @Slf4j
 @Validated
-public class BookingController {
+public class BookingGatewayController {
     private final BookingClient bookingClient;
 
     @PostMapping
