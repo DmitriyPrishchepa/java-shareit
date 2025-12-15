@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>shareIt-server</artifactId>
+    <artifactId>shareit-server</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -81,7 +81,7 @@
     <build>
         <resources>
             <resource>
-                <directory>shareIt-server/src/src/main/resources</directory>
+                <directory>shareit-server/src/src/main/resources</directory>
                 <filtering>true</filtering>
             </resource>
         </resources>

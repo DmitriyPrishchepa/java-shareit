@@ -14,10 +14,10 @@
 	<version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>ShareIt</name>
+    <name>shareit</name>
     <modules>
-		<module>shareIt-server</module>
-		<module>shareIt-gateway</module>
+		<module>shareit-server</module>
+		<module>shareit-gateway</module>
 	</modules>
 
     <properties>
