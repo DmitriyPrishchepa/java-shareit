@@ -17,14 +17,14 @@ services:
       retries: 10
 
   shareIt-gateway:
-    image: postgres:16.1
+    image: nginx:latest
     ports:
       - "8080:8080"
     depends_on:
       - db
 
   shareIt-server:
-    image: postgres:16.1
+    image: circleci/openjdk:latest
     ports:
       - "9090:9090"
     depends_on:
