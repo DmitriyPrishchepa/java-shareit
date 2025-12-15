@@ -35,7 +35,6 @@ mvn
 *.cache
 *.tmp
 *.yml
-*.xml
 *.mvn
 *.log
 
