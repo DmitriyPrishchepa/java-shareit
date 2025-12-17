@@ -10,7 +10,6 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.client.BaseClient;
 import ru.practicum.items.dto.ItemDto;
 
-import java.util.List;
 import java.util.Map;
 
 @Service

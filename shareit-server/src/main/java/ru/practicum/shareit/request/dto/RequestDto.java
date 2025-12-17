@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request.dto;
 
-import jakarta.persistence.*;
 import lombok.Data;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.Response;
