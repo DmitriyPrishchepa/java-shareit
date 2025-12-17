@@ -59,4 +59,32 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception");
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingValidation(BookingValidationException e) {
+        log.error("Booking Validation exception");
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handeBookingException(BookingException e) {
+        log.error("Unavailable for booking");
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handeWrongUser(WrongUserException e) {
+        log.error("Wrong user");
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handeAccessDenied(AccessToCommentDeniedException e) {
+        log.error("Access denied");
+        return new ErrorResponse(e.getMessage());
+    }
 }

@@ -1,5 +1,6 @@
 HELP.md
 target/
+volumes/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -13,11 +14,33 @@ target/
 .springBeans
 .sts4-cache
 
+# Файлы Maven
+mvn
+
 ### IntelliJ IDEA ###
-.idea
+*.idea
 *.iws
 *.iml
 *.ipr
+*.class
+*.jar
+*.exe
+*.dll
+*.o
+*.object
+*.so
+*.dylib
+*.db
+*.sqlite
+*.cache
+*.tmp
+*.yml
+*.xml
+*.mvn
+*.log
+
+# Системные файлы macOS
+.DS_Store
 
 ### NetBeans ###
 /nbproject/private/
