@@ -1,4 +1,4 @@
-package contollers_tests;
+package contollersTests;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

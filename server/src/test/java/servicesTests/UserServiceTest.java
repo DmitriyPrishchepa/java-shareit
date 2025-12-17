@@ -1,4 +1,4 @@
-package services_tests;
+package servicesTests;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
