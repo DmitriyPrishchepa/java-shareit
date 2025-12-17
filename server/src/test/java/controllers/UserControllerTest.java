@@ -1,7 +1,6 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,10 +42,6 @@ public class UserControllerTest {
     private UserDto userDto2;
 
     private List<UserDto> usersList;
-
-    {
-        mapper.registerModule(new JavaTimeModule());
-    }
 
     // Регистрация модуля для работы с LocalDate
     @BeforeEach
