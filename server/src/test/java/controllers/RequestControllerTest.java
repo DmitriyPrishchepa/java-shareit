@@ -1,4 +1,4 @@
-package contollersTests;
+package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,10 +13,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.item.ItemController;
 import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.CommentDtoToReturn;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
-import ru.practicum.shareit.item.dto.ItemWithCommentsToReturn;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestController;
+import ru.practicum.shareit.request.RequestService;
+import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.model.Response;
 import ru.practicum.shareit.user.UserController;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -29,12 +31,13 @@ import java.util.List;
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-public class ItemControllerTest {
+public class RequestControllerTest {
 
     @Mock
     ItemService itemService;
@@ -48,10 +51,16 @@ public class ItemControllerTest {
     @InjectMocks
     UserController userController;
 
+    @Mock
+    RequestService requestService;
+
+    @InjectMocks
+    RequestController requestController;
+
     private final ObjectMapper mapper = new ObjectMapper();
 
     private ItemDto itemDto;
-    private ItemDto itemDto2;
+    private Request request;
     private UserDto userDto;
     private MockMvc mockMvc;
 
@@ -86,10 +95,27 @@ public class ItemControllerTest {
         return dto;
     }
 
+    private Request makeRequest(
+            long id,
+            String description,
+            LocalDateTime created,
+            Long ownerId,
+            List<Response> responses,
+            List<Item> items
+    ) {
+        Request request = new Request();
+        request.setId(id);
+        request.setDescription(description);
+        request.setOwnerId(ownerId);
+        request.setItems(new ArrayList<>());
+        request.setResponses(new ArrayList<>());
+        return request;
+    }
+
     @BeforeEach
     void setUp() throws Exception {
         mockMvc = MockMvcBuilders
-                .standaloneSetup(itemController, userController)
+                .standaloneSetup(itemController, userController, requestController)
                 .build();
 
         itemDto = makeItemDto(
@@ -97,14 +123,6 @@ public class ItemControllerTest {
                 1L,
                 "itemDto",
                 "itemDescription",
-                true
-        );
-
-        itemDto2 = makeItemDto(
-                2L,
-                1L,
-                "itemDto2",
-                "itemDescription2",
                 true
         );
 
@@ -121,10 +139,6 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto.getName()), String.class));
-    }
-
-    @Test
-    void saveItemTest() throws Exception {
 
         when(itemService.addItem(userDto.getId(), itemDto))
                 .thenReturn(itemDto);
@@ -140,121 +154,124 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.name", is(itemDto.getName()), String.class))
                 .andExpect(jsonPath("$.description", is(itemDto.getDescription()), String.class));
 
+        request = makeRequest(
+                1L,
+                "test description",
+                LocalDateTime.now(),
+                userDto.getId(),
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
     }
 
     @Test
-    void updateItemTest() throws Exception {
+    void createRequestTest() throws Exception {
 
-        ItemDto updatedItemDto = makeItemDto(
-                1L,
-                1L,
-                "updatedItem",
-                "updatedDescription",
-                true
+        when(requestService.createRequest(Mockito.anyLong(), Mockito.anyString()))
+                .thenReturn(request);
+
+        mockMvc.perform(post("/requests")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .content(mapper.writeValueAsString(request))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description", is(request.getDescription())))
+                .andExpect(jsonPath("$.responses", is(request.getResponses())));
+    }
+
+    @Test
+    void getRequestByIdTest() throws Exception {
+        when(requestService.getRequestById(Mockito.anyLong(), Mockito.anyLong()))
+                .thenReturn(request);
+
+        mockMvc.perform(get("/requests/" + request.getId())
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description", is(request.getDescription())))
+                .andExpect(jsonPath("$.responses", is(request.getResponses())));
+    }
+
+    @Test
+    void getOtherUsersRequests() throws Exception {
+
+        Request requestOfUser2 = makeRequest(
+                2L,
+                "test description 2",
+                LocalDateTime.now(),
+                2L,
+                new ArrayList<>(),
+                new ArrayList<>()
         );
 
-        when(itemService.updateItem(userDto.getId(), itemDto.getId(), updatedItemDto))
-                .thenReturn(updatedItemDto);
+        Request requestOfUser3 = makeRequest(
+                3L,
+                "test description 3",
+                LocalDateTime.now(),
+                3L,
+                new ArrayList<>(),
+                new ArrayList<>()
+        );
 
-        mockMvc.perform(patch("/items/" + itemDto.getId())
-                        .header("X-Sharer-User-Id", userDto.getId())
-                        .content(mapper.writeValueAsString(updatedItemDto))
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name", is(updatedItemDto.getName()), String.class))
-                .andExpect(jsonPath("$.description", is(updatedItemDto.getDescription())));
-    }
+        List<Request> requests = List.of(requestOfUser2, requestOfUser3);
 
-    @Test
-    void getItemByIdTest() throws Exception {
+        when(requestService.getOtherUsersRequests(Mockito.anyLong()))
+                .thenReturn(requests);
 
-        ItemWithCommentsToReturn item = new ItemWithCommentsToReturn();
-        item.setId(itemDto2.getId());
-        item.setName(itemDto2.getName());
-        item.setAvailable(itemDto2.getAvailable());
-        item.setOwnerId(itemDto2.getOwnerId());
-        item.setComments(new ArrayList<>());
-
-        when(itemService.getItemById(userDto.getId(), itemDto2.getId()))
-                .thenReturn(item);
-
-        mockMvc.perform(get("/items/" + itemDto2.getId())
+        mockMvc.perform(get("/requests/all")
                         .header("X-Sharer-User-Id", userDto.getId())
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.name", is(item.getName()), String.class))
-                .andExpect(jsonPath("$.description", is(item.getDescription())));
-    }
-
-    @Test
-    void getALlItemsFromUserTest() throws Exception {
-
-        ItemDtoWithBookings item = new ItemDtoWithBookings();
-        item.setId(itemDto2.getId());
-        item.setName(itemDto2.getName());
-        item.setAvailable(itemDto2.getAvailable());
-        item.setBookings(new ArrayList<>());
-
-        ItemDtoWithBookings item2 = new ItemDtoWithBookings();
-        item2.setId(itemDto2.getId());
-        item2.setName(itemDto2.getName());
-        item2.setAvailable(itemDto2.getAvailable());
-        item2.setBookings(new ArrayList<>());
-
-
-        when(itemService.getAllItemsFromUser(userDto.getId()))
-                .thenReturn(List.of(item, item2));
-
-        mockMvc.perform(get("/items")
-                        .header("X-Sharer-User-Id", userDto.getId())
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].name", is(item.getName()), String.class))
-                .andExpect(jsonPath("$[0].description", is(item2.getDescription()), String.class));
-
-    }
-
-    @Test
-    void searchItemTest() throws Exception {
-
-        List<ItemDto> items = List.of(itemDto, itemDto2);
-
-        when(itemService.searchItem(Mockito.anyLong(), Mockito.anyString()))
-                .thenReturn(items);
-
-        mockMvc.perform(get("/items/search")
-                        .header("X-Sharer-User-Id", userDto.getId())
-                        .param("text", "emD")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
+                .andDo(mvcResult -> {
+                    String response = mvcResult.getResponse().getContentAsString();
+                    System.out.println("Response: " + response);
+                })
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(items.size())))
-                .andExpect(jsonPath("$[*].name", containsInAnyOrder(itemDto.getName(), itemDto2.getName())));
+                .andExpect(jsonPath("$", hasSize(requests.size())))
+                .andExpect(jsonPath("$[*].id", containsInAnyOrder(
+                        (int) requestOfUser2.getId(), (int) requestOfUser3.getId())));
     }
 
     @Test
-    void addCommentTest() throws Exception {
-        CommentDtoToReturn commentDto = new CommentDtoToReturn();
-        commentDto.setId(1L);
-        commentDto.setText("this comment just for you");
-        commentDto.setAuthorName(userDto.getName());
-        commentDto.setCreated(LocalDateTime.now());
+    void getUserRequestsWithResponsesTest() throws Exception {
+        Response response1 = new Response();
+        response1.setId(1L);
+        response1.setName("response1");
+        response1.setRequest(request);
+        response1.setItemId(itemDto.getId());
+        response1.setOwnerId(1L);
 
-        when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString()))
-                .thenReturn(commentDto);
+        Response response2 = new Response();
+        response2.setId(2L);
+        response2.setName("response2");
+        response2.setRequest(request);
+        response2.setItemId(itemDto.getId());
+        response2.setOwnerId(2L);
 
-        mockMvc.perform(post("/items/" + itemDto.getId() + "/comment")
+        List<Response> responses = List.of(response1, response2);
+
+        request.setResponses(responses);
+
+        System.out.println("Request responses: " + request.getResponses());
+
+        when(requestService.getUserRequestsWithResponses(Mockito.anyLong()))
+                .thenReturn(List.of(request));
+
+        mockMvc.perform(get("/requests")
                         .header("X-Sharer-User-Id", userDto.getId())
-                        .content("this comment just for you")
+                        .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(commentDto.getId().intValue())))
-                .andExpect(jsonPath("$.text", is(commentDto.getText())))
-                .andExpect(jsonPath("$.authorName", is(commentDto.getAuthorName())));
+                .andDo(mvcResult -> {
+                    String response = mvcResult.getResponse().getContentAsString();
+                    System.out.println("Response: " + response);
+                })
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].responses", hasSize(2)));
     }
 }

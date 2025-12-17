@@ -1,4 +1,4 @@
-package contollersTests;
+package controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
