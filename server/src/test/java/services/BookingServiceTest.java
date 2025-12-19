@@ -34,9 +34,6 @@ import static org.hamcrest.Matchers.notNullValue;
 public class BookingServiceTest {
 
     @Mock
-    RequestService requestService;
-
-    @Mock
     UserService userService;
 
     @Mock
