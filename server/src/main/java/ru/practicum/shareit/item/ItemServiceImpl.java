@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.common.EntityUtils;
 import ru.practicum.shareit.exception.exceptions.AccessToCommentDeniedException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
 import ru.practicum.shareit.exception.exceptions.MissingParameterException;
@@ -24,7 +23,6 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.util.ItemValidator;
 import ru.practicum.shareit.user.UserRepository;
-import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
@@ -38,13 +36,11 @@ public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
-    private final UserServiceImpl userServiceImpl;
     private final BookingRepository bookingRepository;
     private final CommentRepository commentRepository;
     private final ItemMapper itemMapper;
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
-    private final EntityUtils entityUtils;
 
     @Transactional
     @Override
@@ -91,9 +87,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional(readOnly = true)
     @Override
     public ItemWithCommentsToReturn getItemById(Long userId, Long itemId) {
-
-        entityUtils.checkExistingUser(userId);
-        entityUtils.checkExistingItem(itemId);
 
         Item item = itemRepository.getReferenceById(itemId);
         List<Comment> comments = commentRepository.findAllByItemAndUserId(item.getOwnerId(), itemId);

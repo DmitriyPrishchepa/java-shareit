@@ -12,6 +12,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentDtoToReturn;
@@ -27,6 +29,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -234,5 +237,25 @@ public class ItemServiceTest {
         assertThat(items.getFirst().getName(), equalTo(mockedItem.getName()));
         assertThat(items.getFirst().getDescription(), equalTo(mockedItem.getDescription()));
         assertThat(items.getFirst().getBookings(), containsInAnyOrder(bookingDto, bookingDto2));
+    }
+
+    @Test
+    void elementNotFoundExceptionTest() {
+        Mockito.when(itemService.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))
+                .thenThrow(ElementNotFoundException.class);
+
+        assertThrows(ElementNotFoundException.class, () -> {
+            itemService.addItem(10L, itemDto);
+        });
+    }
+
+    @Test
+    void missingParameterExceptionTest() {
+        Mockito.when(itemService.addItem(Mockito.isNull(), Mockito.any(ItemDto.class)))
+                .thenThrow(MissingParameterException.class);
+
+        assertThrows(MissingParameterException.class, () -> {
+            itemService.addItem(null, itemDto);
+        });
     }
 }

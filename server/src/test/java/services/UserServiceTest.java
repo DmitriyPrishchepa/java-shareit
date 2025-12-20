@@ -10,6 +10,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import ru.practicum.shareit.exception.exceptions.DuplicateException;
+import ru.practicum.shareit.exception.exceptions.UserValidationException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -17,6 +19,7 @@ import ru.practicum.shareit.user.model.User;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -123,6 +126,7 @@ public class UserServiceTest {
         assertThat(user.getName(), equalTo(foundDto.getName()));
     }
 
+    @Test
     public void deleteUserTest() {
         dto.setId(1L);
         userService.createUser(dto);
@@ -130,5 +134,28 @@ public class UserServiceTest {
         userService.deleteUser(1L);
 
         Mockito.verify(userService, Mockito.times(1)).deleteUser(1L);
+    }
+
+    @Test
+    void duplicateUserExceptionTest() {
+        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))
+                .thenThrow(DuplicateException.class);
+
+        assertThrows(DuplicateException.class, () -> {
+            userService.createUser(dto);
+        });
+    }
+
+    @Test
+    void userValidationExceptionTest() {
+
+        dto.setEmail(null);
+
+        Mockito.when(userService.createUser(dto))
+                .thenThrow(UserValidationException.class);
+
+        assertThrows(UserValidationException.class, () -> {
+            userService.createUser(dto);
+        });
     }
 }

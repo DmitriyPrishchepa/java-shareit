@@ -11,8 +11,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.util.BookingState;
 import ru.practicum.shareit.booking.util.BookingStateSearchParams;
-import ru.practicum.shareit.booking.util.BookingValidator;
-import ru.practicum.shareit.common.EntityUtils;
 import ru.practicum.shareit.exception.exceptions.BookingValidationException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
 import ru.practicum.shareit.exception.exceptions.MissingParameterException;
@@ -34,7 +32,6 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
     private final BookingMapper bookingMapper;
-    private final EntityUtils entityUtils;
 
     @Transactional
     @Override
@@ -55,11 +52,13 @@ public class BookingServiceImpl implements BookingService {
 
         User booker = userRepository.getReferenceById(userId);
 
-        BookingValidator.validateBooking(bookingDto);
+        if (bookingDto.getStart().equals(bookingDto.getEnd())) {
+            throw new BookingValidationException("Booking start date cannot be equals booking end date");
+        }
 
         Booking booking = bookingMapper.mapFromDto(bookingDto);
-        booking.setItem(item); // Устанавливаем связь с Item
-        booking.setBooker(booker); // Устанавливаем связь с User
+        booking.setItem(item);
+        booking.setBooker(booker);
 
         Booking bookingSaved = bookingRepository.save(booking);
 
@@ -103,7 +102,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public BookingDtoToReturn findBookingById(Long userId, Long bookingId) {
-        entityUtils.checkExistingUser(userId);
         Booking booking = checkExitstingBooking(bookingId);
 
         Long ownerId = booking.getItem().getOwnerId();

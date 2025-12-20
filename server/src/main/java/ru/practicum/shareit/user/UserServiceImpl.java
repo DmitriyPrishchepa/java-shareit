@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.shareit.common.EntityUtils;
 import ru.practicum.shareit.exception.exceptions.DuplicateException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
@@ -18,7 +17,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final EntityUtils entityUtils;
 
     @Transactional
     @Override
@@ -40,8 +38,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUser(long id, UserDto userDto) {
 
-        entityUtils.checkExistingUser(id);
-
         User user = userRepository.getReferenceById(id);
 
         if (userDto.getName() != null) {
@@ -62,7 +58,6 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Override
     public UserDto getUserById(long id) {
-        entityUtils.checkExistingUser(id);
         User user = userRepository.getReferenceById(id);
         return userMapper.mapToDto(user);
     }
@@ -70,7 +65,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public void deleteUser(long id) {
-        entityUtils.checkExistingUser(id);
         userRepository.deleteById(id);
     }
 }

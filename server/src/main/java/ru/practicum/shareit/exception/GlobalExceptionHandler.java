@@ -47,13 +47,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handelAlreadyExists(AlreadyExistsException e) {
-        log.error("Nothing to update");
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse manageUnhandledExceptions(Exception e) {
         log.error("Unhandled exception");
@@ -64,13 +57,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleBookingValidation(BookingValidationException e) {
         log.error("Booking Validation exception");
-        return new ErrorResponse(e.getMessage());
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handeBookingException(BookingException e) {
-        log.error("Unavailable for booking");
         return new ErrorResponse(e.getMessage());
     }
 

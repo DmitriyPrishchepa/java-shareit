@@ -3,10 +3,7 @@ package ru.practicum.shareit.item.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import ru.practicum.shareit.request.model.Request;
 
 import java.io.Serializable;
@@ -16,6 +13,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Item implements Serializable {
@@ -34,4 +32,11 @@ public class Item implements Serializable {
     @JoinColumn(name = "request_id")
     @JsonIgnore
     private Request request;
+
+    public Item(long l, String itemName, String description, boolean b) {
+        this.id = l;
+        this.name = itemName;
+        this.description = description;
+        this.available = b;
+    }
 }

@@ -15,8 +15,11 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.exception.exceptions.AccessToCommentDeniedException;
+import ru.practicum.shareit.exception.exceptions.WrongUserException;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithCommentsToReturn;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -27,6 +30,7 @@ import java.time.LocalDateTime;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -184,5 +188,44 @@ public class BookingServiceTest {
 
         assertThat(returnedBookingDto.getId(), equalTo(1L));
         assertThat(returnedBookingDto.getItem(), equalTo(mockedItem));
+    }
+
+    @Test
+    void testWrongUserException() {
+        String text = "Test comment";
+
+        ItemWithCommentsToReturn item = new ItemWithCommentsToReturn();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+
+        Mockito.when(userService.getUserById(userDto.getId())).thenReturn(userDto);
+        Mockito.when(itemService.getItemById(userDto.getId(), itemDto.getId())).thenReturn(item);
+        Mockito.when(bookingService.findBookingById(userDto.getId(), returnedBookingDto.getId())).thenReturn(returnedBookingDto);
+
+        Mockito.when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString()))
+                .thenThrow(WrongUserException.class);
+
+        assertThrows(WrongUserException.class, () -> itemService.addComment(3L, 3L, text));
+    }
+
+    @Test
+    void testAccessToCommentDeniedException() {
+
+        String text = "Test comment";
+
+        ItemWithCommentsToReturn item = new ItemWithCommentsToReturn();
+        item.setId(itemDto.getId());
+        item.setName(itemDto.getName());
+        item.setDescription(itemDto.getDescription());
+
+        Mockito.when(userService.getUserById(userDto.getId())).thenReturn(userDto);
+        Mockito.when(itemService.getItemById(userDto.getId(), itemDto.getId())).thenReturn(item);
+        Mockito.when(bookingService.findBookingById(userDto.getId(), returnedBookingDto.getId())).thenReturn(returnedBookingDto);
+
+        Mockito.when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString()))
+                .thenThrow(AccessToCommentDeniedException.class);
+
+        assertThrows(AccessToCommentDeniedException.class, () -> itemService.addComment(1L, 1L, text));
     }
 }
