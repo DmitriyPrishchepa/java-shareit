@@ -1,0 +1,273 @@
+package impl;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.ItemServiceImpl;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+public class ItemServiceImplTest {
+
+    @Mock
+    ItemServiceImpl itemServiceImpl;
+
+    @Mock
+    ItemRepository itemRepository;
+
+    @Mock
+    UserService userService;
+
+    @Mock
+    UserRepository userRepository;
+
+    @Mock
+    EntityManager entityManager;
+
+    ItemDto itemDto;
+    UserDto userDto;
+    TypedQuery<User> mockUserQuery;
+    TypedQuery<Item> mockItemQuery;
+    User mockedUser;
+    Item mockedItem;
+
+    @BeforeEach
+    void setUp() {
+
+        userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setName("User");
+        userDto.setEmail("user@mail.ru");
+
+        itemDto = new ItemDto();
+        itemDto.setId(1L);
+        itemDto.setName("ItemDtoName");
+        itemDto.setDescription("ItemDtoDescription");
+        itemDto.setOwnerId(1L);
+        itemDto.setAvailable(true);
+
+        mockedUser = Mockito.mock(User.class);
+        Mockito.when(mockedUser.getId()).thenReturn(1L);
+        Mockito.when(mockedUser.getName()).thenReturn("User1");
+        Mockito.when(mockedUser.getEmail()).thenReturn("user1@yandex.ru");
+
+        mockedItem = Mockito.mock(Item.class);
+        Mockito.when(mockedItem.getId()).thenReturn(1L);
+        Mockito.when(mockedItem.getName()).thenReturn("Item1");
+        Mockito.when(mockedItem.getDescription()).thenReturn("Item1Descr");
+        Mockito.when(mockedItem.getOwnerId()).thenReturn(1L);
+
+        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))
+                .thenReturn(userDto);
+
+        Mockito.when(itemServiceImpl.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))
+                .thenReturn(itemDto);
+
+        //mock TypedQuery class
+
+        mockUserQuery = Mockito.mock(TypedQuery.class);
+        mockItemQuery = Mockito.mock(TypedQuery.class);
+
+        //mock set parameter
+
+        Mockito.when(mockUserQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(mockUserQuery);
+
+        Mockito.when(mockItemQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(mockItemQuery);
+
+        //mock single result
+
+        Mockito.when(mockUserQuery.getSingleResult())
+                .thenReturn(mockedUser);
+
+        Mockito.when(mockItemQuery.getSingleResult())
+                .thenReturn(mockedItem);
+
+        //--------------------------------------
+
+        //mock create query
+
+        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(User.class)))
+                .thenReturn(mockUserQuery);
+
+        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(Item.class)))
+                .thenReturn(mockItemQuery);
+
+        //createUser
+
+        Mockito.when(userService.createUser(Mockito.mock(UserDto.class)))
+                .thenReturn(userDto);
+
+        userService.createUser(userDto);
+
+        //createItem
+
+        Mockito.when(itemServiceImpl.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))
+                .thenReturn(itemDto);
+
+        itemServiceImpl.addItem(itemDto.getId(), itemDto);
+    }
+
+    @Test
+    void addItemTest() {
+
+        Mockito.when(userRepository.existsById(1L)).thenReturn(true);
+        Mockito.when(itemRepository.save(Mockito.any(Item.class)))
+                .thenReturn(new Item(1L, "New Item", "Description of the new item", true));
+
+        ItemDto addedItemDto = itemServiceImpl.addItem(1L, itemDto);
+
+        assertThat(addedItemDto.getId(), notNullValue());
+        assertThat(itemDto.getName(), equalTo("ItemDtoName"));
+        assertThat(addedItemDto.getDescription(), equalTo("ItemDtoDescription"));
+    }
+
+    @Test
+    void updateItemTest() {
+
+        ItemDto newItemDto = new ItemDto();
+        newItemDto.setId(1L);
+        newItemDto.setName("UpdatedName");
+        newItemDto.setDescription("NewDescription");
+        newItemDto.setAvailable(false);
+
+        Mockito.when(mockedItem.getId()).thenReturn(1L);
+        Mockito.when(mockedItem.getName()).thenReturn(newItemDto.getName());
+        Mockito.when(mockedItem.getDescription()).thenReturn(newItemDto.getDescription());
+        Mockito.when(mockedItem.getAvailable()).thenReturn(newItemDto.getAvailable());
+
+        Mockito.when(
+                itemServiceImpl.updateItem(
+                        Mockito.anyLong(),
+                        Mockito.anyLong(),
+                        Mockito.eq(newItemDto))
+        ).thenReturn(newItemDto);
+
+        itemServiceImpl.updateItem(mockedUser.getId(), mockedItem.getId(), newItemDto);
+
+        mockItemQuery = entityManager.createQuery("select i from Item where i.name = :name", Item.class);
+        Item item = mockItemQuery.setParameter("name", newItemDto.getName()).getSingleResult();
+
+        assertThat(item.getId(), notNullValue());
+        assertThat(item.getName(), equalTo(newItemDto.getName()));
+        assertThat(item.getDescription(), equalTo(newItemDto.getDescription()));
+        assertThat(item.getAvailable(), equalTo(newItemDto.getAvailable()));
+    }
+
+    @Test
+    void searchItemTest() {
+        List<ItemDto> expectedItems = List.of(itemDto);
+
+        Mockito.when(itemServiceImpl.searchItem(Mockito.anyLong(), Mockito.anyString()))
+                .thenReturn(expectedItems);
+
+        List<ItemDto> foundItems = itemServiceImpl.searchItem(mockedUser.getId(), "pdatedN");
+
+        assertThat(foundItems, equalTo(expectedItems));
+    }
+
+    @Test
+    void createCommentTest() {
+
+        CommentDto commentDto = new CommentDto();
+        commentDto.setText("comment to item");
+        commentDto.setAuthor(mockedUser);
+        commentDto.setItem(mockedItem);
+        commentDto.setCreated(LocalDateTime.now());
+
+        CommentDtoToReturn commentDtoToReturn = new CommentDtoToReturn();
+        commentDtoToReturn.setText(commentDto.getText());
+        commentDtoToReturn.setAuthorName(commentDto.getAuthor().getName());
+        commentDtoToReturn.setCreated(commentDto.getCreated());
+        commentDtoToReturn.setId(1L);
+
+        Mockito.when(itemServiceImpl.addComment(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString()))
+                .thenReturn(commentDtoToReturn);
+
+        CommentDtoToReturn result = itemServiceImpl.addComment(mockedUser.getId(), mockedItem.getId(), commentDto.getText());
+
+        assertThat(result.getText(), equalTo(commentDto.getText()));
+        assertThat(result.getAuthorName(), equalTo(commentDto.getAuthor().getName()));
+    }
+
+    @Test
+    void getAllItemsFromUser() {
+
+        BookingDto bookingDto = new BookingDto();
+        bookingDto.setItemId(mockedItem.getId());
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setEnd(null);
+        bookingDto.setStatus(BookingState.WAITING);
+
+        BookingDto bookingDto2 = new BookingDto();
+        bookingDto.setItemId(mockedItem.getId());
+        bookingDto.setStart(LocalDateTime.now());
+        bookingDto.setEnd(LocalDateTime.now().plusDays(1));
+        bookingDto.setStatus(BookingState.CANCELED);
+
+        ItemDtoWithBookings item = new ItemDtoWithBookings();
+        item.setId(mockedItem.getId());
+        item.setName(mockedItem.getName());
+        item.setAvailable(mockedItem.getAvailable());
+        item.setDescription(mockedItem.getDescription());
+        item.setBookings(List.of(bookingDto, bookingDto2));
+
+        Mockito.when(itemServiceImpl.getAllItemsFromUser(Mockito.anyLong()))
+                .thenReturn(List.of(item));
+
+        List<ItemDtoWithBookings> items = itemServiceImpl.getAllItemsFromUser(mockedUser.getId());
+
+        assertThat(items.getFirst().getName(), equalTo(mockedItem.getName()));
+        assertThat(items.getFirst().getDescription(), equalTo(mockedItem.getDescription()));
+        assertThat(items.getFirst().getBookings(), containsInAnyOrder(bookingDto, bookingDto2));
+    }
+
+    @Test
+    void elementNotFoundExceptionTest() {
+        Mockito.when(itemServiceImpl.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))
+                .thenThrow(ElementNotFoundException.class);
+
+        assertThrows(ElementNotFoundException.class, () -> {
+            itemServiceImpl.addItem(10L, itemDto);
+        });
+    }
+
+    @Test
+    void missingParameterExceptionTest() {
+        Mockito.when(itemServiceImpl.addItem(Mockito.isNull(), Mockito.any(ItemDto.class)))
+                .thenThrow(MissingParameterException.class);
+
+        assertThrows(MissingParameterException.class, () -> {
+            itemServiceImpl.addItem(null, itemDto);
+        });
+    }
+}
