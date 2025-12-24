@@ -22,8 +22,6 @@ services:
       - "8080:8080"
     depends_on:
       - db
-#    environment:
-#      - SERVER_URL=http://server:9090
 
   shareit-server:
     build: ./shareit-server

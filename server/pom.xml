@@ -109,6 +109,7 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <mainClass>ru.practicum.shareit.ShareItApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>
