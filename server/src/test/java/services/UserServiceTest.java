@@ -11,7 +11,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import ru.practicum.shareit.exception.exceptions.DuplicateException;
-import ru.practicum.shareit.exception.exceptions.UserValidationException;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
@@ -142,19 +141,6 @@ public class UserServiceTest {
                 .thenThrow(DuplicateException.class);
 
         assertThrows(DuplicateException.class, () -> {
-            userService.createUser(dto);
-        });
-    }
-
-    @Test
-    void userValidationExceptionTest() {
-
-        dto.setEmail(null);
-
-        Mockito.when(userService.createUser(dto))
-                .thenThrow(UserValidationException.class);
-
-        assertThrows(UserValidationException.class, () -> {
             userService.createUser(dto);
         });
     }

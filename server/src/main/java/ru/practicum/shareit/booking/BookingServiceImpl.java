@@ -94,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
         Booking updatedBooking = bookingRepository.save(booking);
 
         BookingDtoToReturn returnedDto = bookingMapper.mapToBookingDtoReturned(updatedBooking);
-        returnedDto.setStatus(BookingState.APPROVED);
+        returnedDto.setStatus(updatedBooking.getStatus());
 
         return returnedDto;
     }
@@ -117,6 +117,7 @@ public class BookingServiceImpl implements BookingService {
 
         return returnedValue;
     }
+
 
     @Transactional(readOnly = true)
     @Override
@@ -188,11 +189,11 @@ public class BookingServiceImpl implements BookingService {
         return mapToListDto(bookings);
     }
 
-    private List<BookingDto> mapToListDto(List<Booking> bookings) {
+    public List<BookingDto> mapToListDto(List<Booking> bookings) {
         return bookings.stream().map(bookingMapper::mapToDto).toList();
     }
 
-    private Booking checkExitstingBooking(Long bookingId) {
+    public Booking checkExitstingBooking(Long bookingId) {
         try {
             return bookingRepository.getReferenceById(bookingId);
         } catch (EntityNotFoundException e) {
@@ -200,7 +201,7 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    private Long validateBookingId(String bookingId) {
+    public Long validateBookingId(String bookingId) {
         if (bookingId == null || bookingId.isEmpty()) {
             throw new MissingParameterException("booking id is missing");
         }

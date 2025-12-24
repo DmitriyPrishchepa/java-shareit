@@ -4,7 +4,6 @@ import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.item.model.Item;
 
 public class ItemValidator {
-    //на случай, если не сработает валидация по @NotBlank
     public static void validateItemFields(Item item) {
 
         if (item.getAvailable() == null) {

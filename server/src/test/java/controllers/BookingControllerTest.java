@@ -234,7 +234,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getBookingsByStateTest() throws Exception {
+    void getBookingsByStateTest_PAST() throws Exception {
 
         BookingDtoToReturn result2 = new BookingDtoToReturn();
         result2.setId(2L);
@@ -291,7 +291,236 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getAllBookingsTest() throws Exception {
+    void getBookingsByStateTest_CURRENT() throws Exception {
+
+        BookingDtoToReturn result2 = new BookingDtoToReturn();
+        result2.setId(2L);
+        result2.setStart(LocalDateTime.of(
+                2024,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result2.setEnd(LocalDateTime.of(
+                2026,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result2.setStatus(BookingState.APPROVED);
+
+        BookingDtoToReturn result3 = new BookingDtoToReturn();
+        result3.setId(3L);
+        result3.setStart(LocalDateTime.of(
+                2023,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result3.setEnd(LocalDateTime.of(
+                2026,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result3.setStatus(BookingState.APPROVED);
+
+        List<BookingDtoToReturn> returnedResults = List.of(result2, result3);
+
+        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.CURRENT.name()))
+                .thenReturn(returnedResults);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .param("state", BookingStateSearchParams.CURRENT.name())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    void getBookingsByStateTest_FUTURE() throws Exception {
+
+        BookingDtoToReturn result2 = new BookingDtoToReturn();
+        result2.setId(2L);
+        result2.setStart(LocalDateTime.of(
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result2.setEnd(LocalDateTime.of(
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result2.setStatus(BookingState.APPROVED);
+
+        BookingDtoToReturn result3 = new BookingDtoToReturn();
+        result3.setId(3L);
+        result3.setStart(LocalDateTime.of(
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result3.setEnd(LocalDateTime.of(
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result3.setStatus(BookingState.WAITING);
+
+        List<BookingDtoToReturn> returnedResults = List.of(result2, result3);
+
+        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.FUTURE.name()))
+                .thenReturn(returnedResults);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .param("state", BookingStateSearchParams.FUTURE.name())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    void getBookingsByStateTest_WAITING() throws Exception {
+
+        BookingDtoToReturn result2 = new BookingDtoToReturn();
+        result2.setId(2L);
+        result2.setStart(LocalDateTime.of(
+                2024,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result2.setEnd(LocalDateTime.of(
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result2.setStatus(BookingState.WAITING);
+
+        BookingDtoToReturn result3 = new BookingDtoToReturn();
+        result3.setId(3L);
+        result3.setStart(LocalDateTime.of(
+                2024,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result3.setEnd(LocalDateTime.of(
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result3.setStatus(BookingState.WAITING);
+
+        List<BookingDtoToReturn> returnedResults = List.of(result2, result3);
+
+        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.WAITING.name()))
+                .thenReturn(returnedResults);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .param("state", BookingStateSearchParams.WAITING.name())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    void getBookingsByStateTest_ALL() throws Exception {
+
+        BookingDtoToReturn result2 = new BookingDtoToReturn();
+        result2.setId(2L);
+        result2.setStart(LocalDateTime.of(
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result2.setEnd(LocalDateTime.of(
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result2.setStatus(BookingState.APPROVED);
+
+        BookingDtoToReturn result3 = new BookingDtoToReturn();
+        result3.setId(3L);
+        result3.setStart(LocalDateTime.of(
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+        result3.setEnd(LocalDateTime.of(
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+        result3.setStatus(BookingState.WAITING);
+
+        List<BookingDtoToReturn> returnedResults = List.of(result2, result3);
+
+        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.ALL.name()))
+                .thenReturn(returnedResults);
+
+        mockMvc.perform(get("/bookings")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .param("state", BookingStateSearchParams.ALL.name())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+
+    @Test
+    void getAllBookingsTest_WAITING() throws Exception {
 
         List<BookingDto> returnedResults = List.of(bookingDto);
 
@@ -301,6 +530,65 @@ public class BookingControllerTest {
         mockMvc.perform(get("/bookings/owner")
                         .header("X-Sharer-User-Id", userDto.getId())
                         .param("state", BookingStateSearchParams.WAITING.name())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].status", is(BookingState.WAITING.name())));
+    }
+
+    @Test
+    void getAllBookingsTest_CURRENT() throws Exception {
+        bookingDto.setStatus(BookingState.APPROVED);
+
+        List<BookingDto> returnedResults = List.of(bookingDto);
+
+        when(bookingController.getAllBookings(1L, BookingStateSearchParams.CURRENT.name()))
+                .thenReturn(returnedResults);
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .param("state", BookingStateSearchParams.CURRENT.name())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].status", is(BookingState.APPROVED.name())));
+    }
+
+    @Test
+    void getAllBookingsTest_PAST() throws Exception {
+
+        bookingDto.setStatus(BookingState.CANCELED);
+
+        List<BookingDto> returnedResults = List.of(bookingDto);
+
+        when(bookingController.getAllBookings(1L, BookingStateSearchParams.PAST.name()))
+                .thenReturn(returnedResults);
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .param("state", BookingStateSearchParams.PAST.name())
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$.[0].status", is(BookingState.CANCELED.name())));
+    }
+
+    @Test
+    void getAllBookingsTest_FUTURE() throws Exception {
+
+        bookingDto.setStatus(BookingState.WAITING);
+
+        List<BookingDto> returnedResults = List.of(bookingDto);
+
+        when(bookingController.getAllBookings(1L, BookingStateSearchParams.FUTURE.name()))
+                .thenReturn(returnedResults);
+
+        mockMvc.perform(get("/bookings/owner")
+                        .header("X-Sharer-User-Id", userDto.getId())
+                        .param("state", BookingStateSearchParams.FUTURE.name())
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))

@@ -5,6 +5,7 @@ import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,6 +14,7 @@ import org.mockito.quality.Strictness;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestRepository;
 import ru.practicum.shareit.request.RequestServiceImpl;
 import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.request.model.Response;
@@ -24,7 +26,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -39,6 +43,12 @@ public class RequestServiceImplTest {
     ItemService itemService;
 
     @Mock
+    RequestRepository requestRepository;
+
+    @InjectMocks
+    RequestServiceImpl requestServiceImpl;
+
+    @Mock
     EntityManager entityManager;
 
     Request request;
@@ -51,6 +61,24 @@ public class RequestServiceImplTest {
     TypedQuery<Item> mockItemQuery;
     TypedQuery<Request> mockRequestQuery;
 
+    Request makeRequest(
+            Long id,
+            String description,
+            LocalDateTime created,
+            Long ownerId,
+            List<Response> responses,
+            List<Item> items
+    ) {
+        Request req = new Request();
+        req.setId(id);
+        req.setDescription(description);
+        req.setCreated(created);
+        req.setItems(items);
+        req.setResponses(responses);
+        req.setOwnerId(ownerId);
+        return req;
+    }
+
 
     @BeforeEach
     void setUp() {
@@ -60,19 +88,19 @@ public class RequestServiceImplTest {
         userDto.setEmail("user1@mail.ru");
 
         mockedUser = Mockito.mock(User.class);
-        Mockito.when(mockedUser.getId()).thenReturn(1L);
-        Mockito.when(mockedUser.getName()).thenReturn("user1");
-        Mockito.when(mockedUser.getEmail()).thenReturn("user1@mail.ru");
+        when(mockedUser.getId()).thenReturn(1L);
+        when(mockedUser.getName()).thenReturn("user1");
+        when(mockedUser.getEmail()).thenReturn("user1@mail.ru");
 
         mockUserQuery = Mockito.mock(TypedQuery.class);
 
-        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))
+        when(userService.createUser(Mockito.any(UserDto.class)))
                 .thenReturn(userDto);
 
-        Mockito.when(mockUserQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
+        when(mockUserQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(mockUserQuery);
 
-        Mockito.when(mockUserQuery.getSingleResult())
+        when(mockUserQuery.getSingleResult())
                 .thenReturn(mockedUser);
 
         userService.createUser(userDto);
@@ -87,19 +115,19 @@ public class RequestServiceImplTest {
         itemDto.setAvailable(true);
 
         mockedItem = Mockito.mock(Item.class);
-        Mockito.when(mockedItem.getName()).thenReturn("item1");
-        Mockito.when(mockedItem.getDescription()).thenReturn("item1Descr");
-        Mockito.when(mockedItem.getOwnerId()).thenReturn(1L);
+        when(mockedItem.getName()).thenReturn("item1");
+        when(mockedItem.getDescription()).thenReturn("item1Descr");
+        when(mockedItem.getOwnerId()).thenReturn(1L);
 
         mockItemQuery = Mockito.mock(TypedQuery.class);
 
-        Mockito.when(itemService.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))
+        when(itemService.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))
                 .thenReturn(itemDto);
 
-        Mockito.when(mockItemQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
+        when(mockItemQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(mockItemQuery);
 
-        Mockito.when(mockItemQuery.getSingleResult())
+        when(mockItemQuery.getSingleResult())
                 .thenReturn(mockedItem);
 
         itemService.addItem(mockedUser.getId(), itemDto);
@@ -114,120 +142,45 @@ public class RequestServiceImplTest {
         request.setOwnerId(mockedUser.getId());
 
         mockedRequest = Mockito.mock(Request.class);
-        Mockito.when(mockedRequest.getId()).thenReturn(1L);
-        Mockito.when(mockedRequest.getDescription()).thenReturn("requestDescription");
-        Mockito.when(mockedRequest.getCreated()).thenReturn(LocalDateTime.now());
-        Mockito.when(mockedRequest.getOwnerId()).thenReturn(1L);
+        when(mockedRequest.getId()).thenReturn(1L);
+        when(mockedRequest.getDescription()).thenReturn("requestDescription");
+        when(mockedRequest.getCreated()).thenReturn(LocalDateTime.now());
+        when(mockedRequest.getOwnerId()).thenReturn(1L);
 
         mockRequestQuery = Mockito.mock(TypedQuery.class);
 
-        Mockito.when(requestService.createRequest(Mockito.anyLong(), Mockito.anyString()))
+        when(requestService.createRequest(Mockito.anyLong(), Mockito.anyString()))
                 .thenReturn(request);
 
-        Mockito.when(mockRequestQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
+        when(mockRequestQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(mockRequestQuery);
 
-        Mockito.when(mockRequestQuery.getSingleResult())
+        when(mockRequestQuery.getSingleResult())
                 .thenReturn(request);
 
-        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(Request.class)))
+        when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(Request.class)))
                 .thenReturn(mockRequestQuery);
 
         requestService.createRequest(mockedUser.getId(), "requestDescription");
     }
 
-
     @Test
-    void createRequestTest() {
+    void createRequest() {
+        when(requestRepository.save(Mockito.any(Request.class))).thenReturn(request);
 
-        mockRequestQuery = entityManager.createQuery("select r from Request r ", Request.class);
-        Request requestCreated = mockRequestQuery.getSingleResult();
+        Request request1 = requestServiceImpl.createRequest(1L, "{\n" +
+                "    \"text\": \"sOIemDZOdHp20znydfwoXzQgsO2MDD10VqwWs4DHIJtjpBs7Y2\"\n" +
+                "}");
 
-        assertThat(requestCreated.getId(), notNullValue());
-        assertThat(requestCreated.getId(), equalTo(1L));
-        assertThat(requestCreated.getDescription(), equalTo("requestDescription"));
+        assertEquals("sOIemDZOdHp20znydfwoXzQgsO2MDD10VqwWs4DHIJtjpBs7Y2", request1.getDescription());
     }
 
     @Test
-    void getRequestByIdTest() {
+    void getRequestWithResponsesTest() {
+        when(requestRepository.findAllByUserIdFetchResponses(Mockito.anyLong())).thenReturn(List.of(request));
 
-        Mockito.when(requestService.getRequestById(Mockito.anyLong(), Mockito.anyLong()))
-                .thenReturn(request);
+        List<Request> req = requestServiceImpl.getUserRequestsWithResponses(1L);
 
-        Request resultRequest = requestService.getRequestById(mockedUser.getId(), mockedRequest.getId());
-
-        assertThat(resultRequest.getDescription(), equalTo("requestDescription"));
-    }
-
-    @Test
-    void getRequestsWithResponsesTest() {
-
-        Response response1 = new Response();
-        response1.setId(1L);
-        response1.setName("response1");
-        response1.setOwnerId(1L);
-        response1.setItemId(1L);
-        response1.setRequest(request);
-
-        Response response2 = new Response();
-        response1.setId(2L);
-        response1.setName("response2");
-        response1.setOwnerId(1L);
-        response1.setItemId(1L);
-        response1.setRequest(request);
-
-        request.setResponses(List.of(response1, response2));
-
-        Mockito.when(requestService.getUserRequestsWithResponses(Mockito.anyLong()))
-                .thenReturn(List.of(request));
-
-        List<Request> requests = requestService.getUserRequestsWithResponses(1L);
-
-        assertThat(requests.getFirst().getResponses(), containsInAnyOrder(response1, response2));
-    }
-
-    @Test
-    void getOtherUsersRequestsTest() {
-
-        UserDto userDto2 = new UserDto();
-        userDto2.setId(2L);
-        userDto2.setName("user2");
-        userDto2.setEmail("user2@mail.ru");
-
-        Mockito.when(userService.createUser(Mockito.eq(userDto2)))
-                .thenReturn(userDto2);
-
-        userService.createUser(userDto2);
-
-        ItemDto itemDto2 = new ItemDto();
-        itemDto2.setId(2L);
-        itemDto2.setName("item2");
-        itemDto2.setDescription("item2Descr");
-        itemDto2.setAvailable(true);
-        itemDto2.setOwnerId(2L);
-
-        Mockito.when(itemService.addItem(Mockito.anyLong(), Mockito.eq(itemDto2)))
-                .thenReturn(itemDto2);
-
-        itemService.addItem(2L, itemDto2);
-
-        Request request2 = new Request();
-        request2.setId(2L);
-        request2.setDescription("request2Descr");
-        request2.setOwnerId(2L);
-        request2.setCreated(LocalDateTime.now());
-
-        Mockito.when(requestService.createRequest(Mockito.anyLong(), Mockito.anyString()))
-                .thenReturn(request2);
-
-        requestService.createRequest(2L, "request2Descr");
-
-        Mockito.when(requestService.getOtherUsersRequests(Mockito.anyLong()))
-                .thenReturn(List.of(request2));
-
-        List<Request> otherUsersRequests = requestService.getOtherUsersRequests(2L);
-
-        assertThat(otherUsersRequests, notNullValue());
-        assertThat(otherUsersRequests, contains(request2));
+        assertThat(req.size(), is(1));
     }
 }

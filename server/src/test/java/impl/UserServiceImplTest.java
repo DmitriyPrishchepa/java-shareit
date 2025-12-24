@@ -5,27 +5,38 @@ import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import ru.practicum.shareit.exception.exceptions.DuplicateException;
-import ru.practicum.shareit.exception.exceptions.UserValidationException;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.UserServiceImpl;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class UserServiceImplTest {
     @Mock
-    UserServiceImpl userService;
+    UserService userService;
+
+    @Mock
+    UserRepository userRepository;
+
+    @Mock
+    UserMapper userMapper;
+
+    @InjectMocks
+    UserServiceImpl userServiceImpl;
 
     @Mock
     EntityManager entityManager;
@@ -49,112 +60,96 @@ public class UserServiceImplTest {
         dto = makeUserDto("User1", "user1@yandex.ru");
 
         mockedUser = Mockito.mock(User.class);
-        Mockito.when(mockedUser.getId()).thenReturn(1L);
-        Mockito.when(mockedUser.getName()).thenReturn("User1");
-        Mockito.when(mockedUser.getEmail()).thenReturn("user1@yandex.ru");
+        when(mockedUser.getId()).thenReturn(1L);
+        when(mockedUser.getName()).thenReturn("User1");
+        when(mockedUser.getEmail()).thenReturn("user1@yandex.ru");
 
-        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))
+        when(userService.createUser(Mockito.any(UserDto.class)))
                 .thenReturn(dto);
 
         mockQuery = Mockito.mock(TypedQuery.class);
 
-        Mockito.when(mockQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
+        when(mockQuery.setParameter(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(mockQuery);
 
-        Mockito.when(mockQuery.getSingleResult())
+        when(mockQuery.getSingleResult())
                 .thenReturn(mockedUser);
 
-        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(User.class)))
+        when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(User.class)))
                 .thenReturn(mockQuery);
     }
 
     @Test
     void saveUserTest() {
-        UserDto userDto = userService.createUser(dto);
+        Mockito.when(userRepository.findUserByEmailContaining(Mockito.anyString())).thenReturn(null);
+        Mockito.when(userMapper.mapToDto(Mockito.any(User.class))).thenReturn(dto);
+        Mockito.when(userMapper.mapFromDto(Mockito.any(UserDto.class))).thenReturn(mockedUser);
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(mockedUser);
 
-        TypedQuery<User> query = entityManager.createQuery("Select u from User u ", User.class);
-        User user = query.getSingleResult();
+        UserDto userDto = userServiceImpl.createUser(dto);
 
-        assertThat(user.getId(), notNullValue());
-        assertThat(user.getName(), equalTo(userDto.getName()));
+        assertEquals("User1", userDto.getName());
+        assertEquals("user1@yandex.ru", userDto.getEmail());
     }
 
     @Test
-    void updateUserTest() {
+    void saveUser_DuplicateEmail() {
+        when(userRepository.findUserByEmailContaining(Mockito.anyString()))
+                .thenReturn(mockedUser);
 
-        UserDto updatedUserDto = new UserDto();
-        updatedUserDto.setId(1L);
-        updatedUserDto.setName("NewName");
-        updatedUserDto.setEmail("newEmail@yandex.ru");
+        when(userMapper.mapFromDto(Mockito.any(UserDto.class)))
+                .thenReturn(mockedUser);
 
-        Mockito.when(userService.updateUser(Mockito.anyInt(), Mockito.eq(updatedUserDto)))
-                .thenReturn(updatedUserDto);
-
-        userService.updateUser(mockedUser.getId(), updatedUserDto);
-
-        TypedQuery<User> updatedQuery = entityManager.createQuery("Select u from User u ", User.class);
-        User userUpdated = updatedQuery.getSingleResult();
-
-        Mockito.when(mockedUser.getName())
-                .thenReturn(updatedUserDto.getName());
-
-        Mockito.when(mockedUser.getEmail())
-                .thenReturn(updatedUserDto.getEmail());
-
-        assertThat(userUpdated.getId(), notNullValue());
-        assertThat(userUpdated.getName(), equalTo(updatedUserDto.getName()));
-        assertThat(userUpdated.getEmail(), equalTo(updatedUserDto.getEmail()));
-    }
-
-    @Test
-    void getUserByIdTest() {
-
-        Mockito.when(userService.getUserById(Mockito.anyLong()))
+        when(userMapper.mapToDto(Mockito.any(User.class)))
                 .thenReturn(dto);
 
-        userService.createUser(dto);
-
-        UserDto foundDto = userService.getUserById(1L);
-
-        System.out.println(foundDto);
-
-        TypedQuery<User> query = entityManager.createQuery("Select u from User u where u.email = :email", User.class);
-        User user = query.setParameter("email", "user1@yandex.ru").getSingleResult();
-
-        assertThat(user.getId(), notNullValue());
-        assertThat(user.getName(), equalTo(foundDto.getName()));
+        try {
+            userServiceImpl.createUser(dto);
+        } catch (DuplicateException e) {
+            assertEquals("Email already exists", e.getMessage());
+        }
     }
 
     @Test
-    public void deleteUserTest() {
-        dto.setId(1L);
-        userService.createUser(dto);
+    void updateUserTest_Success() {
+        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedUser);
+        when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);
+        when(userRepository.save(Mockito.any(User.class))).thenReturn(mockedUser);
 
-        userService.deleteUser(1L);
+        when(userMapper.mapToDto(Mockito.any(User.class)))
+                .thenReturn(dto);
 
-        Mockito.verify(userService, Mockito.times(1)).deleteUser(1L);
+        UserDto user = userServiceImpl.updateUser(1L, dto);
+
+        assertNotNull(user);
+        assertEquals(user.getName(), dto.getName());
+        assertEquals(user.getEmail(), dto.getEmail());
     }
 
     @Test
-    void duplicateUserExceptionTest() {
-        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))
-                .thenThrow(DuplicateException.class);
+    void updateUserTest_Duplicate() {
+        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedUser);
+        when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);
+        when(userRepository.save(Mockito.any(User.class))).thenReturn(mockedUser);
 
-        assertThrows(DuplicateException.class, () -> {
-            userService.createUser(dto);
-        });
+        when(userMapper.mapToDto(Mockito.any(User.class)))
+                .thenReturn(dto);
+
+        try {
+            userServiceImpl.updateUser(1L, dto);
+        } catch (DuplicateException e) {
+            assertEquals("Email already in use by another user", e.getMessage());
+        }
     }
 
     @Test
-    void userValidationExceptionTest() {
+    void getUserById() {
+        Mockito.when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedUser);
+        Mockito.when(userMapper.mapToDto(Mockito.any(User.class))).thenReturn(dto);
 
-        dto.setEmail(null);
+        UserDto returnedDto = userServiceImpl.getUserById(1L);
 
-        Mockito.when(userService.createUser(dto))
-                .thenThrow(UserValidationException.class);
-
-        assertThrows(UserValidationException.class, () -> {
-            userService.createUser(dto);
-        });
+        assertEquals("User1", returnedDto.getName());
+        assertEquals("user1@yandex.ru", returnedDto.getEmail());
     }
 }

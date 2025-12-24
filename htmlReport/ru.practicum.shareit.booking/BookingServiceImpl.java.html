@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookingServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">ru.practicum.shareit.booking</a> &gt; <span class="el_source">BookingServiceImpl.java</span></div><h1>BookingServiceImpl.java</h1><pre class="source lang-java linenums">package ru.practicum.shareit.booking;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.booking.util.BookingStateSearchParams;
+import ru.practicum.shareit.exception.exceptions.BookingValidationException;
+import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
+import ru.practicum.shareit.exception.exceptions.WrongUserException;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+<span class="fc" id="L28">@Slf4j</span>
+public class BookingServiceImpl implements BookingService {
+
+    private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final ItemRepository itemRepository;
+    private final BookingMapper bookingMapper;
+
+    @Transactional
+    @Override
+    public BookingDtoToReturn createBooking(Long userId, BookingDto bookingDto) {
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (!userRepository.existsById(userId)) {</span>
+<span class="fc" id="L40">            throw new ElementNotFoundException(&quot;User not found&quot;);</span>
+        }
+
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        if (!itemRepository.existsById(bookingDto.getItemId())) {</span>
+<span class="fc" id="L44">            throw new ElementNotFoundException(&quot;Item not found&quot;);</span>
+        }
+
+<span class="fc" id="L47">        Item item = itemRepository.getReferenceById(bookingDto.getItemId());</span>
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (!item.getAvailable()) {</span>
+<span class="fc" id="L50">            throw new BookingValidationException(&quot;Item not available&quot;);</span>
+        }
+
+<span class="fc" id="L53">        User booker = userRepository.getReferenceById(userId);</span>
+
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (bookingDto.getStart().equals(bookingDto.getEnd())) {</span>
+<span class="fc" id="L56">            throw new BookingValidationException(&quot;Booking start date cannot be equals booking end date&quot;);</span>
+        }
+
+<span class="fc" id="L59">        Booking booking = bookingMapper.mapFromDto(bookingDto);</span>
+<span class="fc" id="L60">        booking.setItem(item);</span>
+<span class="fc" id="L61">        booking.setBooker(booker);</span>
+
+<span class="fc" id="L63">        Booking bookingSaved = bookingRepository.save(booking);</span>
+
+<span class="fc" id="L65">        BookingDtoToReturn returnedDto = new BookingDtoToReturn();</span>
+<span class="fc" id="L66">        returnedDto.setId(bookingSaved.getId());</span>
+<span class="fc" id="L67">        returnedDto.setItem(bookingSaved.getItem());</span>
+<span class="fc" id="L68">        returnedDto.setBooker(bookingSaved.getBooker());</span>
+<span class="fc" id="L69">        returnedDto.setStart(bookingSaved.getStart());</span>
+<span class="fc" id="L70">        returnedDto.setEnd(bookingSaved.getEnd());</span>
+<span class="fc" id="L71">        returnedDto.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L73">        return returnedDto;</span>
+    }
+
+    @Transactional
+    @Override
+    public BookingDtoToReturn updateBookingApproval(Long userId, String bookingId, Boolean approved) {
+
+<span class="fc" id="L80">        Long validatedBookingId = validateBookingId(bookingId);</span>
+
+<span class="fc" id="L82">        Booking booking = checkExitstingBooking(validatedBookingId);</span>
+
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        if (!booking.getItem().getOwnerId().equals(userId)) {</span>
+<span class="fc" id="L85">            throw new WrongUserException(&quot;You are not the owner of the item and cannot update the booking.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (approved) {</span>
+<span class="fc" id="L89">            booking.setStatus(BookingState.APPROVED);</span>
+        } else {
+<span class="fc" id="L91">            booking.setStatus(BookingState.REJECTED);</span>
+        }
+
+<span class="fc" id="L94">        Booking updatedBooking = bookingRepository.save(booking);</span>
+
+<span class="fc" id="L96">        BookingDtoToReturn returnedDto = bookingMapper.mapToBookingDtoReturned(updatedBooking);</span>
+<span class="fc" id="L97">        returnedDto.setStatus(updatedBooking.getStatus());</span>
+
+<span class="fc" id="L99">        return returnedDto;</span>
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public BookingDtoToReturn findBookingById(Long userId, Long bookingId) {
+<span class="fc" id="L105">        Booking booking = checkExitstingBooking(bookingId);</span>
+
+<span class="fc" id="L107">        Long ownerId = booking.getItem().getOwnerId();</span>
+<span class="fc" id="L108">        Long bookerId = booking.getBooker().getId();</span>
+
+        BookingDtoToReturn returnedValue;
+
+<span class="pc bpc" id="L112" title="1 of 4 branches missed.">        if (userId.equals(ownerId) || userId.equals(bookerId)) {</span>
+<span class="fc" id="L113">            returnedValue = bookingMapper.mapToBookingDtoReturned(booking);</span>
+        } else {
+<span class="fc" id="L115">            throw new WrongUserException(&quot;Only owner or booker can get information about booking&quot;);</span>
+        }
+
+<span class="fc" id="L118">        return returnedValue;</span>
+    }
+
+
+
+
+    @Transactional(readOnly = true)
+    @Override
+    public List&lt;BookingDtoToReturn&gt; findByBookerIdAndStateSorted(Long bookerId, BookingStateSearchParams state) {
+
+        List&lt;Booking&gt; bookings;
+
+<span class="fc bfc" id="L130" title="All 6 branches covered.">        return switch (state) {</span>
+            case PAST -&gt; {
+<span class="fc" id="L132">                bookings = bookingRepository.findPastBookingsByBookerId(bookerId, LocalDateTime.now());</span>
+<span class="fc" id="L133">                yield bookingMapper.mapToBookingDtoReturned(bookings);</span>
+            }
+            case FUTURE -&gt; {
+<span class="fc" id="L136">                bookings = bookingRepository.findFutureBookingsByBookerId(bookerId, LocalDateTime.now());</span>
+<span class="fc" id="L137">                yield bookingMapper.mapToBookingDtoReturned(bookings);</span>
+            }
+            case CURRENT -&gt; {
+<span class="fc" id="L140">                bookings = bookingRepository.findCurrentBookingsByBookerId(bookerId, LocalDateTime.now());</span>
+<span class="fc" id="L141">                yield bookingMapper.mapToBookingDtoReturned(bookings);</span>
+            }
+
+            case WAITING -&gt; {
+<span class="fc" id="L145">                bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStateSearchParams.WAITING);</span>
+<span class="fc" id="L146">                yield bookingMapper.mapToBookingDtoReturned(bookings);</span>
+            }
+
+            case REJECTED -&gt; {
+<span class="fc" id="L150">                bookings = bookingRepository.findAllByBookerIdAndStatus(bookerId, BookingStateSearchParams.REJECTED);</span>
+<span class="fc" id="L151">                yield bookingMapper.mapToBookingDtoReturned(bookings);</span>
+            }
+
+            default -&gt; {
+<span class="fc" id="L155">                bookings = bookingRepository.findAllByItemOwnerId(bookerId);</span>
+<span class="fc" id="L156">                yield bookingMapper.mapToBookingDtoReturned(bookings);</span>
+            }
+        };
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List&lt;BookingDto&gt; findAllByBookingItemOwnerIdAndStatus(Long ownerId, BookingStateSearchParams state) {
+        List&lt;Booking&gt; bookings;
+
+<span class="fc bfc" id="L166" title="All 6 branches covered.">        switch (state) {</span>
+<span class="fc" id="L167">            case PAST -&gt; bookings = bookingRepository.findPastBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
+<span class="fc" id="L168">            case FUTURE -&gt; bookings = bookingRepository.findFutureBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
+<span class="fc" id="L169">            case CURRENT -&gt; bookings = bookingRepository.findCurrentBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
+            case WAITING -&gt;
+<span class="fc" id="L171">                    bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStateSearchParams.WAITING);</span>
+            case REJECTED -&gt;
+<span class="fc" id="L173">                    bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStateSearchParams.REJECTED);</span>
+<span class="fc" id="L174">            default -&gt; bookings = bookingRepository.findAllByItemOwnerId(ownerId);</span>
+        }
+
+<span class="fc" id="L177">        return mapToListDto(bookings);</span>
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List&lt;BookingDtoToReturn&gt; findAllByBookerId(Long bookerId) {
+<span class="nc" id="L183">        List&lt;Booking&gt; bookings = bookingRepository.findAllByBookerId(bookerId);</span>
+<span class="nc" id="L184">        return bookingMapper.mapToBookingDtoReturned(bookings);</span>
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List&lt;BookingDto&gt; findAllByItemOwnerId(Long ownerId) {
+<span class="nc" id="L190">        List&lt;Booking&gt; bookings = bookingRepository.findAllByItemOwnerId(ownerId);</span>
+<span class="nc" id="L191">        return mapToListDto(bookings);</span>
+    }
+
+    public List&lt;BookingDto&gt; mapToListDto(List&lt;Booking&gt; bookings) {
+<span class="fc" id="L195">        return bookings.stream().map(bookingMapper::mapToDto).toList();</span>
+    }
+
+    public Booking checkExitstingBooking(Long bookingId) {
+        try {
+<span class="fc" id="L200">            return bookingRepository.getReferenceById(bookingId);</span>
+<span class="fc" id="L201">        } catch (EntityNotFoundException e) {</span>
+<span class="fc" id="L202">            throw new ElementNotFoundException(&quot;Booking not found&quot;);</span>
+        }
+    }
+
+    public Long validateBookingId(String bookingId) {
+<span class="pc bpc" id="L207" title="1 of 4 branches missed.">        if (bookingId == null || bookingId.isEmpty()) {</span>
+<span class="fc" id="L208">            throw new MissingParameterException(&quot;booking id is missing&quot;);</span>
+        }
+        long id;
+        try {
+<span class="fc" id="L212">            id = Long.parseLong(bookingId);</span>
+<span class="fc" id="L213">        } catch (NumberFormatException e) {</span>
+<span class="fc" id="L214">            throw new IllegalArgumentException(&quot;Invalid booking id: &quot; + bookingId);</span>
+<span class="fc" id="L215">        }</span>
+
+<span class="fc" id="L217">        return id;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

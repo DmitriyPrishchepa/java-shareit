@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemControllerTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">controllers</a> &gt; <span class="el_source">ItemControllerTest.java</span></div><h1>ItemControllerTest.java</h1><pre class="source lang-java linenums">package controllers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.item.ItemController;
+import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.ItemServiceImpl;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.dto.ItemWithCommentsToReturn;
+import ru.practicum.shareit.user.UserController;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserServiceImpl;
+import ru.practicum.shareit.user.dto.UserDto;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L39">public class ItemControllerTest {</span>
+
+    @Mock
+    ItemService itemService;
+
+    @InjectMocks
+    ItemController itemController;
+
+    @Mock
+    UserService userService;
+
+    @InjectMocks
+    UserController userController;
+
+<span class="fc" id="L53">    private final ObjectMapper mapper = new ObjectMapper();</span>
+
+    private ItemDto itemDto;
+    private ItemDto itemDto2;
+    private UserDto userDto;
+    private MockMvc mockMvc;
+
+    private ItemDto makeItemDto(
+            Long id,
+            Long ownerId,
+            String name,
+            String description,
+            Boolean available
+    ) {
+<span class="fc" id="L67">        ItemDto dto = new ItemDto();</span>
+<span class="fc" id="L68">        dto.setId(id);</span>
+<span class="fc" id="L69">        dto.setOwnerId(ownerId);</span>
+<span class="fc" id="L70">        dto.setName(name);</span>
+<span class="fc" id="L71">        dto.setDescription(description);</span>
+<span class="fc" id="L72">        dto.setAvailable(available);</span>
+<span class="fc" id="L73">        dto.setRequestId(null);</span>
+
+<span class="fc" id="L75">        return dto;</span>
+    }
+
+    private UserDto makeUserDto(
+            Long id,
+            String name,
+            String email
+    ) {
+<span class="fc" id="L83">        UserDto dto = new UserDto();</span>
+<span class="fc" id="L84">        dto.setId(id);</span>
+<span class="fc" id="L85">        dto.setName(name);</span>
+<span class="fc" id="L86">        dto.setEmail(email);</span>
+
+<span class="fc" id="L88">        return dto;</span>
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+<span class="fc" id="L93">        mockMvc = MockMvcBuilders</span>
+<span class="fc" id="L94">                .standaloneSetup(itemController, userController)</span>
+<span class="fc" id="L95">                .build();</span>
+
+<span class="fc" id="L97">        itemDto = makeItemDto(</span>
+<span class="fc" id="L98">                1L,</span>
+<span class="fc" id="L99">                1L,</span>
+                &quot;itemDto&quot;,
+                &quot;itemDescription&quot;,
+<span class="fc" id="L102">                true</span>
+        );
+
+<span class="fc" id="L105">        itemDto2 = makeItemDto(</span>
+<span class="fc" id="L106">                2L,</span>
+<span class="fc" id="L107">                1L,</span>
+                &quot;itemDto2&quot;,
+                &quot;itemDescription2&quot;,
+<span class="fc" id="L110">                true</span>
+        );
+
+<span class="fc" id="L113">        userDto = makeUserDto(1L, &quot;userDto&quot;, &quot;userEmail&quot;);</span>
+
+<span class="fc" id="L115">        when(userService.createUser(any()))</span>
+<span class="fc" id="L116">                .thenReturn(userDto);</span>
+
+<span class="fc" id="L118">        mockMvc.perform(post(&quot;/users&quot;)</span>
+<span class="fc" id="L119">                        .content(mapper.writeValueAsString(userDto))</span>
+<span class="fc" id="L120">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L121">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L122">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L123">                .andExpect(status().isOk())</span>
+<span class="fc" id="L124">                .andExpect(jsonPath(&quot;$.id&quot;, is(userDto.getId()), Long.class))</span>
+<span class="fc" id="L125">                .andExpect(jsonPath(&quot;$.name&quot;, is(userDto.getName()), String.class));</span>
+<span class="fc" id="L126">    }</span>
+
+    @Test
+    void saveItemTest() throws Exception {
+
+<span class="fc" id="L131">        when(itemService.addItem(userDto.getId(), itemDto))</span>
+<span class="fc" id="L132">                .thenReturn(itemDto);</span>
+
+<span class="fc" id="L134">        mockMvc.perform(post(&quot;/items&quot;)</span>
+<span class="fc" id="L135">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L136">                        .content(mapper.writeValueAsString(itemDto))</span>
+<span class="fc" id="L137">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L138">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L139">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L140">                .andExpect(status().isOk())</span>
+<span class="fc" id="L141">                .andExpect(jsonPath(&quot;$.id&quot;, is(itemDto.getId()), Long.class))</span>
+<span class="fc" id="L142">                .andExpect(jsonPath(&quot;$.name&quot;, is(itemDto.getName()), String.class))</span>
+<span class="fc" id="L143">                .andExpect(jsonPath(&quot;$.description&quot;, is(itemDto.getDescription()), String.class));</span>
+
+<span class="fc" id="L145">    }</span>
+
+    @Test
+    void updateItemTest() throws Exception {
+
+<span class="fc" id="L150">        ItemDto updatedItemDto = makeItemDto(</span>
+<span class="fc" id="L151">                1L,</span>
+<span class="fc" id="L152">                1L,</span>
+                &quot;updatedItem&quot;,
+                &quot;updatedDescription&quot;,
+<span class="fc" id="L155">                true</span>
+        );
+
+<span class="fc" id="L158">        when(itemService.updateItem(userDto.getId(), itemDto.getId(), updatedItemDto))</span>
+<span class="fc" id="L159">                .thenReturn(updatedItemDto);</span>
+
+<span class="fc" id="L161">        mockMvc.perform(patch(&quot;/items/&quot; + itemDto.getId())</span>
+<span class="fc" id="L162">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L163">                        .content(mapper.writeValueAsString(updatedItemDto))</span>
+<span class="fc" id="L164">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L165">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L166">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L167">                .andExpect(jsonPath(&quot;$.name&quot;, is(updatedItemDto.getName()), String.class))</span>
+<span class="fc" id="L168">                .andExpect(jsonPath(&quot;$.description&quot;, is(updatedItemDto.getDescription())));</span>
+<span class="fc" id="L169">    }</span>
+
+    @Test
+    void getItemByIdTest() throws Exception {
+
+<span class="fc" id="L174">        ItemWithCommentsToReturn item = new ItemWithCommentsToReturn();</span>
+<span class="fc" id="L175">        item.setId(itemDto2.getId());</span>
+<span class="fc" id="L176">        item.setName(itemDto2.getName());</span>
+<span class="fc" id="L177">        item.setAvailable(itemDto2.getAvailable());</span>
+<span class="fc" id="L178">        item.setOwnerId(itemDto2.getOwnerId());</span>
+<span class="fc" id="L179">        item.setComments(new ArrayList&lt;&gt;());</span>
+
+<span class="fc" id="L181">        when(itemService.getItemById(userDto.getId(), itemDto2.getId()))</span>
+<span class="fc" id="L182">                .thenReturn(item);</span>
+
+<span class="fc" id="L184">        mockMvc.perform(get(&quot;/items/&quot; + itemDto2.getId())</span>
+<span class="fc" id="L185">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L186">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L187">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L188">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L189">                .andExpect(jsonPath(&quot;$.name&quot;, is(item.getName()), String.class))</span>
+<span class="fc" id="L190">                .andExpect(jsonPath(&quot;$.description&quot;, is(item.getDescription())));</span>
+<span class="fc" id="L191">    }</span>
+
+    @Test
+    void getALlItemsFromUserTest() throws Exception {
+
+<span class="fc" id="L196">        ItemDtoWithBookings item = new ItemDtoWithBookings();</span>
+<span class="fc" id="L197">        item.setId(itemDto2.getId());</span>
+<span class="fc" id="L198">        item.setName(itemDto2.getName());</span>
+<span class="fc" id="L199">        item.setAvailable(itemDto2.getAvailable());</span>
+<span class="fc" id="L200">        item.setBookings(new ArrayList&lt;&gt;());</span>
+
+<span class="fc" id="L202">        ItemDtoWithBookings item2 = new ItemDtoWithBookings();</span>
+<span class="fc" id="L203">        item2.setId(itemDto2.getId());</span>
+<span class="fc" id="L204">        item2.setName(itemDto2.getName());</span>
+<span class="fc" id="L205">        item2.setAvailable(itemDto2.getAvailable());</span>
+<span class="fc" id="L206">        item2.setBookings(new ArrayList&lt;&gt;());</span>
+
+
+<span class="fc" id="L209">        when(itemService.getAllItemsFromUser(userDto.getId()))</span>
+<span class="fc" id="L210">                .thenReturn(List.of(item, item2));</span>
+
+<span class="fc" id="L212">        mockMvc.perform(get(&quot;/items&quot;)</span>
+<span class="fc" id="L213">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L214">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L215">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L216">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L217">                .andExpect(jsonPath(&quot;$[0].name&quot;, is(item.getName()), String.class))</span>
+<span class="fc" id="L218">                .andExpect(jsonPath(&quot;$[0].description&quot;, is(item2.getDescription()), String.class));</span>
+
+<span class="fc" id="L220">    }</span>
+
+    @Test
+    void searchItemTest() throws Exception {
+
+<span class="fc" id="L225">        List&lt;ItemDto&gt; items = List.of(itemDto, itemDto2);</span>
+
+<span class="fc" id="L227">        when(itemService.searchItem(Mockito.anyLong(), Mockito.anyString()))</span>
+<span class="fc" id="L228">                .thenReturn(items);</span>
+
+<span class="fc" id="L230">        mockMvc.perform(get(&quot;/items/search&quot;)</span>
+<span class="fc" id="L231">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L232">                        .param(&quot;text&quot;, &quot;emD&quot;)</span>
+<span class="fc" id="L233">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L234">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L235">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L236">                .andExpect(status().isOk())</span>
+<span class="fc" id="L237">                .andExpect(jsonPath(&quot;$&quot;, hasSize(items.size())))</span>
+<span class="fc" id="L238">                .andExpect(jsonPath(&quot;$[*].name&quot;, containsInAnyOrder(itemDto.getName(), itemDto2.getName())));</span>
+<span class="fc" id="L239">    }</span>
+
+    @Test
+    void addCommentTest() throws Exception {
+<span class="fc" id="L243">        CommentDtoToReturn commentDto = new CommentDtoToReturn();</span>
+<span class="fc" id="L244">        commentDto.setId(1L);</span>
+<span class="fc" id="L245">        commentDto.setText(&quot;this comment just for you&quot;);</span>
+<span class="fc" id="L246">        commentDto.setAuthorName(userDto.getName());</span>
+<span class="fc" id="L247">        commentDto.setCreated(LocalDateTime.now());</span>
+
+<span class="fc" id="L249">        when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString()))</span>
+<span class="fc" id="L250">                .thenReturn(commentDto);</span>
+
+<span class="fc" id="L252">        mockMvc.perform(post(&quot;/items/&quot; + itemDto.getId() + &quot;/comment&quot;)</span>
+<span class="fc" id="L253">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L254">                        .content(&quot;this comment just for you&quot;)</span>
+<span class="fc" id="L255">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L256">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L257">                .andExpect(status().isOk())</span>
+<span class="fc" id="L258">                .andExpect(jsonPath(&quot;$.id&quot;, is(commentDto.getId().intValue())))</span>
+<span class="fc" id="L259">                .andExpect(jsonPath(&quot;$.text&quot;, is(commentDto.getText())))</span>
+<span class="fc" id="L260">                .andExpect(jsonPath(&quot;$.authorName&quot;, is(commentDto.getAuthorName())));</span>
+<span class="fc" id="L261">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
