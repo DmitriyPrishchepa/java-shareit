@@ -172,7 +172,7 @@ public class BookingServiceImpl implements BookingService {
             default -> bookings = bookingRepository.findAllByItemOwnerId(ownerId);
         }
 
-        return mapToListDto(bookings);
+        return bookingMapper.mapToListDto(bookings);
     }
 
     @Transactional(readOnly = true)
@@ -186,11 +186,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> findAllByItemOwnerId(Long ownerId) {
         List<Booking> bookings = bookingRepository.findAllByItemOwnerId(ownerId);
-        return mapToListDto(bookings);
-    }
-
-    public List<BookingDto> mapToListDto(List<Booking> bookings) {
-        return bookings.stream().map(bookingMapper::mapToDto).toList();
+        return bookingMapper.mapToListDto(bookings);
     }
 
     public Booking checkExitstingBooking(Long bookingId) {

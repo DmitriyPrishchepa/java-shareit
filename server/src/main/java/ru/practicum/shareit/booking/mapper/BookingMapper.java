@@ -58,4 +58,8 @@ public class BookingMapper {
                 .map(this::mapToBookingDtoReturned)
                 .toList();
     }
+
+    public List<BookingDto> mapToListDto(List<Booking> bookings) {
+        return bookings.stream().map(this::mapToDto).toList();
+    }
 }
