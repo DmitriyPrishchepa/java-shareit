@@ -649,6 +649,7 @@ public class BookingServiceImplTest {
 
         Item itemForTest = new Item();
         itemForTest.setId(1L);
+        itemForTest.setName("Item1");
         itemForTest.setOwnerId(1L);
         itemForTest.setAvailable(true);
         itemForTest.setDescription("Item1");
@@ -658,7 +659,7 @@ public class BookingServiceImplTest {
         bookingForTest.setId(1L);
         bookingForTest.setItem(itemForTest);
         bookingForTest.setBooker(userForTest);
-        bookingForTest.setStatus(BookingState.APPROVED);
+        bookingForTest.setStatus(BookingState.CANCELED);
         bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
         bookingForTest.setEnd(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
 
@@ -670,11 +671,16 @@ public class BookingServiceImplTest {
 
         List<Booking> list = List.of(bookingForTest);
 
-        Mockito.when(bookingRepository.findPastBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
-                .thenReturn(List.of(bookingForTest));
+        Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
+                .thenReturn(dto);
 
         Mockito.when(bookingMapper.mapToListDto(list))
                 .thenReturn(List.of(dto));
+
+        Mockito.when(bookingRepository.findPastBookingsByOwnerId(
+                        Mockito.anyLong(), Mockito.eq(
+                                LocalDateTime.now())))
+                .thenReturn(List.of(bookingForTest));
 
         List<BookingDto> result =
                 bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.PAST);
@@ -703,7 +709,7 @@ public class BookingServiceImplTest {
         bookingForTest.setBooker(userForTest);
         bookingForTest.setStatus(BookingState.APPROVED);
         bookingForTest.setStart(LocalDateTime.of(2026, 12, 12, 12, 12, 12));
-        bookingForTest.setEnd(LocalDateTime.of(2027, 12, 12, 12, 12, 12));
+        bookingForTest.setEnd(null);
 
         BookingDto dto = new BookingDto();
         dto.setItemId(itemForTest.getId());
@@ -713,11 +719,14 @@ public class BookingServiceImplTest {
 
         List<Booking> list = List.of(bookingForTest);
 
-        Mockito.when(bookingRepository.findFutureBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
-                .thenReturn(List.of(bookingForTest));
+        Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
+                .thenReturn(dto);
 
         Mockito.when(bookingMapper.mapToListDto(list))
                 .thenReturn(List.of(dto));
+
+        Mockito.when(bookingRepository.findFutureBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
+                .thenReturn(List.of(bookingForTest));
 
         List<BookingDto> result =
                 bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.FUTURE);
@@ -756,11 +765,14 @@ public class BookingServiceImplTest {
 
         List<Booking> list = List.of(bookingForTest);
 
-        Mockito.when(bookingRepository.findCurrentBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
-                .thenReturn(List.of(bookingForTest));
+        Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
+                .thenReturn(dto);
 
         Mockito.when(bookingMapper.mapToListDto(list))
                 .thenReturn(List.of(dto));
+
+        Mockito.when(bookingRepository.findCurrentBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
+                .thenReturn(List.of(bookingForTest));
 
         List<BookingDto> result =
                 bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.CURRENT);

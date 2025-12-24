@@ -23,12 +23,10 @@ public class BookingMapper {
 
     public BookingDto mapToDto(Booking booking) {
         BookingDto bookingDto = new BookingDto();
-
         bookingDto.setItemId(booking.getItem().getId());
         bookingDto.setStart(booking.getStart());
         bookingDto.setEnd(booking.getEnd());
         bookingDto.setStatus(booking.getStatus());
-
         return bookingDto;
     }
 
