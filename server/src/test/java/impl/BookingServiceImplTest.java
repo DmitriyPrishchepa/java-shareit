@@ -634,7 +634,7 @@ public class BookingServiceImplTest {
 
         List<BookingDtoToReturn> result = bookingServiceImpl.findByBookerIdAndStateSorted(1L, BookingStateSearchParams.ALL);
 
-        assertThat(result, Matchers.not(empty()));
+        assertEquals(1, result.size());
     }
 
     //----------------------------------------------
@@ -652,7 +652,7 @@ public class BookingServiceImplTest {
         List<BookingDto> result =
                 bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.PAST);
 
-        assertThat(result, Matchers.not(empty()));
+        assertEquals(1, result.size());
     }
 
     @Test
@@ -682,7 +682,7 @@ public class BookingServiceImplTest {
         List<BookingDto> result =
                 bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.CURRENT);
 
-        assertThat(result, Matchers.not(empty()));
+        assertEquals(1, result.size());
     }
 
     @Test
