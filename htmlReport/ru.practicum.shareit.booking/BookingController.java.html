@@ -48,21 +48,21 @@ public class BookingController {
     ) {
         BookingStateSearchParams bookingStateParams;
 
-<span class="pc bpc" id="L51" title="4 of 5 branches missed.">        switch (state) {</span>
+<span class="fc bfc" id="L51" title="All 5 branches covered.">        switch (state) {</span>
             case &quot;CURRENT&quot;:
-<span class="nc" id="L53">                bookingStateParams = BookingStateSearchParams.CURRENT;</span>
-<span class="nc" id="L54">                break;</span>
+<span class="fc" id="L53">                bookingStateParams = BookingStateSearchParams.CURRENT;</span>
+<span class="fc" id="L54">                break;</span>
             case &quot;PAST&quot;:
 <span class="fc" id="L56">                bookingStateParams = BookingStateSearchParams.PAST;</span>
 <span class="fc" id="L57">                break;</span>
             case &quot;FUTURE&quot;:
-<span class="nc" id="L59">                bookingStateParams = BookingStateSearchParams.FUTURE;</span>
-<span class="nc" id="L60">                break;</span>
+<span class="fc" id="L59">                bookingStateParams = BookingStateSearchParams.FUTURE;</span>
+<span class="fc" id="L60">                break;</span>
             case &quot;WAITING&quot;:
-<span class="nc" id="L62">                bookingStateParams = BookingStateSearchParams.WAITING;</span>
-<span class="nc" id="L63">                break;</span>
+<span class="fc" id="L62">                bookingStateParams = BookingStateSearchParams.WAITING;</span>
+<span class="fc" id="L63">                break;</span>
             default:
-<span class="nc" id="L65">                return bookingService.findAllByBookerId(bookerId);</span>
+<span class="fc" id="L65">                return bookingService.findAllByBookerId(bookerId);</span>
         }
 
 <span class="fc" id="L68">        return bookingService.findByBookerIdAndStateSorted(bookerId, bookingStateParams);</span>
@@ -75,16 +75,16 @@ public class BookingController {
     ) {
         BookingStateSearchParams bookingStateParams;
 
-<span class="pc bpc" id="L78" title="4 of 5 branches missed.">        switch (state) {</span>
+<span class="pc bpc" id="L78" title="1 of 5 branches missed.">        switch (state) {</span>
             case &quot;CURRENT&quot;:
-<span class="nc" id="L80">                bookingStateParams = BookingStateSearchParams.CURRENT;</span>
-<span class="nc" id="L81">                break;</span>
+<span class="fc" id="L80">                bookingStateParams = BookingStateSearchParams.CURRENT;</span>
+<span class="fc" id="L81">                break;</span>
             case &quot;PAST&quot;:
-<span class="nc" id="L83">                bookingStateParams = BookingStateSearchParams.PAST;</span>
-<span class="nc" id="L84">                break;</span>
+<span class="fc" id="L83">                bookingStateParams = BookingStateSearchParams.PAST;</span>
+<span class="fc" id="L84">                break;</span>
             case &quot;FUTURE&quot;:
-<span class="nc" id="L86">                bookingStateParams = BookingStateSearchParams.FUTURE;</span>
-<span class="nc" id="L87">                break;</span>
+<span class="fc" id="L86">                bookingStateParams = BookingStateSearchParams.FUTURE;</span>
+<span class="fc" id="L87">                break;</span>
             case &quot;WAITING&quot;:
 <span class="fc" id="L89">                bookingStateParams = BookingStateSearchParams.WAITING;</span>
 <span class="fc" id="L90">                break;</span>

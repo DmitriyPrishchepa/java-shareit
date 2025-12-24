@@ -12,19 +12,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.practicum.shareit.booking.BookingController;
-import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
 import ru.practicum.shareit.booking.util.BookingState;
 import ru.practicum.shareit.booking.util.BookingStateSearchParams;
 import ru.practicum.shareit.item.ItemController;
-import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
-
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.UserController;
-import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -41,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(MockitoExtension.class)
-<span class="fc" id="L44">public class BookingControllerTest {</span>
+<span class="fc" id="L40">public class BookingControllerTest {</span>
 
     @Mock
     ItemService itemService;
@@ -61,7 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     @InjectMocks
     BookingController bookingController;
 
-<span class="fc" id="L64">    private final ObjectMapper mapper = new ObjectMapper();</span>
+<span class="fc" id="L60">    private final ObjectMapper mapper = new ObjectMapper();</span>
     private ItemDto itemDto;
     private BookingDto bookingDto;
     private UserDto userDto;
@@ -75,15 +71,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
             String description,
             Boolean available
     ) {
-<span class="fc" id="L78">        ItemDto dto = new ItemDto();</span>
-<span class="fc" id="L79">        dto.setId(id);</span>
-<span class="fc" id="L80">        dto.setOwnerId(ownerId);</span>
-<span class="fc" id="L81">        dto.setName(name);</span>
-<span class="fc" id="L82">        dto.setDescription(description);</span>
-<span class="fc" id="L83">        dto.setAvailable(available);</span>
-<span class="fc" id="L84">        dto.setRequestId(null);</span>
+<span class="fc" id="L74">        ItemDto dto = new ItemDto();</span>
+<span class="fc" id="L75">        dto.setId(id);</span>
+<span class="fc" id="L76">        dto.setOwnerId(ownerId);</span>
+<span class="fc" id="L77">        dto.setName(name);</span>
+<span class="fc" id="L78">        dto.setDescription(description);</span>
+<span class="fc" id="L79">        dto.setAvailable(available);</span>
+<span class="fc" id="L80">        dto.setRequestId(null);</span>
 
-<span class="fc" id="L86">        return dto;</span>
+<span class="fc" id="L82">        return dto;</span>
     }
 
     private UserDto makeUserDto(
@@ -91,12 +87,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
             String name,
             String email
     ) {
-<span class="fc" id="L94">        UserDto dto = new UserDto();</span>
-<span class="fc" id="L95">        dto.setId(id);</span>
-<span class="fc" id="L96">        dto.setName(name);</span>
-<span class="fc" id="L97">        dto.setEmail(email);</span>
+<span class="fc" id="L90">        UserDto dto = new UserDto();</span>
+<span class="fc" id="L91">        dto.setId(id);</span>
+<span class="fc" id="L92">        dto.setName(name);</span>
+<span class="fc" id="L93">        dto.setEmail(email);</span>
 
-<span class="fc" id="L99">        return dto;</span>
+<span class="fc" id="L95">        return dto;</span>
     }
 
     private BookingDto makeBookingDto(
@@ -105,144 +101,144 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
             LocalDateTime end,
             BookingState status
     ) {
-<span class="fc" id="L108">        BookingDto dto = new BookingDto();</span>
-<span class="fc" id="L109">        dto.setItemId(itemDto.getId());</span>
-<span class="fc" id="L110">        dto.setStart(LocalDateTime.now());</span>
-<span class="fc" id="L111">        dto.setEnd(LocalDateTime.now());</span>
-<span class="fc" id="L112">        dto.setStatus(status);</span>
-<span class="fc" id="L113">        return dto;</span>
+<span class="fc" id="L104">        BookingDto dto = new BookingDto();</span>
+<span class="fc" id="L105">        dto.setItemId(itemDto.getId());</span>
+<span class="fc" id="L106">        dto.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L107">        dto.setEnd(LocalDateTime.now());</span>
+<span class="fc" id="L108">        dto.setStatus(status);</span>
+<span class="fc" id="L109">        return dto;</span>
     }
 
     @BeforeEach
     void setUp() throws Exception {
-<span class="fc" id="L118">        mockMvc = MockMvcBuilders</span>
-<span class="fc" id="L119">                .standaloneSetup(itemController, userController, bookingController)</span>
-<span class="fc" id="L120">                .build();</span>
+<span class="fc" id="L114">        mockMvc = MockMvcBuilders</span>
+<span class="fc" id="L115">                .standaloneSetup(itemController, userController, bookingController)</span>
+<span class="fc" id="L116">                .build();</span>
 
-<span class="fc" id="L122">        itemDto = makeItemDto(</span>
-<span class="fc" id="L123">                1L,</span>
-<span class="fc" id="L124">                1L,</span>
+<span class="fc" id="L118">        itemDto = makeItemDto(</span>
+<span class="fc" id="L119">                1L,</span>
+<span class="fc" id="L120">                1L,</span>
                 &quot;itemDto&quot;,
                 &quot;itemDescription&quot;,
-<span class="fc" id="L127">                true</span>
+<span class="fc" id="L123">                true</span>
         );
 
-<span class="fc" id="L130">        userDto = makeUserDto(1L, &quot;userDto&quot;, &quot;userEmail&quot;);</span>
+<span class="fc" id="L126">        userDto = makeUserDto(1L, &quot;userDto&quot;, &quot;userEmail&quot;);</span>
 
-<span class="fc" id="L132">        when(userService.createUser(any()))</span>
-<span class="fc" id="L133">                .thenReturn(userDto);</span>
+<span class="fc" id="L128">        when(userService.createUser(any()))</span>
+<span class="fc" id="L129">                .thenReturn(userDto);</span>
 
-<span class="fc" id="L135">        mockMvc.perform(post(&quot;/users&quot;)</span>
-<span class="fc" id="L136">                        .content(mapper.writeValueAsString(userDto))</span>
-<span class="fc" id="L137">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L138">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L139">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L140">                .andExpect(status().isOk())</span>
-<span class="fc" id="L141">                .andExpect(jsonPath(&quot;$.id&quot;, is(userDto.getId()), Long.class))</span>
-<span class="fc" id="L142">                .andExpect(jsonPath(&quot;$.name&quot;, is(userDto.getName()), String.class));</span>
+<span class="fc" id="L131">        mockMvc.perform(post(&quot;/users&quot;)</span>
+<span class="fc" id="L132">                        .content(mapper.writeValueAsString(userDto))</span>
+<span class="fc" id="L133">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L134">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L135">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L136">                .andExpect(status().isOk())</span>
+<span class="fc" id="L137">                .andExpect(jsonPath(&quot;$.id&quot;, is(userDto.getId()), Long.class))</span>
+<span class="fc" id="L138">                .andExpect(jsonPath(&quot;$.name&quot;, is(userDto.getName()), String.class));</span>
 
-<span class="fc" id="L144">        when(itemService.addItem(userDto.getId(), itemDto))</span>
-<span class="fc" id="L145">                .thenReturn(itemDto);</span>
+<span class="fc" id="L140">        when(itemService.addItem(userDto.getId(), itemDto))</span>
+<span class="fc" id="L141">                .thenReturn(itemDto);</span>
 
-<span class="fc" id="L147">        mockMvc.perform(post(&quot;/items&quot;)</span>
-<span class="fc" id="L148">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
-<span class="fc" id="L149">                        .content(mapper.writeValueAsString(itemDto))</span>
-<span class="fc" id="L150">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L151">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L152">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L153">                .andExpect(status().isOk())</span>
-<span class="fc" id="L154">                .andExpect(jsonPath(&quot;$.id&quot;, is(itemDto.getId()), Long.class))</span>
-<span class="fc" id="L155">                .andExpect(jsonPath(&quot;$.name&quot;, is(itemDto.getName()), String.class))</span>
-<span class="fc" id="L156">                .andExpect(jsonPath(&quot;$.description&quot;, is(itemDto.getDescription()), String.class));</span>
+<span class="fc" id="L143">        mockMvc.perform(post(&quot;/items&quot;)</span>
+<span class="fc" id="L144">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L145">                        .content(mapper.writeValueAsString(itemDto))</span>
+<span class="fc" id="L146">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L147">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L148">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L149">                .andExpect(status().isOk())</span>
+<span class="fc" id="L150">                .andExpect(jsonPath(&quot;$.id&quot;, is(itemDto.getId()), Long.class))</span>
+<span class="fc" id="L151">                .andExpect(jsonPath(&quot;$.name&quot;, is(itemDto.getName()), String.class))</span>
+<span class="fc" id="L152">                .andExpect(jsonPath(&quot;$.description&quot;, is(itemDto.getDescription()), String.class));</span>
 
-<span class="fc" id="L158">        bookingDto = makeBookingDto(1L, LocalDateTime.now(), LocalDateTime.now(), BookingState.WAITING);</span>
+<span class="fc" id="L154">        bookingDto = makeBookingDto(1L, LocalDateTime.now(), LocalDateTime.now(), BookingState.WAITING);</span>
 
-<span class="fc" id="L160">        result = new BookingDtoToReturn();</span>
-<span class="fc" id="L161">        result.setId(1L);</span>
-<span class="fc" id="L162">        result.setStart(bookingDto.getStart());</span>
-<span class="fc" id="L163">        result.setEnd(bookingDto.getEnd());</span>
-<span class="fc" id="L164">        result.setStatus(bookingDto.getStatus());</span>
-<span class="fc" id="L165">    }</span>
+<span class="fc" id="L156">        result = new BookingDtoToReturn();</span>
+<span class="fc" id="L157">        result.setId(1L);</span>
+<span class="fc" id="L158">        result.setStart(bookingDto.getStart());</span>
+<span class="fc" id="L159">        result.setEnd(bookingDto.getEnd());</span>
+<span class="fc" id="L160">        result.setStatus(bookingDto.getStatus());</span>
+<span class="fc" id="L161">    }</span>
 
     @Test
     void createBookingTest() throws Exception {
 
-<span class="fc" id="L170">        when(bookingController.createBooking(Mockito.anyLong(), Mockito.any(BookingDto.class)))</span>
-<span class="fc" id="L171">                .thenReturn(result);</span>
+<span class="fc" id="L166">        when(bookingController.createBooking(Mockito.anyLong(), Mockito.any(BookingDto.class)))</span>
+<span class="fc" id="L167">                .thenReturn(result);</span>
 
-<span class="fc" id="L173">        mockMvc.perform(post(&quot;/bookings&quot;)</span>
-<span class="fc" id="L174">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
-<span class="fc" id="L175">                        .content(mapper.writeValueAsString(userDto))</span>
-<span class="fc" id="L176">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L177">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L178">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L179">                .andExpect(status().isOk())</span>
-<span class="fc" id="L180">                .andExpect(jsonPath(&quot;$.id&quot;, is(result.getId()), Long.class))</span>
-<span class="fc" id="L181">                .andExpect(jsonPath(&quot;$.status&quot;, is(result.getStatus().toString()), BookingState.class));</span>
+<span class="fc" id="L169">        mockMvc.perform(post(&quot;/bookings&quot;)</span>
+<span class="fc" id="L170">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L171">                        .content(mapper.writeValueAsString(userDto))</span>
+<span class="fc" id="L172">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L173">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L174">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L175">                .andExpect(status().isOk())</span>
+<span class="fc" id="L176">                .andExpect(jsonPath(&quot;$.id&quot;, is(result.getId()), Long.class))</span>
+<span class="fc" id="L177">                .andExpect(jsonPath(&quot;$.status&quot;, is(result.getStatus().toString()), BookingState.class));</span>
 
-<span class="fc" id="L183">    }</span>
+<span class="fc" id="L179">    }</span>
 
     @Test
     void updateBookingApprovalTest() throws Exception {
 
-<span class="fc" id="L188">        BookingDtoToReturn approvedDto = new BookingDtoToReturn();</span>
-<span class="fc" id="L189">        approvedDto.setId(1L);</span>
-<span class="fc" id="L190">        approvedDto.setStart(bookingDto.getStart());</span>
-<span class="fc" id="L191">        approvedDto.setEnd(bookingDto.getEnd());</span>
-<span class="fc" id="L192">        approvedDto.setStatus(BookingState.APPROVED);</span>
+<span class="fc" id="L184">        BookingDtoToReturn approvedDto = new BookingDtoToReturn();</span>
+<span class="fc" id="L185">        approvedDto.setId(1L);</span>
+<span class="fc" id="L186">        approvedDto.setStart(bookingDto.getStart());</span>
+<span class="fc" id="L187">        approvedDto.setEnd(bookingDto.getEnd());</span>
+<span class="fc" id="L188">        approvedDto.setStatus(BookingState.APPROVED);</span>
 
-<span class="fc" id="L194">        BookingDtoToReturn rejectedDto = new BookingDtoToReturn();</span>
-<span class="fc" id="L195">        rejectedDto.setId(1L);</span>
-<span class="fc" id="L196">        rejectedDto.setStart(bookingDto.getStart());</span>
-<span class="fc" id="L197">        rejectedDto.setEnd(bookingDto.getEnd());</span>
-<span class="fc" id="L198">        rejectedDto.setStatus(BookingState.REJECTED);</span>
+<span class="fc" id="L190">        BookingDtoToReturn rejectedDto = new BookingDtoToReturn();</span>
+<span class="fc" id="L191">        rejectedDto.setId(1L);</span>
+<span class="fc" id="L192">        rejectedDto.setStart(bookingDto.getStart());</span>
+<span class="fc" id="L193">        rejectedDto.setEnd(bookingDto.getEnd());</span>
+<span class="fc" id="L194">        rejectedDto.setStatus(BookingState.REJECTED);</span>
 
-<span class="fc" id="L200">        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyString(), Mockito.eq(true)))</span>
-<span class="fc" id="L201">                .thenReturn(approvedDto);</span>
+<span class="fc" id="L196">        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyString(), Mockito.eq(true)))</span>
+<span class="fc" id="L197">                .thenReturn(approvedDto);</span>
 
-<span class="fc" id="L203">        mockMvc.perform(patch(&quot;/bookings/&quot; + result.getId())</span>
-<span class="fc" id="L204">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
-<span class="fc" id="L205">                        .param(&quot;approved&quot;, String.valueOf(true))</span>
-<span class="fc" id="L206">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L207">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L208">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L209">                .andExpect(status().isOk())</span>
-<span class="fc" id="L210">                .andExpect(jsonPath(&quot;$.status&quot;, is(BookingState.APPROVED.toString())));</span>
+<span class="fc" id="L199">        mockMvc.perform(patch(&quot;/bookings/&quot; + result.getId())</span>
+<span class="fc" id="L200">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L201">                        .param(&quot;approved&quot;, String.valueOf(true))</span>
+<span class="fc" id="L202">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L203">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L204">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L205">                .andExpect(status().isOk())</span>
+<span class="fc" id="L206">                .andExpect(jsonPath(&quot;$.status&quot;, is(BookingState.APPROVED.toString())));</span>
 
-<span class="fc" id="L212">        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyString(), Mockito.eq(false)))</span>
-<span class="fc" id="L213">                .thenReturn(rejectedDto);</span>
+<span class="fc" id="L208">        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyString(), Mockito.eq(false)))</span>
+<span class="fc" id="L209">                .thenReturn(rejectedDto);</span>
 
-<span class="fc" id="L215">        mockMvc.perform(patch(&quot;/bookings/&quot; + result.getId())</span>
-<span class="fc" id="L216">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
-<span class="fc" id="L217">                        .param(&quot;approved&quot;, String.valueOf(false))</span>
-<span class="fc" id="L218">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L219">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L220">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L221">                .andExpect(status().isOk())</span>
-<span class="fc" id="L222">                .andExpect(jsonPath(&quot;$.status&quot;, is(BookingState.REJECTED.toString())));</span>
-<span class="fc" id="L223">    }</span>
+<span class="fc" id="L211">        mockMvc.perform(patch(&quot;/bookings/&quot; + result.getId())</span>
+<span class="fc" id="L212">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L213">                        .param(&quot;approved&quot;, String.valueOf(false))</span>
+<span class="fc" id="L214">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L215">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L216">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L217">                .andExpect(status().isOk())</span>
+<span class="fc" id="L218">                .andExpect(jsonPath(&quot;$.status&quot;, is(BookingState.REJECTED.toString())));</span>
+<span class="fc" id="L219">    }</span>
 
     @Test
     void getBookingByIdTest() throws Exception {
 
-<span class="fc" id="L228">        when(bookingController.getBookingById(Mockito.anyLong(), Mockito.anyLong()))</span>
-<span class="fc" id="L229">                .thenReturn(result);</span>
+<span class="fc" id="L224">        when(bookingController.getBookingById(Mockito.anyLong(), Mockito.anyLong()))</span>
+<span class="fc" id="L225">                .thenReturn(result);</span>
 
-<span class="fc" id="L231">        mockMvc.perform(get(&quot;/bookings/&quot; + result.getId())</span>
-<span class="fc" id="L232">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
-<span class="fc" id="L233">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L234">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L235">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L236">                .andExpect(jsonPath(&quot;$.id&quot;, is(result.getId()), Long.class))</span>
-<span class="fc" id="L237">                .andExpect(jsonPath(&quot;$.status&quot;, is(BookingState.WAITING.toString())));</span>
-<span class="fc" id="L238">    }</span>
+<span class="fc" id="L227">        mockMvc.perform(get(&quot;/bookings/&quot; + result.getId())</span>
+<span class="fc" id="L228">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L229">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L230">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L231">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L232">                .andExpect(jsonPath(&quot;$.id&quot;, is(result.getId()), Long.class))</span>
+<span class="fc" id="L233">                .andExpect(jsonPath(&quot;$.status&quot;, is(BookingState.WAITING.toString())));</span>
+<span class="fc" id="L234">    }</span>
 
     @Test
-    void getBookingsByStateTest() throws Exception {
+    void getBookingsByStateTest_PAST() throws Exception {
 
-<span class="fc" id="L243">        BookingDtoToReturn result2 = new BookingDtoToReturn();</span>
-<span class="fc" id="L244">        result2.setId(2L);</span>
-<span class="fc" id="L245">        result2.setStart(LocalDateTime.of(</span>
+<span class="fc" id="L239">        BookingDtoToReturn result2 = new BookingDtoToReturn();</span>
+<span class="fc" id="L240">        result2.setId(2L);</span>
+<span class="fc" id="L241">        result2.setStart(LocalDateTime.of(</span>
                 2024,
                 10,
                 12,
@@ -250,7 +246,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 13,
                 14
         ));
-<span class="fc" id="L253">        result2.setEnd(LocalDateTime.of(</span>
+<span class="fc" id="L249">        result2.setEnd(LocalDateTime.of(</span>
                 2025,
                 10,
                 14,
@@ -258,11 +254,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 13,
                 14
         ));
-<span class="fc" id="L261">        result2.setStatus(BookingState.CANCELED);</span>
+<span class="fc" id="L257">        result2.setStatus(BookingState.CANCELED);</span>
 
-<span class="fc" id="L263">        BookingDtoToReturn result3 = new BookingDtoToReturn();</span>
-<span class="fc" id="L264">        result3.setId(3L);</span>
-<span class="fc" id="L265">        result3.setStart(LocalDateTime.of(</span>
+<span class="fc" id="L259">        BookingDtoToReturn result3 = new BookingDtoToReturn();</span>
+<span class="fc" id="L260">        result3.setId(3L);</span>
+<span class="fc" id="L261">        result3.setStart(LocalDateTime.of(</span>
                 2023,
                 10,
                 12,
@@ -270,7 +266,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 13,
                 14
         ));
-<span class="fc" id="L273">        result3.setEnd(LocalDateTime.of(</span>
+<span class="fc" id="L269">        result3.setEnd(LocalDateTime.of(</span>
                 2024,
                 10,
                 14,
@@ -278,38 +274,326 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                 13,
                 14
         ));
-<span class="fc" id="L281">        result3.setStatus(BookingState.CANCELED);</span>
+<span class="fc" id="L277">        result3.setStatus(BookingState.CANCELED);</span>
 
-<span class="fc" id="L283">        List&lt;BookingDtoToReturn&gt; returnedResults = List.of(result2, result3);</span>
+<span class="fc" id="L279">        List&lt;BookingDtoToReturn&gt; returnedResults = List.of(result2, result3);</span>
 
-<span class="fc" id="L285">        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.PAST.name()))</span>
-<span class="fc" id="L286">                .thenReturn(returnedResults);</span>
+<span class="fc" id="L281">        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.PAST.name()))</span>
+<span class="fc" id="L282">                .thenReturn(returnedResults);</span>
 
-<span class="fc" id="L288">        mockMvc.perform(get(&quot;/bookings&quot;)</span>
-<span class="fc" id="L289">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
-<span class="fc" id="L290">                        .param(&quot;state&quot;, BookingStateSearchParams.PAST.name())</span>
-<span class="fc" id="L291">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L292">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L293">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L294">                .andExpect(jsonPath(&quot;$&quot;, hasSize(2)));</span>
-<span class="fc" id="L295">    }</span>
+<span class="fc" id="L284">        mockMvc.perform(get(&quot;/bookings&quot;)</span>
+<span class="fc" id="L285">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L286">                        .param(&quot;state&quot;, BookingStateSearchParams.PAST.name())</span>
+<span class="fc" id="L287">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L288">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L289">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L290">                .andExpect(jsonPath(&quot;$&quot;, hasSize(2)));</span>
+<span class="fc" id="L291">    }</span>
 
     @Test
-    void getAllBookingsTest() throws Exception {
+    void getBookingsByStateTest_CURRENT() throws Exception {
 
-<span class="fc" id="L300">        List&lt;BookingDto&gt; returnedResults = List.of(bookingDto);</span>
+<span class="fc" id="L296">        BookingDtoToReturn result2 = new BookingDtoToReturn();</span>
+<span class="fc" id="L297">        result2.setId(2L);</span>
+<span class="fc" id="L298">        result2.setStart(LocalDateTime.of(</span>
+                2024,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L306">        result2.setEnd(LocalDateTime.of(</span>
+                2026,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L314">        result2.setStatus(BookingState.APPROVED);</span>
 
-<span class="fc" id="L302">        when(bookingController.getAllBookings(1L, BookingStateSearchParams.WAITING.name()))</span>
-<span class="fc" id="L303">                .thenReturn(returnedResults);</span>
+<span class="fc" id="L316">        BookingDtoToReturn result3 = new BookingDtoToReturn();</span>
+<span class="fc" id="L317">        result3.setId(3L);</span>
+<span class="fc" id="L318">        result3.setStart(LocalDateTime.of(</span>
+                2023,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L326">        result3.setEnd(LocalDateTime.of(</span>
+                2026,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L334">        result3.setStatus(BookingState.APPROVED);</span>
 
-<span class="fc" id="L305">        mockMvc.perform(get(&quot;/bookings/owner&quot;)</span>
-<span class="fc" id="L306">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
-<span class="fc" id="L307">                        .param(&quot;state&quot;, BookingStateSearchParams.WAITING.name())</span>
-<span class="fc" id="L308">                        .characterEncoding(StandardCharsets.UTF_8)</span>
-<span class="fc" id="L309">                        .contentType(MediaType.APPLICATION_JSON)</span>
-<span class="fc" id="L310">                        .accept(MediaType.APPLICATION_JSON))</span>
-<span class="fc" id="L311">                .andExpect(jsonPath(&quot;$&quot;, hasSize(1)))</span>
-<span class="fc" id="L312">                .andExpect(jsonPath(&quot;$.[0].status&quot;, is(BookingState.WAITING.name())));</span>
-<span class="fc" id="L313">    }</span>
+<span class="fc" id="L336">        List&lt;BookingDtoToReturn&gt; returnedResults = List.of(result2, result3);</span>
+
+<span class="fc" id="L338">        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.CURRENT.name()))</span>
+<span class="fc" id="L339">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L341">        mockMvc.perform(get(&quot;/bookings&quot;)</span>
+<span class="fc" id="L342">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L343">                        .param(&quot;state&quot;, BookingStateSearchParams.CURRENT.name())</span>
+<span class="fc" id="L344">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L345">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L346">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L347">                .andExpect(jsonPath(&quot;$&quot;, hasSize(2)));</span>
+<span class="fc" id="L348">    }</span>
+
+    @Test
+    void getBookingsByStateTest_FUTURE() throws Exception {
+
+<span class="fc" id="L353">        BookingDtoToReturn result2 = new BookingDtoToReturn();</span>
+<span class="fc" id="L354">        result2.setId(2L);</span>
+<span class="fc" id="L355">        result2.setStart(LocalDateTime.of(</span>
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L363">        result2.setEnd(LocalDateTime.of(</span>
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L371">        result2.setStatus(BookingState.APPROVED);</span>
+
+<span class="fc" id="L373">        BookingDtoToReturn result3 = new BookingDtoToReturn();</span>
+<span class="fc" id="L374">        result3.setId(3L);</span>
+<span class="fc" id="L375">        result3.setStart(LocalDateTime.of(</span>
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L383">        result3.setEnd(LocalDateTime.of(</span>
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L391">        result3.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L393">        List&lt;BookingDtoToReturn&gt; returnedResults = List.of(result2, result3);</span>
+
+<span class="fc" id="L395">        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.FUTURE.name()))</span>
+<span class="fc" id="L396">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L398">        mockMvc.perform(get(&quot;/bookings&quot;)</span>
+<span class="fc" id="L399">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L400">                        .param(&quot;state&quot;, BookingStateSearchParams.FUTURE.name())</span>
+<span class="fc" id="L401">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L402">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L403">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L404">                .andExpect(jsonPath(&quot;$&quot;, hasSize(2)));</span>
+<span class="fc" id="L405">    }</span>
+
+    @Test
+    void getBookingsByStateTest_WAITING() throws Exception {
+
+<span class="fc" id="L410">        BookingDtoToReturn result2 = new BookingDtoToReturn();</span>
+<span class="fc" id="L411">        result2.setId(2L);</span>
+<span class="fc" id="L412">        result2.setStart(LocalDateTime.of(</span>
+                2024,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L420">        result2.setEnd(LocalDateTime.of(</span>
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L428">        result2.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L430">        BookingDtoToReturn result3 = new BookingDtoToReturn();</span>
+<span class="fc" id="L431">        result3.setId(3L);</span>
+<span class="fc" id="L432">        result3.setStart(LocalDateTime.of(</span>
+                2024,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L440">        result3.setEnd(LocalDateTime.of(</span>
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L448">        result3.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L450">        List&lt;BookingDtoToReturn&gt; returnedResults = List.of(result2, result3);</span>
+
+<span class="fc" id="L452">        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.WAITING.name()))</span>
+<span class="fc" id="L453">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L455">        mockMvc.perform(get(&quot;/bookings&quot;)</span>
+<span class="fc" id="L456">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L457">                        .param(&quot;state&quot;, BookingStateSearchParams.WAITING.name())</span>
+<span class="fc" id="L458">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L459">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L460">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L461">                .andExpect(jsonPath(&quot;$&quot;, hasSize(2)));</span>
+<span class="fc" id="L462">    }</span>
+
+    @Test
+    void getBookingsByStateTest_ALL() throws Exception {
+
+<span class="fc" id="L467">        BookingDtoToReturn result2 = new BookingDtoToReturn();</span>
+<span class="fc" id="L468">        result2.setId(2L);</span>
+<span class="fc" id="L469">        result2.setStart(LocalDateTime.of(</span>
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L477">        result2.setEnd(LocalDateTime.of(</span>
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L485">        result2.setStatus(BookingState.APPROVED);</span>
+
+<span class="fc" id="L487">        BookingDtoToReturn result3 = new BookingDtoToReturn();</span>
+<span class="fc" id="L488">        result3.setId(3L);</span>
+<span class="fc" id="L489">        result3.setStart(LocalDateTime.of(</span>
+                2026,
+                10,
+                12,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L497">        result3.setEnd(LocalDateTime.of(</span>
+                2027,
+                10,
+                14,
+                12,
+                13,
+                14
+        ));
+<span class="fc" id="L505">        result3.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L507">        List&lt;BookingDtoToReturn&gt; returnedResults = List.of(result2, result3);</span>
+
+<span class="fc" id="L509">        when(bookingController.getBookingsByState(1L, BookingStateSearchParams.ALL.name()))</span>
+<span class="fc" id="L510">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L512">        mockMvc.perform(get(&quot;/bookings&quot;)</span>
+<span class="fc" id="L513">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L514">                        .param(&quot;state&quot;, BookingStateSearchParams.ALL.name())</span>
+<span class="fc" id="L515">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L516">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L517">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L518">                .andExpect(jsonPath(&quot;$&quot;, hasSize(2)));</span>
+<span class="fc" id="L519">    }</span>
+
+
+    @Test
+    void getAllBookingsTest_WAITING() throws Exception {
+
+<span class="fc" id="L525">        List&lt;BookingDto&gt; returnedResults = List.of(bookingDto);</span>
+
+<span class="fc" id="L527">        when(bookingController.getAllBookings(1L, BookingStateSearchParams.WAITING.name()))</span>
+<span class="fc" id="L528">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L530">        mockMvc.perform(get(&quot;/bookings/owner&quot;)</span>
+<span class="fc" id="L531">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L532">                        .param(&quot;state&quot;, BookingStateSearchParams.WAITING.name())</span>
+<span class="fc" id="L533">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L534">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L535">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L536">                .andExpect(jsonPath(&quot;$&quot;, hasSize(1)))</span>
+<span class="fc" id="L537">                .andExpect(jsonPath(&quot;$.[0].status&quot;, is(BookingState.WAITING.name())));</span>
+<span class="fc" id="L538">    }</span>
+
+    @Test
+    void getAllBookingsTest_CURRENT() throws Exception {
+<span class="fc" id="L542">        bookingDto.setStatus(BookingState.APPROVED);</span>
+
+<span class="fc" id="L544">        List&lt;BookingDto&gt; returnedResults = List.of(bookingDto);</span>
+
+<span class="fc" id="L546">        when(bookingController.getAllBookings(1L, BookingStateSearchParams.CURRENT.name()))</span>
+<span class="fc" id="L547">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L549">        mockMvc.perform(get(&quot;/bookings/owner&quot;)</span>
+<span class="fc" id="L550">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L551">                        .param(&quot;state&quot;, BookingStateSearchParams.CURRENT.name())</span>
+<span class="fc" id="L552">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L553">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L554">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L555">                .andExpect(jsonPath(&quot;$&quot;, hasSize(1)))</span>
+<span class="fc" id="L556">                .andExpect(jsonPath(&quot;$.[0].status&quot;, is(BookingState.APPROVED.name())));</span>
+<span class="fc" id="L557">    }</span>
+
+    @Test
+    void getAllBookingsTest_PAST() throws Exception {
+
+<span class="fc" id="L562">        bookingDto.setStatus(BookingState.CANCELED);</span>
+
+<span class="fc" id="L564">        List&lt;BookingDto&gt; returnedResults = List.of(bookingDto);</span>
+
+<span class="fc" id="L566">        when(bookingController.getAllBookings(1L, BookingStateSearchParams.PAST.name()))</span>
+<span class="fc" id="L567">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L569">        mockMvc.perform(get(&quot;/bookings/owner&quot;)</span>
+<span class="fc" id="L570">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L571">                        .param(&quot;state&quot;, BookingStateSearchParams.PAST.name())</span>
+<span class="fc" id="L572">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L573">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L574">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L575">                .andExpect(jsonPath(&quot;$&quot;, hasSize(1)))</span>
+<span class="fc" id="L576">                .andExpect(jsonPath(&quot;$.[0].status&quot;, is(BookingState.CANCELED.name())));</span>
+<span class="fc" id="L577">    }</span>
+
+    @Test
+    void getAllBookingsTest_FUTURE() throws Exception {
+
+<span class="fc" id="L582">        bookingDto.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L584">        List&lt;BookingDto&gt; returnedResults = List.of(bookingDto);</span>
+
+<span class="fc" id="L586">        when(bookingController.getAllBookings(1L, BookingStateSearchParams.FUTURE.name()))</span>
+<span class="fc" id="L587">                .thenReturn(returnedResults);</span>
+
+<span class="fc" id="L589">        mockMvc.perform(get(&quot;/bookings/owner&quot;)</span>
+<span class="fc" id="L590">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L591">                        .param(&quot;state&quot;, BookingStateSearchParams.FUTURE.name())</span>
+<span class="fc" id="L592">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L593">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L594">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L595">                .andExpect(jsonPath(&quot;$&quot;, hasSize(1)))</span>
+<span class="fc" id="L596">                .andExpect(jsonPath(&quot;$.[0].status&quot;, is(BookingState.WAITING.name())));</span>
+<span class="fc" id="L597">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
