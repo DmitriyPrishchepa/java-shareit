@@ -30,6 +30,7 @@ import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.model.Request;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
@@ -642,10 +643,22 @@ public class BookingServiceImplTest {
     @Test
     void findAllByBookingItemOwnerIdAndStatusTest_PAST() {
 
+        User userForTest = new User();
+        userForTest.setName("User1");
+        userForTest.setId(1L);
+        userForTest.setEmail("userEmail");
+
+        Item itemForTest = new Item();
+        itemForTest.setId(1L);
+        itemForTest.setOwnerId(1L);
+        itemForTest.setAvailable(false);
+        itemForTest.setDescription("Item1");
+        itemForTest.setRequest(new Request());
+
         Booking bookingForTest = new Booking();
         bookingForTest.setId(1L);
-        bookingForTest.setItem(mockedItem);
-        bookingForTest.setBooker(mockedUser);
+        bookingForTest.setItem(itemForTest);
+        bookingForTest.setBooker(userForTest);
         bookingForTest.setStatus(BookingState.CANCELED);
         bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
         bookingForTest.setEnd(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
@@ -662,10 +675,22 @@ public class BookingServiceImplTest {
     @Test
     void findAllByBookingItemOwnerIdAndStatusTest_FUTURE() {
 
+        User userForTest = new User();
+        userForTest.setName("User1");
+        userForTest.setId(1L);
+        userForTest.setEmail("userEmail");
+
+        Item itemForTest = new Item();
+        itemForTest.setId(1L);
+        itemForTest.setOwnerId(1L);
+        itemForTest.setAvailable(true);
+        itemForTest.setDescription("Item1");
+        itemForTest.setRequest(new Request());
+
         Booking bookingForTest = new Booking();
         bookingForTest.setId(1L);
-        bookingForTest.setItem(mockedItem);
-        bookingForTest.setBooker(mockedUser);
+        bookingForTest.setItem(itemForTest);
+        bookingForTest.setBooker(userForTest);
         bookingForTest.setStatus(BookingState.WAITING);
         bookingForTest.setStart(LocalDateTime.of(2026, 12, 12, 12, 12, 12));
         bookingForTest.setEnd(LocalDateTime.of(2027, 12, 12, 12, 12, 12));
@@ -682,10 +707,22 @@ public class BookingServiceImplTest {
     @Test
     void findAllByBookingItemOwnerIdAndStatusTest_CURRENT() {
 
+        User userForTest = new User();
+        userForTest.setName("User1");
+        userForTest.setId(1L);
+        userForTest.setEmail("userEmail");
+
+        Item itemForTest = new Item();
+        itemForTest.setId(1L);
+        itemForTest.setOwnerId(1L);
+        itemForTest.setAvailable(false);
+        itemForTest.setDescription("Item1");
+        itemForTest.setRequest(new Request());
+
         Booking bookingForTest = new Booking();
         bookingForTest.setId(1L);
-        bookingForTest.setItem(mockedItem);
-        bookingForTest.setBooker(mockedUser);
+        bookingForTest.setItem(itemForTest);
+        bookingForTest.setBooker(userForTest);
         bookingForTest.setStatus(BookingState.APPROVED);
         bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
         bookingForTest.setEnd(LocalDateTime.of(2027, 12, 12, 12, 12, 12));
