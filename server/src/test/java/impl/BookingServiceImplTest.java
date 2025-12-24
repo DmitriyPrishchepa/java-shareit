@@ -111,8 +111,6 @@ public class BookingServiceImplTest {
     @BeforeEach
     void setUp() {
 
-        Mockito.reset(userRepository, itemRepository, bookingRepository, userService, itemService, bookingService);
-
         userDto = new UserDto();
         userDto.setName("user1");
         userDto.setEmail("user1@mail.ru");
@@ -642,6 +640,9 @@ public class BookingServiceImplTest {
     @Test
     void findAllByBookingItemOwnerIdAndStatusTest_PAST() {
 
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);
+
         User userForTest = new User();
         userForTest.setName("User1");
         userForTest.setId(1L);
@@ -659,7 +660,6 @@ public class BookingServiceImplTest {
         bookingForTest.setId(1L);
         bookingForTest.setItem(itemForTest);
         bookingForTest.setBooker(userForTest);
-        bookingForTest.setStatus(BookingState.CANCELED);
         bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
         bookingForTest.setEnd(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
 
@@ -667,7 +667,6 @@ public class BookingServiceImplTest {
         dto.setItemId(itemForTest.getId());
         dto.setStart(bookingForTest.getStart());
         dto.setEnd(bookingForTest.getEnd());
-        dto.setStatus(bookingForTest.getStatus());
 
         List<Booking> list = List.of(bookingForTest);
 
@@ -691,6 +690,9 @@ public class BookingServiceImplTest {
     @Test
     void findAllByBookingItemOwnerIdAndStatusTest_FUTURE() {
 
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);
+
         User userForTest = new User();
         userForTest.setName("User1");
         userForTest.setId(1L);
@@ -707,7 +709,6 @@ public class BookingServiceImplTest {
         bookingForTest.setId(1L);
         bookingForTest.setItem(itemForTest);
         bookingForTest.setBooker(userForTest);
-        bookingForTest.setStatus(BookingState.APPROVED);
         bookingForTest.setStart(LocalDateTime.of(2026, 12, 12, 12, 12, 12));
         bookingForTest.setEnd(null);
 
@@ -715,7 +716,6 @@ public class BookingServiceImplTest {
         dto.setItemId(itemForTest.getId());
         dto.setStart(bookingForTest.getStart());
         dto.setEnd(bookingForTest.getEnd());
-        dto.setStatus(bookingForTest.getStatus());
 
         List<Booking> list = List.of(bookingForTest);
 
@@ -736,6 +736,8 @@ public class BookingServiceImplTest {
 
     @Test
     void findAllByBookingItemOwnerIdAndStatusTest_CURRENT() {
+        Mockito.when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);
+        Mockito.when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);
 
         User userForTest = new User();
         userForTest.setName("User1");
@@ -753,7 +755,6 @@ public class BookingServiceImplTest {
         bookingForTest.setId(1L);
         bookingForTest.setItem(itemForTest);
         bookingForTest.setBooker(userForTest);
-        bookingForTest.setStatus(BookingState.APPROVED);
         bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
         bookingForTest.setEnd(LocalDateTime.of(2027, 12, 12, 12, 12, 12));
 
@@ -761,7 +762,6 @@ public class BookingServiceImplTest {
         dto.setItemId(itemForTest.getId());
         dto.setStart(bookingForTest.getStart());
         dto.setEnd(bookingForTest.getEnd());
-        dto.setStatus(bookingForTest.getStatus());
 
         List<Booking> list = List.of(bookingForTest);
 
