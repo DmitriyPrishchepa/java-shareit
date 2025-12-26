@@ -18,15 +18,6 @@ import ru.practicum.bookings.dto.BookingState;
 public class BookingGatewayController {
     private final BookingClient bookingClient;
 
-    @PostMapping
-    public ResponseEntity<Object> createBooking(
-            @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestBody @Valid BookItemRequestDto bookingDto
-    ) {
-        log.info("Create booking {}", bookingDto);
-        return bookingClient.bookItem(userId, bookingDto);
-    }
-
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> updateBookingApproval(
             @RequestHeader("X-Sharer-User-Id") @Positive long userId,
