@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">ru.practicum.shareit.exception</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package ru.practicum.shareit.exception;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.exception.exceptions.*;
+
+@RestControllerAdvice
+<span class="fc" id="L11">@Slf4j</span>
+<span class="fc" id="L12">public class GlobalExceptionHandler {</span>
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleResourceReturnNull(NullPointerException e) {
+<span class="fc" id="L17">        log.error(&quot;Element doesn't exist&quot;);</span>
+<span class="fc" id="L18">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFound(ElementNotFoundException e) {
+<span class="fc" id="L24">        log.error(&quot;Element not found&quot;);</span>
+<span class="fc" id="L25">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleValidation(UserValidationException e) {
+<span class="fc" id="L31">        log.error(&quot;Not valid data&quot;);</span>
+<span class="fc" id="L32">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ErrorResponse handleDuplicate(DuplicateException e) {
+<span class="fc" id="L38">        log.error(&quot;Duplicate&quot;);</span>
+<span class="fc" id="L39">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handelMissingParameter(MissingParameterException e) {
+<span class="fc" id="L45">        log.error(&quot;Missing parameter&quot;);</span>
+<span class="fc" id="L46">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse manageUnhandledExceptions(Exception e) {
+<span class="fc" id="L52">        log.error(&quot;Unhandled exception&quot;);</span>
+<span class="fc" id="L53">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBookingValidation(BookingValidationException e) {
+<span class="fc" id="L59">        log.error(&quot;Booking Validation exception&quot;);</span>
+<span class="fc" id="L60">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handeWrongUser(WrongUserException e) {
+<span class="fc" id="L66">        log.error(&quot;Wrong user&quot;);</span>
+<span class="fc" id="L67">        return new ErrorResponse(e.getMessage());</span>
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handeAccessDenied(AccessToCommentDeniedException e) {
+<span class="fc" id="L73">        log.error(&quot;Access denied&quot;);</span>
+<span class="fc" id="L74">        return new ErrorResponse(e.getMessage());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

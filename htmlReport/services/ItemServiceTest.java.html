@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemServiceTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">services</a> &gt; <span class="el_source">ItemServiceTest.java</span></div><h1>ItemServiceTest.java</h1><pre class="source lang-java linenums">package services;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
+import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+<span class="fc" id="L36">public class ItemServiceTest {</span>
+
+    @Mock
+    ItemService itemService;
+
+    @Mock
+    UserService userService;
+
+    @Mock
+    EntityManager entityManager;
+
+    ItemDto itemDto;
+    UserDto userDto;
+    TypedQuery&lt;User&gt; mockUserQuery;
+    TypedQuery&lt;Item&gt; mockItemQuery;
+    User mockedUser;
+    Item mockedItem;
+
+    @BeforeEach
+    void setUp() {
+
+<span class="fc" id="L57">        userDto = new UserDto();</span>
+<span class="fc" id="L58">        userDto.setId(1L);</span>
+<span class="fc" id="L59">        userDto.setName(&quot;User&quot;);</span>
+<span class="fc" id="L60">        userDto.setEmail(&quot;user@mail.ru&quot;);</span>
+
+<span class="fc" id="L62">        itemDto = new ItemDto();</span>
+<span class="fc" id="L63">        itemDto.setId(1L);</span>
+<span class="fc" id="L64">        itemDto.setName(&quot;ItemDtoName&quot;);</span>
+<span class="fc" id="L65">        itemDto.setDescription(&quot;ItemDtoDescription&quot;);</span>
+<span class="fc" id="L66">        itemDto.setOwnerId(1L);</span>
+<span class="fc" id="L67">        itemDto.setAvailable(true);</span>
+
+<span class="fc" id="L69">        mockedUser = Mockito.mock(User.class);</span>
+<span class="fc" id="L70">        Mockito.when(mockedUser.getId()).thenReturn(1L);</span>
+<span class="fc" id="L71">        Mockito.when(mockedUser.getName()).thenReturn(&quot;User1&quot;);</span>
+<span class="fc" id="L72">        Mockito.when(mockedUser.getEmail()).thenReturn(&quot;user1@yandex.ru&quot;);</span>
+
+<span class="fc" id="L74">        mockedItem = Mockito.mock(Item.class);</span>
+<span class="fc" id="L75">        Mockito.when(mockedItem.getId()).thenReturn(1L);</span>
+<span class="fc" id="L76">        Mockito.when(mockedItem.getName()).thenReturn(&quot;Item1&quot;);</span>
+<span class="fc" id="L77">        Mockito.when(mockedItem.getDescription()).thenReturn(&quot;Item1Descr&quot;);</span>
+<span class="fc" id="L78">        Mockito.when(mockedItem.getOwnerId()).thenReturn(1L);</span>
+
+<span class="fc" id="L80">        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))</span>
+<span class="fc" id="L81">                .thenReturn(userDto);</span>
+
+<span class="fc" id="L83">        Mockito.when(itemService.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))</span>
+<span class="fc" id="L84">                .thenReturn(itemDto);</span>
+
+        //mock TypedQuery class
+
+<span class="fc" id="L88">        mockUserQuery = Mockito.mock(TypedQuery.class);</span>
+<span class="fc" id="L89">        mockItemQuery = Mockito.mock(TypedQuery.class);</span>
+
+        //mock set parameter
+
+<span class="fc" id="L93">        Mockito.when(mockUserQuery.setParameter(Mockito.anyString(), Mockito.anyString()))</span>
+<span class="fc" id="L94">                .thenReturn(mockUserQuery);</span>
+
+<span class="fc" id="L96">        Mockito.when(mockItemQuery.setParameter(Mockito.anyString(), Mockito.anyString()))</span>
+<span class="fc" id="L97">                .thenReturn(mockItemQuery);</span>
+
+        //mock single result
+
+<span class="fc" id="L101">        Mockito.when(mockUserQuery.getSingleResult())</span>
+<span class="fc" id="L102">                .thenReturn(mockedUser);</span>
+
+<span class="fc" id="L104">        Mockito.when(mockItemQuery.getSingleResult())</span>
+<span class="fc" id="L105">                .thenReturn(mockedItem);</span>
+
+        //--------------------------------------
+
+        //mock create query
+
+<span class="fc" id="L111">        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(User.class)))</span>
+<span class="fc" id="L112">                .thenReturn(mockUserQuery);</span>
+
+<span class="fc" id="L114">        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(Item.class)))</span>
+<span class="fc" id="L115">                .thenReturn(mockItemQuery);</span>
+
+        //createUser
+
+<span class="fc" id="L119">        Mockito.when(userService.createUser(Mockito.mock(UserDto.class)))</span>
+<span class="fc" id="L120">                .thenReturn(userDto);</span>
+
+<span class="fc" id="L122">        userService.createUser(userDto);</span>
+
+        //createItem
+
+<span class="fc" id="L126">        Mockito.when(itemService.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))</span>
+<span class="fc" id="L127">                .thenReturn(itemDto);</span>
+
+<span class="fc" id="L129">        itemService.addItem(itemDto.getId(), itemDto);</span>
+<span class="fc" id="L130">    }</span>
+
+    @Test
+    void createItemTest() {
+<span class="fc" id="L134">        mockItemQuery = entityManager.createQuery(&quot;select i from Item&quot;, Item.class);</span>
+<span class="fc" id="L135">        Item item = mockItemQuery.getSingleResult();</span>
+
+<span class="fc" id="L137">        assertThat(item.getId(), notNullValue());</span>
+<span class="fc" id="L138">        assertThat(item.getName(), equalTo(mockedItem.getName()));</span>
+<span class="fc" id="L139">        assertThat(item.getDescription(), equalTo(mockedItem.getDescription()));</span>
+<span class="fc" id="L140">    }</span>
+
+    @Test
+    void updateItemTest() {
+
+<span class="fc" id="L145">        ItemDto newItemDto = new ItemDto();</span>
+<span class="fc" id="L146">        newItemDto.setId(1L);</span>
+<span class="fc" id="L147">        newItemDto.setName(&quot;UpdatedName&quot;);</span>
+<span class="fc" id="L148">        newItemDto.setDescription(&quot;NewDescription&quot;);</span>
+<span class="fc" id="L149">        newItemDto.setAvailable(false);</span>
+
+<span class="fc" id="L151">        Mockito.when(mockedItem.getId()).thenReturn(1L);</span>
+<span class="fc" id="L152">        Mockito.when(mockedItem.getName()).thenReturn(newItemDto.getName());</span>
+<span class="fc" id="L153">        Mockito.when(mockedItem.getDescription()).thenReturn(newItemDto.getDescription());</span>
+<span class="fc" id="L154">        Mockito.when(mockedItem.getAvailable()).thenReturn(newItemDto.getAvailable());</span>
+
+<span class="fc" id="L156">        Mockito.when(</span>
+<span class="fc" id="L157">                itemService.updateItem(</span>
+<span class="fc" id="L158">                        Mockito.anyLong(),</span>
+<span class="fc" id="L159">                        Mockito.anyLong(),</span>
+<span class="fc" id="L160">                        Mockito.eq(newItemDto))</span>
+<span class="fc" id="L161">        ).thenReturn(newItemDto);</span>
+
+<span class="fc" id="L163">        itemService.updateItem(mockedUser.getId(), mockedItem.getId(), newItemDto);</span>
+
+<span class="fc" id="L165">        mockItemQuery = entityManager.createQuery(&quot;select i from Item where i.name = :name&quot;, Item.class);</span>
+<span class="fc" id="L166">        Item item = mockItemQuery.setParameter(&quot;name&quot;, newItemDto.getName()).getSingleResult();</span>
+
+<span class="fc" id="L168">        assertThat(item.getId(), notNullValue());</span>
+<span class="fc" id="L169">        assertThat(item.getName(), equalTo(newItemDto.getName()));</span>
+<span class="fc" id="L170">        assertThat(item.getDescription(), equalTo(newItemDto.getDescription()));</span>
+<span class="fc" id="L171">        assertThat(item.getAvailable(), equalTo(newItemDto.getAvailable()));</span>
+<span class="fc" id="L172">    }</span>
+
+    @Test
+    void searchItemTest() {
+<span class="fc" id="L176">        List&lt;ItemDto&gt; expectedItems = List.of(itemDto);</span>
+
+<span class="fc" id="L178">        Mockito.when(itemService.searchItem(Mockito.anyLong(), Mockito.anyString()))</span>
+<span class="fc" id="L179">                .thenReturn(expectedItems);</span>
+
+<span class="fc" id="L181">        List&lt;ItemDto&gt; foundItems = itemService.searchItem(mockedUser.getId(), &quot;pdatedN&quot;);</span>
+
+<span class="fc" id="L183">        assertThat(foundItems, equalTo(expectedItems));</span>
+<span class="fc" id="L184">    }</span>
+
+    @Test
+    void createCommentTest() {
+
+<span class="fc" id="L189">        CommentDto commentDto = new CommentDto();</span>
+<span class="fc" id="L190">        commentDto.setText(&quot;comment to item&quot;);</span>
+<span class="fc" id="L191">        commentDto.setAuthor(mockedUser);</span>
+<span class="fc" id="L192">        commentDto.setItem(mockedItem);</span>
+<span class="fc" id="L193">        commentDto.setCreated(LocalDateTime.now());</span>
+
+<span class="fc" id="L195">        CommentDtoToReturn commentDtoToReturn = new CommentDtoToReturn();</span>
+<span class="fc" id="L196">        commentDtoToReturn.setText(commentDto.getText());</span>
+<span class="fc" id="L197">        commentDtoToReturn.setAuthorName(commentDto.getAuthor().getName());</span>
+<span class="fc" id="L198">        commentDtoToReturn.setCreated(commentDto.getCreated());</span>
+<span class="fc" id="L199">        commentDtoToReturn.setId(1L);</span>
+
+<span class="fc" id="L201">        Mockito.when(itemService.addComment(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyString()))</span>
+<span class="fc" id="L202">                .thenReturn(commentDtoToReturn);</span>
+
+<span class="fc" id="L204">        CommentDtoToReturn result = itemService.addComment(mockedUser.getId(), mockedItem.getId(), commentDto.getText());</span>
+
+<span class="fc" id="L206">        assertThat(result.getText(), equalTo(commentDto.getText()));</span>
+<span class="fc" id="L207">        assertThat(result.getAuthorName(), equalTo(commentDto.getAuthor().getName()));</span>
+<span class="fc" id="L208">    }</span>
+
+    @Test
+    void getAllItemsFromUser() {
+
+<span class="fc" id="L213">        BookingDto bookingDto = new BookingDto();</span>
+<span class="fc" id="L214">        bookingDto.setItemId(mockedItem.getId());</span>
+<span class="fc" id="L215">        bookingDto.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L216">        bookingDto.setEnd(null);</span>
+<span class="fc" id="L217">        bookingDto.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L219">        BookingDto bookingDto2 = new BookingDto();</span>
+<span class="fc" id="L220">        bookingDto.setItemId(mockedItem.getId());</span>
+<span class="fc" id="L221">        bookingDto.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L222">        bookingDto.setEnd(LocalDateTime.now().plusDays(1));</span>
+<span class="fc" id="L223">        bookingDto.setStatus(BookingState.CANCELED);</span>
+
+<span class="fc" id="L225">        ItemDtoWithBookings item = new ItemDtoWithBookings();</span>
+<span class="fc" id="L226">        item.setId(mockedItem.getId());</span>
+<span class="fc" id="L227">        item.setName(mockedItem.getName());</span>
+<span class="fc" id="L228">        item.setAvailable(mockedItem.getAvailable());</span>
+<span class="fc" id="L229">        item.setDescription(mockedItem.getDescription());</span>
+<span class="fc" id="L230">        item.setBookings(List.of(bookingDto, bookingDto2));</span>
+
+<span class="fc" id="L232">        Mockito.when(itemService.getAllItemsFromUser(Mockito.anyLong()))</span>
+<span class="fc" id="L233">                .thenReturn(List.of(item));</span>
+
+<span class="fc" id="L235">        List&lt;ItemDtoWithBookings&gt; items = itemService.getAllItemsFromUser(mockedUser.getId());</span>
+
+<span class="fc" id="L237">        assertThat(items.getFirst().getName(), equalTo(mockedItem.getName()));</span>
+<span class="fc" id="L238">        assertThat(items.getFirst().getDescription(), equalTo(mockedItem.getDescription()));</span>
+<span class="fc" id="L239">        assertThat(items.getFirst().getBookings(), containsInAnyOrder(bookingDto, bookingDto2));</span>
+<span class="fc" id="L240">    }</span>
+
+    @Test
+    void elementNotFoundExceptionTest() {
+<span class="fc" id="L244">        Mockito.when(itemService.addItem(Mockito.anyLong(), Mockito.any(ItemDto.class)))</span>
+<span class="fc" id="L245">                .thenThrow(ElementNotFoundException.class);</span>
+
+<span class="fc" id="L247">        assertThrows(ElementNotFoundException.class, () -&gt; {</span>
+<span class="nc" id="L248">            itemService.addItem(10L, itemDto);</span>
+<span class="nc" id="L249">        });</span>
+<span class="fc" id="L250">    }</span>
+
+    @Test
+    void missingParameterExceptionTest() {
+<span class="fc" id="L254">        Mockito.when(itemService.addItem(Mockito.isNull(), Mockito.any(ItemDto.class)))</span>
+<span class="fc" id="L255">                .thenThrow(MissingParameterException.class);</span>
+
+<span class="fc" id="L257">        assertThrows(MissingParameterException.class, () -&gt; {</span>
+<span class="nc" id="L258">            itemService.addItem(null, itemDto);</span>
+<span class="nc" id="L259">        });</span>
+<span class="fc" id="L260">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

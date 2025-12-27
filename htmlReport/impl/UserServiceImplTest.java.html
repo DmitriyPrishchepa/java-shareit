@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">impl</a> &gt; <span class="el_source">UserServiceImplTest.java</span></div><h1>UserServiceImplTest.java</h1><pre class="source lang-java linenums">package impl;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import ru.practicum.shareit.exception.exceptions.DuplicateException;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.UserServiceImpl;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.mapper.UserMapper;
+import ru.practicum.shareit.user.model.User;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+<span class="fc" id="L28">public class UserServiceImplTest {</span>
+    @Mock
+    UserService userService;
+
+    @Mock
+    UserRepository userRepository;
+
+    @Mock
+    UserMapper userMapper;
+
+    @InjectMocks
+    UserServiceImpl userServiceImpl;
+
+    @Mock
+    EntityManager entityManager;
+
+    UserDto dto;
+    TypedQuery&lt;User&gt; mockQuery;
+    User mockedUser;
+
+    private UserDto makeUserDto(
+            String name,
+            String email
+    ) {
+<span class="fc" id="L52">        UserDto dto = new UserDto();</span>
+<span class="fc" id="L53">        dto.setName(name);</span>
+<span class="fc" id="L54">        dto.setEmail(email);</span>
+<span class="fc" id="L55">        return dto;</span>
+    }
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L60">        dto = makeUserDto(&quot;User1&quot;, &quot;user1@yandex.ru&quot;);</span>
+
+<span class="fc" id="L62">        mockedUser = Mockito.mock(User.class);</span>
+<span class="fc" id="L63">        when(mockedUser.getId()).thenReturn(1L);</span>
+<span class="fc" id="L64">        when(mockedUser.getName()).thenReturn(&quot;User1&quot;);</span>
+<span class="fc" id="L65">        when(mockedUser.getEmail()).thenReturn(&quot;user1@yandex.ru&quot;);</span>
+
+<span class="fc" id="L67">        when(userService.createUser(Mockito.any(UserDto.class)))</span>
+<span class="fc" id="L68">                .thenReturn(dto);</span>
+
+<span class="fc" id="L70">        mockQuery = Mockito.mock(TypedQuery.class);</span>
+
+<span class="fc" id="L72">        when(mockQuery.setParameter(Mockito.anyString(), Mockito.anyString()))</span>
+<span class="fc" id="L73">                .thenReturn(mockQuery);</span>
+
+<span class="fc" id="L75">        when(mockQuery.getSingleResult())</span>
+<span class="fc" id="L76">                .thenReturn(mockedUser);</span>
+
+<span class="fc" id="L78">        when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(User.class)))</span>
+<span class="fc" id="L79">                .thenReturn(mockQuery);</span>
+<span class="fc" id="L80">    }</span>
+
+    @Test
+    void saveUserTest() {
+<span class="fc" id="L84">        Mockito.when(userRepository.findUserByEmailContaining(Mockito.anyString())).thenReturn(null);</span>
+<span class="fc" id="L85">        Mockito.when(userMapper.mapToDto(Mockito.any(User.class))).thenReturn(dto);</span>
+<span class="fc" id="L86">        Mockito.when(userMapper.mapFromDto(Mockito.any(UserDto.class))).thenReturn(mockedUser);</span>
+<span class="fc" id="L87">        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(mockedUser);</span>
+
+<span class="fc" id="L89">        UserDto userDto = userServiceImpl.createUser(dto);</span>
+
+<span class="fc" id="L91">        assertEquals(&quot;User1&quot;, userDto.getName());</span>
+<span class="fc" id="L92">        assertEquals(&quot;user1@yandex.ru&quot;, userDto.getEmail());</span>
+<span class="fc" id="L93">    }</span>
+
+    @Test
+    void saveUser_DuplicateEmail() {
+<span class="fc" id="L97">        when(userRepository.findUserByEmailContaining(Mockito.anyString()))</span>
+<span class="fc" id="L98">                .thenReturn(mockedUser);</span>
+
+<span class="fc" id="L100">        when(userMapper.mapFromDto(Mockito.any(UserDto.class)))</span>
+<span class="fc" id="L101">                .thenReturn(mockedUser);</span>
+
+<span class="fc" id="L103">        when(userMapper.mapToDto(Mockito.any(User.class)))</span>
+<span class="fc" id="L104">                .thenReturn(dto);</span>
+
+        try {
+<span class="nc" id="L107">            userServiceImpl.createUser(dto);</span>
+<span class="fc" id="L108">        } catch (DuplicateException e) {</span>
+<span class="fc" id="L109">            assertEquals(&quot;Email already exists&quot;, e.getMessage());</span>
+<span class="nc" id="L110">        }</span>
+<span class="fc" id="L111">    }</span>
+
+    @Test
+    void updateUserTest_Success() {
+<span class="fc" id="L115">        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedUser);</span>
+<span class="fc" id="L116">        when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);</span>
+<span class="fc" id="L117">        when(userRepository.save(Mockito.any(User.class))).thenReturn(mockedUser);</span>
+
+<span class="fc" id="L119">        when(userMapper.mapToDto(Mockito.any(User.class)))</span>
+<span class="fc" id="L120">                .thenReturn(dto);</span>
+
+<span class="fc" id="L122">        UserDto user = userServiceImpl.updateUser(1L, dto);</span>
+
+<span class="fc" id="L124">        assertNotNull(user);</span>
+<span class="fc" id="L125">        assertEquals(user.getName(), dto.getName());</span>
+<span class="fc" id="L126">        assertEquals(user.getEmail(), dto.getEmail());</span>
+<span class="fc" id="L127">    }</span>
+
+    @Test
+    void updateUserTest_Duplicate() {
+<span class="fc" id="L131">        when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedUser);</span>
+<span class="fc" id="L132">        when(userRepository.existsByEmail(Mockito.anyString())).thenReturn(false);</span>
+<span class="fc" id="L133">        when(userRepository.save(Mockito.any(User.class))).thenReturn(mockedUser);</span>
+
+<span class="fc" id="L135">        when(userMapper.mapToDto(Mockito.any(User.class)))</span>
+<span class="fc" id="L136">                .thenReturn(dto);</span>
+
+        try {
+<span class="fc" id="L139">            userServiceImpl.updateUser(1L, dto);</span>
+<span class="nc" id="L140">        } catch (DuplicateException e) {</span>
+<span class="nc" id="L141">            assertEquals(&quot;Email already in use by another user&quot;, e.getMessage());</span>
+<span class="fc" id="L142">        }</span>
+<span class="fc" id="L143">    }</span>
+
+    @Test
+    void getUserById() {
+<span class="fc" id="L147">        Mockito.when(userRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedUser);</span>
+<span class="fc" id="L148">        Mockito.when(userMapper.mapToDto(Mockito.any(User.class))).thenReturn(dto);</span>
+
+<span class="fc" id="L150">        UserDto returnedDto = userServiceImpl.getUserById(1L);</span>
+
+<span class="fc" id="L152">        assertEquals(&quot;User1&quot;, returnedDto.getName());</span>
+<span class="fc" id="L153">        assertEquals(&quot;user1@yandex.ru&quot;, returnedDto.getEmail());</span>
+<span class="fc" id="L154">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>

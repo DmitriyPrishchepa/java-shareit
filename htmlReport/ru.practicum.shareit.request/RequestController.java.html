@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RequestController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">ru.practicum.shareit.request</a> &gt; <span class="el_source">RequestController.java</span></div><h1>RequestController.java</h1><pre class="source lang-java linenums">package ru.practicum.shareit.request;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.request.model.Request;
+
+import java.util.List;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping(path = &quot;/requests&quot;)
+<span class="fc" id="L13">@Slf4j</span>
+public class RequestController {
+
+    private final RequestService requestService;
+
+    @PostMapping
+    public Request createRequest(
+            @RequestHeader(&quot;X-Sharer-User-Id&quot;) long userId,
+            @RequestBody String description
+    ) {
+<span class="fc" id="L23">        return requestService.createRequest(userId, description);</span>
+    }
+
+    @GetMapping
+    public List&lt;Request&gt; getUserRequestsWithResponses(
+            @RequestHeader(&quot;X-Sharer-User-Id&quot;) long userId
+    ) {
+<span class="fc" id="L30">        log.debug(&quot;userId {}&quot;, userId);</span>
+<span class="fc" id="L31">        return requestService.getUserRequestsWithResponses(userId);</span>
+    }
+
+    @GetMapping(&quot;/all&quot;)
+    public List&lt;Request&gt; getOtherUsersRequests(
+            @RequestHeader(&quot;X-Sharer-User-Id&quot;) long userId
+    ) {
+<span class="fc" id="L38">        return requestService.getOtherUsersRequests(userId);</span>
+    }
+
+    @GetMapping(&quot;/{requestId}&quot;)
+    public Request getRequestById(
+            @RequestHeader(&quot;X-Sharer-User-Id&quot;) long userId,
+            @PathVariable(&quot;requestId&quot;) long requestId
+    ) {
+<span class="fc" id="L46">        return requestService.getRequestById(userId, requestId);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
