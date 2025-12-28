@@ -15,7 +15,7 @@ services:
     image: shareit-server
     container_name: shareit-server
     ports:
-      - "9091:9090"
+      - "9090:9090"
     depends_on:
       - db
     environment:
@@ -27,7 +27,7 @@ services:
     image: postgres:16.1
     container_name: postgres
     ports:
-      - "5432:5432"
+      - "6541:5432"
     environment:
       - POSTGRES_PASSWORD=shareit
       - POSTGRES_USER=shareit
