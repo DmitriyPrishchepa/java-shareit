@@ -7,7 +7,7 @@ services:
     depends_on:
       - server
     environment:
-      - SHAREIT_SERVER_URL=http://localhost:8080
+      - SHAREIT_SERVER_URL=http://server:8080
 
   server:
     build: /server
