@@ -64,7 +64,6 @@ class BookingMapperTests {
         assertEquals(bookingDto.getItemId(), booking.getItem().getId());
         assertEquals(bookingDto.getStart(), booking.getStart());
         assertEquals(bookingDto.getEnd(), booking.getEnd());
-        assertEquals(BookingState.WAITING, booking.getStatus());
     }
 
     @Test

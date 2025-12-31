@@ -1,6 +1,7 @@
 package ru.practicum.bookings;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
@@ -17,10 +18,10 @@ public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
     @Autowired
-    public BookingClient(RestTemplateBuilder builder) {
+    public BookingClient(@Value("${shareit-server.url}") String url, RestTemplateBuilder builder) {
         super(
                 builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:9090" + API_PREFIX))
+                        .uriTemplateHandler(new DefaultUriBuilderFactory(url + API_PREFIX))
                         .requestFactory(() -> new HttpComponentsClientHttpRequestFactory())
                         .build()
         );
@@ -54,6 +55,6 @@ public class BookingClient extends BaseClient {
                 "bookingId", bookingId,
                 "approved", approved
         );
-        return patch("/bookings/{bookingId}", userId, requestParams, approved);
+        return patch("/{bookingId}?approved={approved}", userId, requestParams, approved);
     }
 }

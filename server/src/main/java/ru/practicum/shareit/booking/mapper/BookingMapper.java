@@ -35,7 +35,6 @@ public class BookingMapper {
 
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
-        booking.setStatus(BookingState.WAITING);
 
         return booking;
     }

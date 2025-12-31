@@ -29,7 +29,7 @@ public class BookingController {
     public BookingDtoToReturn updateBookingApproval(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable(value = "bookingId", required = false) String bookingId,
-            @RequestParam(value = "approved") Boolean approved) {
+            @RequestParam(value = "approved") boolean approved) {
         return bookingService.updateBookingApproval(userId, bookingId, approved);
     }
 

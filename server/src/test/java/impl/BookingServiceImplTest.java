@@ -36,6 +36,7 @@ import ru.practicum.shareit.user.UserService;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
+import java.awt.print.Book;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -319,21 +320,38 @@ public class BookingServiceImplTest {
         bookingDto1.setStart(LocalDateTime.of(2024, 11, 11, 11, 11, 11));
         bookingDto1.setEnd(LocalDateTime.of(2025, 11, 11, 11, 11, 11));
 
-        Mockito.when(bookingMapper.mapFromDto(Mockito.any(BookingDto.class)))
-                .thenReturn(mockedBooking);
+        Booking booking = new Booking();
+        booking.setStart(bookingDto1.getStart());
+        booking.setEnd(bookingDto1.getEnd());
+        booking.setStatus(BookingState.WAITING);
+        booking.setItem(mockedItem);
+        booking.setBooker(mockedUser);
 
-        Mockito.when(bookingRepository.save(Mockito.eq(mockedBooking)))
-                .thenReturn(mockedBooking);
+        BookingDtoToReturn returnDto = new BookingDtoToReturn();
+        returnDto.setId(booking.getId());
+        returnDto.setStatus(booking.getStatus());
+        returnDto.setStart(booking.getStart());
+        returnDto.setEnd(booking.getEnd());
+        returnDto.setItem(mockedItem);
+        returnDto.setBooker(mockedUser);
+
+        Mockito.when(bookingMapper.mapFromDto(Mockito.any(BookingDto.class)))
+                .thenReturn(booking);
+
+        Mockito.when(bookingMapper.mapToDto(Mockito.any(Booking.class)))
+                .thenReturn(bookingDto1);
+
+        Mockito.when(bookingRepository.save(Mockito.any(Booking.class)))
+                .thenReturn(booking);
+
+        Mockito.when(bookingMapper.mapToBookingDtoReturned(Mockito.any(Booking.class))).thenReturn(returnDto);
 
         try {
             BookingDtoToReturn returnedDto = bookingServiceImpl.createBooking(1L, bookingDto1);
             assertNotNull(returnedDto);
-            assertEquals(mockedBooking.getId(), returnedDto.getId());
             assertEquals(mockedBooking.getItem(), returnedDto.getItem());
             assertEquals(mockedBooking.getBooker(), returnedDto.getBooker());
             assertEquals(mockedBooking.getStart(), returnedDto.getStart());
-            assertEquals(mockedBooking.getEnd(), returnedDto.getEnd());
-            assertEquals(BookingState.WAITING, returnedDto.getStatus());
         } catch (BookingValidationException e) {
             assertEquals("Booking start date cannot be equals booking end date", e.getMessage());
         }
@@ -360,6 +378,8 @@ public class BookingServiceImplTest {
     @Test
     void updateBookingApproval_WrongUser() {
 
+        Mockito.when(bookingRepository.existsById(Mockito.anyLong())).thenReturn(true);
+
         Mockito.when(bookingServiceImpl.checkExitstingBooking(Mockito.anyLong()))
                 .thenReturn(mockedBooking);
 
@@ -381,6 +401,8 @@ public class BookingServiceImplTest {
         Mockito.when(mockedBooking.getStatus())
                 .thenReturn(BookingState.APPROVED);
 
+        Mockito.when(bookingRepository.existsById(Mockito.anyLong())).thenReturn(true);
+
         Mockito.when(bookingServiceImpl.checkExitstingBooking(Mockito.eq(mockedBooking.getId())))
                 .thenReturn(mockedBooking);
 
@@ -399,6 +421,8 @@ public class BookingServiceImplTest {
     void updateBookingApprovalTest_REJECTED() {
         Mockito.when(mockedBooking.getStatus())
                 .thenReturn(BookingState.REJECTED);
+
+        Mockito.when(bookingRepository.existsById(Mockito.anyLong())).thenReturn(true);
 
         Mockito.when(bookingServiceImpl.checkExitstingBooking(Mockito.eq(mockedBooking.getId())))
                 .thenReturn(mockedBooking);

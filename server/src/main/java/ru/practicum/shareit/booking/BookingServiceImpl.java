@@ -59,23 +59,16 @@ public class BookingServiceImpl implements BookingService {
         Booking booking = bookingMapper.mapFromDto(bookingDto);
         booking.setItem(item);
         booking.setBooker(booker);
+        booking.setStatus(BookingState.WAITING);
 
         Booking bookingSaved = bookingRepository.save(booking);
 
-        BookingDtoToReturn returnedDto = new BookingDtoToReturn();
-        returnedDto.setId(bookingSaved.getId());
-        returnedDto.setItem(bookingSaved.getItem());
-        returnedDto.setBooker(bookingSaved.getBooker());
-        returnedDto.setStart(bookingSaved.getStart());
-        returnedDto.setEnd(bookingSaved.getEnd());
-        returnedDto.setStatus(BookingState.WAITING);
-
-        return returnedDto;
+        return bookingMapper.mapToBookingDtoReturned(bookingSaved);
     }
 
     @Transactional
     @Override
-    public BookingDtoToReturn updateBookingApproval(Long userId, String bookingId, Boolean approved) {
+    public BookingDtoToReturn updateBookingApproval(Long userId, String bookingId, boolean approved) {
 
         Long validatedBookingId = validateBookingId(bookingId);
 

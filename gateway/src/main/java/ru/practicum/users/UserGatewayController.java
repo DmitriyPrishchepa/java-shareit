@@ -1,26 +1,22 @@
 package ru.practicum.users;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.users.dto.UserDto;
 
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class UserGatewayController {
 
     private final UserClient userClient;
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<Object> createUser(@RequestBody UserDto userDto) {
         log.info("User created {}", userDto);
         return userClient.createUser(userDto);
     }
@@ -28,7 +24,7 @@ public class UserGatewayController {
     @PatchMapping("/{userId}")
     public ResponseEntity<Object> updateUser(
             @PathVariable("userId") @Positive long userId,
-            @Valid @RequestBody UserDto user) {
+            @RequestBody UserDto user) {
         log.info("User with userId {} updated {}", userId, user);
         return userClient.updateUser(userId, user);
     }

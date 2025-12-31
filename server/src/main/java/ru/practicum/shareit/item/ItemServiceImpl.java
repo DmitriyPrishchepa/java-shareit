@@ -9,7 +9,8 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.exceptions.AccessToCommentDeniedException;
+import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.exception.exceptions.BookingValidationException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
 import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.exception.exceptions.WrongUserException;
@@ -174,8 +175,8 @@ public class ItemServiceImpl implements ItemService {
             throw new WrongUserException("You cannot leave a comment");
         }
 
-        if (booking.getEnd().isAfter(LocalDateTime.now())) {
-            throw new AccessToCommentDeniedException("Rental date is not over yet");
+        if (booking.getStatus().equals(BookingState.APPROVED)) {
+            throw new BookingValidationException("ex");
         }
 
         Comment comment = new Comment();
@@ -185,7 +186,8 @@ public class ItemServiceImpl implements ItemService {
         comment.setCreated(dateTime);
 
         Comment commentSaved = commentRepository.save(comment);
-
-        return commentMapper.mapToReturnDto(commentSaved);
+        CommentDtoToReturn commentMapped = commentMapper.mapToReturnDto(commentSaved);
+        commentMapped.setBooking(booking);
+        return commentMapped;
     }
 }

@@ -1,17 +1,14 @@
 package ru.practicum.requests;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
-@Validated
 @Slf4j
 public class RequestGatewayController {
 
@@ -20,7 +17,7 @@ public class RequestGatewayController {
     @PostMapping
     public ResponseEntity<Object> createRequest(
             @RequestHeader("X-Sharer-User-Id") @Positive long userId,
-            @Valid @RequestBody String description
+            @RequestBody String description
     ) {
         log.info("Request with description {} created to user with userId {}", description, userId);
         return requestClient.addRequest(userId, description);

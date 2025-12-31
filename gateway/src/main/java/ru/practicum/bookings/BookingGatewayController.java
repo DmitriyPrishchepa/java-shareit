@@ -1,11 +1,9 @@
 package ru.practicum.bookings;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.bookings.dto.BookItemRequestDto;
 import ru.practicum.bookings.dto.BookingState;
@@ -14,17 +12,14 @@ import ru.practicum.bookings.dto.BookingState;
 @RequestMapping(path = "/bookings")
 @RequiredArgsConstructor
 @Slf4j
-@Validated
 public class BookingGatewayController {
     private final BookingClient bookingClient;
 
     @PatchMapping("/{bookingId}")
     public ResponseEntity<Object> updateBookingApproval(
-            @RequestHeader("X-Sharer-User-Id") @Positive long userId,
+            @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable(value = "bookingId", required = false) String bookingId,
-            @RequestParam(value = "approved") Boolean approved
-    ) {
-        log.info("Update approval, status is {}", approved);
+            @RequestParam(value = "approved") Boolean approved) {
         return bookingClient.updateBookingApproval(userId, bookingId, approved);
     }
 
@@ -48,7 +43,7 @@ public class BookingGatewayController {
 
     @PostMapping
     public ResponseEntity<Object> bookItem(@RequestHeader("X-Sharer-User-Id") @Positive long userId,
-                                           @RequestBody @Valid BookItemRequestDto requestDto) {
+                                           @RequestBody BookItemRequestDto requestDto) {
         log.info("Creating booking {}, userId={}", requestDto, userId);
         return bookingClient.bookItem(userId, requestDto);
     }

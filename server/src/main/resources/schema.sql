@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     end_date TIMESTAMP WITHOUT TIME ZONE,
     item_id BIGINT REFERENCES items(id) NOT NULL,
     booker_id BIGINT REFERENCES users(id),
-    status VARCHAR(40)
+    status VARCHAR(40) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS comments (

@@ -1,18 +1,15 @@
 package ru.practicum.items;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.items.dto.ItemDto;
 
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
-@Validated
 @Slf4j
 public class ItemGatewayController {
     private final ItemClient itemClient;
@@ -20,7 +17,7 @@ public class ItemGatewayController {
     @PostMapping
     public ResponseEntity<Object> addItem(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestBody @Valid ItemDto item) {
+            @RequestBody ItemDto item) {
         log.info("Item created is {}", item);
         return itemClient.addItem(userId, item);
     }
@@ -29,7 +26,7 @@ public class ItemGatewayController {
     public ResponseEntity<Object> updateItem(
             @PathVariable("itemId") @Positive Long itemId,
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
-            @RequestBody @Valid ItemDto itemDto
+            @RequestBody ItemDto itemDto
     ) {
         log.info("Updated item looks like {}", itemDto);
         return itemClient.updateItem(itemId, userId, itemDto);
@@ -63,7 +60,7 @@ public class ItemGatewayController {
     public ResponseEntity<Object> addComment(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
             @PathVariable("itemId") @Positive Long itemId,
-            @Valid @RequestBody String text
+            @RequestBody String text
     ) {
         log.info("Add comment to item with id {}, userId {} and description {}", itemId, userId, text);
         return itemClient.addComment(userId, itemId, text);
