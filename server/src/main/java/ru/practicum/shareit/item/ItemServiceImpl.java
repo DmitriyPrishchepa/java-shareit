@@ -186,8 +186,6 @@ public class ItemServiceImpl implements ItemService {
         comment.setCreated(dateTime);
 
         Comment commentSaved = commentRepository.save(comment);
-        CommentDtoToReturn commentMapped = commentMapper.mapToReturnDto(commentSaved);
-        commentMapped.setBooking(booking);
-        return commentMapped;
+        return commentMapper.mapToReturnDto(commentSaved);
     }
 }

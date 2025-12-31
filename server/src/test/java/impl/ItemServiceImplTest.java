@@ -45,8 +45,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -460,37 +459,36 @@ public class ItemServiceImplTest {
         }
     }
 
-//    @Test
-//    void addComment_Success() {
-//        Long userId = 1L;
-//        Long itemId = 1L;
-//        String text = "This is a comment";
-//
-//        User user = new User();
-//        user.setId(userId);
-//
-//        Item item = new Item();
-//        item.setId(itemId);
-//
-//        Booking booking = new Booking();
-//        booking.setItem(item);
-//        booking.setBooker(user);
-//        booking.setStart(bookingDto.getStart());
-//        booking.setEnd(bookingDto.getEnd());
-//        booking.setStatus(BookingState.CANCELED);
-//
-//        CommentDtoToReturn commentDtoToReturn = new CommentDtoToReturn();
-//        commentDtoToReturn.setId(1L);
-//        commentDtoToReturn.setText("");
-//        commentDtoToReturn.setAuthorName(user.getName());
-//        commentDtoToReturn.setBooking(booking);
-//
-//        Mockito.when(userRepository.getReferenceById(userId)).thenReturn(user);
-//        Mockito.when(itemRepository.getReferenceById(itemId)).thenReturn(item);
-//        Mockito.when(bookingRepository.findByItemId(itemId)).thenReturn(booking);
-//
-//        itemServiceImpl.addComment(userId, itemId, text);
-//
-//        verify(commentRepository, times(1)).save(Mockito.any(Comment.class));
-//    }
+    @Test
+    void addComment_Success() {
+        Long userId = 1L;
+        Long itemId = 1L;
+        String text = "This is a comment";
+
+        User user = new User();
+        user.setId(userId);
+
+        Item item = new Item();
+        item.setId(itemId);
+
+        Booking booking = new Booking();
+        booking.setItem(item);
+        booking.setBooker(user);
+        booking.setStart(bookingDto.getStart());
+        booking.setEnd(bookingDto.getEnd());
+        booking.setStatus(BookingState.CANCELED);
+
+        CommentDtoToReturn commentDtoToReturn = new CommentDtoToReturn();
+        commentDtoToReturn.setId(1L);
+        commentDtoToReturn.setText("");
+        commentDtoToReturn.setAuthorName(user.getName());
+
+        Mockito.when(userRepository.getReferenceById(userId)).thenReturn(user);
+        Mockito.when(itemRepository.getReferenceById(itemId)).thenReturn(item);
+        Mockito.when(bookingRepository.findByItemId(itemId)).thenReturn(booking);
+
+        itemServiceImpl.addComment(userId, itemId, text);
+
+        verify(commentRepository, times(1)).save(Mockito.any(Comment.class));
+    }
 }
