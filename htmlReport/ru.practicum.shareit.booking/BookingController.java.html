@@ -29,7 +29,7 @@ public class BookingController {
     public BookingDtoToReturn updateBookingApproval(
             @RequestHeader(&quot;X-Sharer-User-Id&quot;) long userId,
             @PathVariable(value = &quot;bookingId&quot;, required = false) String bookingId,
-            @RequestParam(value = &quot;approved&quot;) Boolean approved) {
+            @RequestParam(value = &quot;approved&quot;) boolean approved) {
 <span class="fc" id="L33">        return bookingService.updateBookingApproval(userId, bookingId, approved);</span>
     }
 
@@ -71,7 +71,7 @@ public class BookingController {
     @GetMapping(&quot;/owner&quot;)
     public List&lt;BookingDto&gt; getAllBookings(
             @RequestHeader(&quot;X-Sharer-User-Id&quot;) long ownerId,
-            @RequestParam(value = &quot;state&quot;) String state
+            @RequestParam(value = &quot;state&quot;, defaultValue = &quot;ALL&quot;) String state
     ) {
         BookingStateSearchParams bookingStateParams;
 
@@ -95,4 +95,4 @@ public class BookingController {
 <span class="fc" id="L95">        return bookingService.findAllByBookingItemOwnerIdAndStatus(ownerId, bookingStateParams);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

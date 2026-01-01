@@ -476,14 +476,20 @@ import static org.mockito.Mockito.*;
 <span class="fc" id="L476">        booking.setBooker(user);</span>
 <span class="fc" id="L477">        booking.setStart(bookingDto.getStart());</span>
 <span class="fc" id="L478">        booking.setEnd(bookingDto.getEnd());</span>
+<span class="fc" id="L479">        booking.setStatus(BookingState.CANCELED);</span>
 
-<span class="fc" id="L480">        Mockito.when(userRepository.getReferenceById(userId)).thenReturn(user);</span>
-<span class="fc" id="L481">        Mockito.when(itemRepository.getReferenceById(itemId)).thenReturn(item);</span>
-<span class="fc" id="L482">        Mockito.when(bookingRepository.findByItemId(itemId)).thenReturn(booking);</span>
+<span class="fc" id="L481">        CommentDtoToReturn commentDtoToReturn = new CommentDtoToReturn();</span>
+<span class="fc" id="L482">        commentDtoToReturn.setId(1L);</span>
+<span class="fc" id="L483">        commentDtoToReturn.setText(&quot;&quot;);</span>
+<span class="fc" id="L484">        commentDtoToReturn.setAuthorName(user.getName());</span>
 
-<span class="fc" id="L484">        itemServiceImpl.addComment(userId, itemId, text);</span>
+<span class="fc" id="L486">        Mockito.when(userRepository.getReferenceById(userId)).thenReturn(user);</span>
+<span class="fc" id="L487">        Mockito.when(itemRepository.getReferenceById(itemId)).thenReturn(item);</span>
+<span class="fc" id="L488">        Mockito.when(bookingRepository.findByItemId(itemId)).thenReturn(booking);</span>
 
-<span class="fc" id="L486">        verify(commentRepository, times(1)).save(Mockito.any(Comment.class));</span>
-<span class="fc" id="L487">    }</span>
+<span class="fc" id="L490">        itemServiceImpl.addComment(userId, itemId, text);</span>
+
+<span class="fc" id="L492">        verify(commentRepository, times(1)).save(Mockito.any(Comment.class));</span>
+<span class="fc" id="L493">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

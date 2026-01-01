@@ -34,7 +34,8 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getItemById(Long userId, Long itemId) {
-        return patch("/" + itemId, userId);
+        System.out.println(userId);
+        return get("/" + itemId, userId);
     }
 
     public ResponseEntity<Object> getAllItemsFromUser(Long userId) {

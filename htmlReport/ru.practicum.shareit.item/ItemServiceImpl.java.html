@@ -9,7 +9,7 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.exception.exceptions.AccessToCommentDeniedException;
+import ru.practicum.shareit.exception.exceptions.BookingValidationException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
 import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.exception.exceptions.WrongUserException;
@@ -161,32 +161,28 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDtoToReturn addComment(Long userId, Long itemId, String text) {
 
-<span class="fc" id="L164">        User user = userRepository.getReferenceById(userId);</span>
+<span class="fc" id="L164">        Booking booking = bookingRepository.findByItemId(itemId);</span>
 
-<span class="fc" id="L166">        Item item = itemRepository.getReferenceById(itemId);</span>
+<span class="fc" id="L166">        Item item = booking.getItem();</span>
 
-<span class="fc" id="L168">        LocalDateTime dateTime = LocalDateTime.now();</span>
-
-<span class="fc" id="L170">        Booking booking = bookingRepository.findByItemId(itemId);</span>
-
-<span class="fc bfc" id="L172" title="All 2 branches covered.">        if (!(Objects.equals(booking.getItem().getId(), item.getId()) &amp;&amp;</span>
-<span class="pc bpc" id="L173" title="1 of 2 branches missed.">                Objects.equals(booking.getBooker().getId(), user.getId()))) {</span>
-<span class="fc" id="L174">            throw new WrongUserException(&quot;You cannot leave a comment&quot;);</span>
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        if (!Objects.equals(booking.getBooker().getId(), userId)) {</span>
+<span class="fc" id="L169">            throw new WrongUserException(&quot;You cannot leave a comment&quot;);</span>
         }
 
-<span class="pc bpc" id="L177" title="1 of 2 branches missed.">        if (booking.getEnd().isAfter(LocalDateTime.now())) {</span>
-<span class="nc" id="L178">            throw new AccessToCommentDeniedException(&quot;Rental date is not over yet&quot;);</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">        if (booking.getEnd().isAfter(LocalDateTime.now())) {</span>
+<span class="nc" id="L173">            throw new BookingValidationException(&quot;ex&quot;);</span>
         }
 
-<span class="fc" id="L181">        Comment comment = new Comment();</span>
-<span class="fc" id="L182">        comment.setText(text.trim());</span>
-<span class="fc" id="L183">        comment.setItem(item);</span>
-<span class="fc" id="L184">        comment.setAuthor(user);</span>
-<span class="fc" id="L185">        comment.setCreated(dateTime);</span>
+<span class="fc" id="L176">        User booker = booking.getBooker();</span>
 
-<span class="fc" id="L187">        Comment commentSaved = commentRepository.save(comment);</span>
+<span class="fc" id="L178">        Comment comment = new Comment();</span>
+<span class="fc" id="L179">        comment.setText(text.trim());</span>
+<span class="fc" id="L180">        comment.setItem(item);</span>
+<span class="fc" id="L181">        comment.setAuthor(booker);</span>
+<span class="fc" id="L182">        comment.setCreated(LocalDateTime.now());</span>
 
-<span class="fc" id="L189">        return commentMapper.mapToReturnDto(commentSaved);</span>
+<span class="fc" id="L184">        Comment commentSaved = commentRepository.save(comment);</span>
+<span class="fc" id="L185">        return commentMapper.mapToReturnDto(commentSaved);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

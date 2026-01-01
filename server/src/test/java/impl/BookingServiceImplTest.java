@@ -41,8 +41,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
@@ -752,6 +751,18 @@ public class BookingServiceImplTest {
     }
 
     @Test
+    void findAllByBookingItemOwnerIdAndStatusTest_FUTURE() {
+        Mockito.when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);
+
+        Mockito.when(bookingRepository.findFutureBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
+                .thenReturn(List.of());
+
+        assertThrows(IllegalArgumentException.class, () -> {
+            bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.FUTURE);
+        });
+    }
+
+    @Test
     void findAllByBookingItemOwnerIdAndStatusTest_REJECTED() {
 
         User userForTest = new User();
@@ -793,6 +804,53 @@ public class BookingServiceImplTest {
                 bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.REJECTED);
 
         assertThat(result, Matchers.not(empty()));
+    }
+
+    @Test
+    void findAllByBookingItemOwnerIdAndStatusTest_CURRENT() {
+
+        Mockito.when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);
+
+        User userForTest = new User();
+        userForTest.setName("User1");
+        userForTest.setId(1L);
+        userForTest.setEmail("userEmail");
+
+        Item itemForTest = new Item();
+        itemForTest.setId(1L);
+        itemForTest.setOwnerId(1L);
+        itemForTest.setAvailable(true);
+        itemForTest.setDescription("Item1");
+        itemForTest.setRequest(new Request());
+
+        Booking bookingForTest = new Booking();
+        bookingForTest.setId(1L);
+        bookingForTest.setItem(itemForTest);
+        bookingForTest.setBooker(userForTest);
+        bookingForTest.setStatus(BookingState.APPROVED);
+
+        BookingDto dto = new BookingDto();
+        dto.setItemId(bookingForTest.getItem().getId());
+        dto.setStart(bookingForTest.getStart());
+        dto.setEnd(bookingForTest.getEnd());
+        dto.setStatus(bookingForTest.getStatus());
+
+        bookingForTest.setStart(LocalDateTime.of(2025, 12, 12, 12, 12, 12));
+        bookingForTest.setEnd(null);
+
+        Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
+                .thenReturn(dto);
+
+        Mockito.when(bookingMapper.mapToListDto(Mockito.anyList()))
+                .thenReturn(List.of(dto));
+
+        Mockito.when(bookingRepository.findCurrentBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
+                .thenReturn(List.of(bookingForTest));
+
+        List<BookingDto> result = bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.CURRENT);
+
+        assertThat(result, Matchers.not(empty()));
+        assertThat(result.size(), Matchers.is(1));
     }
 
     @Test
@@ -841,5 +899,15 @@ public class BookingServiceImplTest {
                 bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.ALL);
 
         assertThat(result, Matchers.not(empty()));
+    }
+
+    @Test
+    void findAllByItemOwnerId_Error() {
+
+        List<BookingDto> dtosList = List.of(bookingDto);
+
+        Mockito.when(bookingMapper.mapToListDto(Mockito.anyList())).thenReturn(dtosList);
+
+        assertThrows(IllegalArgumentException.class, () -> bookingServiceImpl.findAllByItemOwnerId(1L));
     }
 }

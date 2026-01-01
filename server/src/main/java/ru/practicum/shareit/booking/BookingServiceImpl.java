@@ -164,6 +164,14 @@ public class BookingServiceImpl implements BookingService {
             default -> bookings = bookingRepository.findAllByItemOwnerId(ownerId);
         }
 
+        if (bookings.isEmpty()) {
+            throw new IllegalArgumentException("No bookings are found");
+        }
+
+        if (bookings.stream().anyMatch(booking -> !booking.getItem().getOwnerId().equals(ownerId))) {
+            throw new WrongUserException("You do not have permission to access these bookings.");
+        }
+
         return bookingMapper.mapToListDto(bookings);
     }
 
@@ -178,6 +186,14 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> findAllByItemOwnerId(Long ownerId) {
         List<Booking> bookings = bookingRepository.findAllByItemOwnerId(ownerId);
+
+        if (bookings.isEmpty()) {
+            throw new IllegalArgumentException("No bookings are found");
+        }
+
+        if (bookings.stream().anyMatch(booking -> !booking.getItem().getOwnerId().equals(ownerId))) {
+            throw new WrongUserException("You do not have permission to access these bookings.");
+        }
         return bookingMapper.mapToListDto(bookings);
     }
 

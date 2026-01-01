@@ -64,69 +64,68 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 <span class="fc" id="L64">        assertEquals(bookingDto.getItemId(), booking.getItem().getId());</span>
 <span class="fc" id="L65">        assertEquals(bookingDto.getStart(), booking.getStart());</span>
 <span class="fc" id="L66">        assertEquals(bookingDto.getEnd(), booking.getEnd());</span>
-<span class="fc" id="L67">        assertEquals(BookingState.WAITING, booking.getStatus());</span>
-<span class="fc" id="L68">    }</span>
+<span class="fc" id="L67">    }</span>
 
     @Test
     void testMapToBookingDtoReturned() {
         // Создаем объект Booking для тестирования
-<span class="fc" id="L73">        Booking booking = new Booking();</span>
-<span class="fc" id="L74">        booking.setId(1L);</span>
-<span class="fc" id="L75">        booking.setItem(new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true));</span>
-<span class="fc" id="L76">        booking.setStart(LocalDateTime.now());</span>
-<span class="fc" id="L77">        booking.setEnd(LocalDateTime.now().plusDays(5));</span>
-<span class="fc" id="L78">        booking.setStatus(BookingState.WAITING);</span>
-<span class="fc" id="L79">        booking.setBooker(new User(3L, &quot;username&quot;, &quot;user@example.com&quot;));</span>
+<span class="fc" id="L72">        Booking booking = new Booking();</span>
+<span class="fc" id="L73">        booking.setId(1L);</span>
+<span class="fc" id="L74">        booking.setItem(new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true));</span>
+<span class="fc" id="L75">        booking.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L76">        booking.setEnd(LocalDateTime.now().plusDays(5));</span>
+<span class="fc" id="L77">        booking.setStatus(BookingState.WAITING);</span>
+<span class="fc" id="L78">        booking.setBooker(new User(3L, &quot;username&quot;, &quot;user@example.com&quot;));</span>
 
         // Преобразуем Booking в BookingDtoToReturn
-<span class="fc" id="L82">        BookingDtoToReturn bookingDtoToReturn = bookingMapper.mapToBookingDtoReturned(booking);</span>
+<span class="fc" id="L81">        BookingDtoToReturn bookingDtoToReturn = bookingMapper.mapToBookingDtoReturned(booking);</span>
 
         // Проверяем, что все поля были корректно отображены
-<span class="fc" id="L85">        assertEquals(booking.getId(), bookingDtoToReturn.getId());</span>
-<span class="fc" id="L86">        assertEquals(booking.getItem(), bookingDtoToReturn.getItem());</span>
-<span class="fc" id="L87">        assertEquals(booking.getBooker(), bookingDtoToReturn.getBooker());</span>
-<span class="fc" id="L88">        assertEquals(booking.getStart(), bookingDtoToReturn.getStart());</span>
-<span class="fc" id="L89">        assertEquals(booking.getEnd(), bookingDtoToReturn.getEnd());</span>
-<span class="fc" id="L90">        assertEquals(booking.getStatus(), bookingDtoToReturn.getStatus());</span>
-<span class="fc" id="L91">    }</span>
+<span class="fc" id="L84">        assertEquals(booking.getId(), bookingDtoToReturn.getId());</span>
+<span class="fc" id="L85">        assertEquals(booking.getItem(), bookingDtoToReturn.getItem());</span>
+<span class="fc" id="L86">        assertEquals(booking.getBooker(), bookingDtoToReturn.getBooker());</span>
+<span class="fc" id="L87">        assertEquals(booking.getStart(), bookingDtoToReturn.getStart());</span>
+<span class="fc" id="L88">        assertEquals(booking.getEnd(), bookingDtoToReturn.getEnd());</span>
+<span class="fc" id="L89">        assertEquals(booking.getStatus(), bookingDtoToReturn.getStatus());</span>
+<span class="fc" id="L90">    }</span>
 
     @Test
     void testMapToBookingDtoReturnedList() {
         // Создаем список объектов Booking для тестирования
-<span class="fc" id="L96">        Booking booking1 = new Booking();</span>
-<span class="fc" id="L97">        booking1.setId(1L);</span>
-<span class="fc" id="L98">        booking1.setItem(new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true));</span>
-<span class="fc" id="L99">        booking1.setStart(LocalDateTime.now());</span>
-<span class="fc" id="L100">        booking1.setEnd(LocalDateTime.now().plusDays(5));</span>
-<span class="fc" id="L101">        booking1.setStatus(BookingState.WAITING);</span>
-<span class="fc" id="L102">        booking1.setBooker(new User(3L, &quot;username&quot;, &quot;user@example.com&quot;));</span>
+<span class="fc" id="L95">        Booking booking1 = new Booking();</span>
+<span class="fc" id="L96">        booking1.setId(1L);</span>
+<span class="fc" id="L97">        booking1.setItem(new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true));</span>
+<span class="fc" id="L98">        booking1.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L99">        booking1.setEnd(LocalDateTime.now().plusDays(5));</span>
+<span class="fc" id="L100">        booking1.setStatus(BookingState.WAITING);</span>
+<span class="fc" id="L101">        booking1.setBooker(new User(3L, &quot;username&quot;, &quot;user@example.com&quot;));</span>
 
-<span class="fc" id="L104">        Booking booking2 = new Booking();</span>
-<span class="fc" id="L105">        booking2.setId(4L);</span>
-<span class="fc" id="L106">        booking2.setItem(new Item(5L, &quot;Another Item&quot;, &quot;Another Description&quot;, false));</span>
-<span class="fc" id="L107">        booking2.setStart(LocalDateTime.now());</span>
-<span class="fc" id="L108">        booking2.setEnd(LocalDateTime.now().plusDays(3));</span>
-<span class="fc" id="L109">        booking2.setStatus(BookingState.APPROVED);</span>
-<span class="fc" id="L110">        booking2.setBooker(new User(6L, &quot;anotherUser&quot;, &quot;another@example.com&quot;));</span>
+<span class="fc" id="L103">        Booking booking2 = new Booking();</span>
+<span class="fc" id="L104">        booking2.setId(4L);</span>
+<span class="fc" id="L105">        booking2.setItem(new Item(5L, &quot;Another Item&quot;, &quot;Another Description&quot;, false));</span>
+<span class="fc" id="L106">        booking2.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L107">        booking2.setEnd(LocalDateTime.now().plusDays(3));</span>
+<span class="fc" id="L108">        booking2.setStatus(BookingState.APPROVED);</span>
+<span class="fc" id="L109">        booking2.setBooker(new User(6L, &quot;anotherUser&quot;, &quot;another@example.com&quot;));</span>
 
-<span class="fc" id="L112">        List&lt;Booking&gt; bookings = List.of(booking1, booking2);</span>
+<span class="fc" id="L111">        List&lt;Booking&gt; bookings = List.of(booking1, booking2);</span>
 
         // Преобразуем список Booking в список BookingDtoToReturn
-<span class="fc" id="L115">        List&lt;BookingDtoToReturn&gt; bookingDtosToReturn = bookingMapper.mapToBookingDtoReturned(bookings);</span>
+<span class="fc" id="L114">        List&lt;BookingDtoToReturn&gt; bookingDtosToReturn = bookingMapper.mapToBookingDtoReturned(bookings);</span>
 
         // Проверяем, что все поля были корректно отображены
-<span class="fc" id="L118">        assertEquals(bookings.size(), bookingDtosToReturn.size());</span>
-<span class="fc bfc" id="L119" title="All 2 branches covered.">        for (int i = 0; i &lt; bookings.size(); i++) {</span>
-<span class="fc" id="L120">            Booking booking = bookings.get(i);</span>
-<span class="fc" id="L121">            BookingDtoToReturn bookingDtoToReturn = bookingDtosToReturn.get(i);</span>
+<span class="fc" id="L117">        assertEquals(bookings.size(), bookingDtosToReturn.size());</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for (int i = 0; i &lt; bookings.size(); i++) {</span>
+<span class="fc" id="L119">            Booking booking = bookings.get(i);</span>
+<span class="fc" id="L120">            BookingDtoToReturn bookingDtoToReturn = bookingDtosToReturn.get(i);</span>
 
-<span class="fc" id="L123">            assertEquals(booking.getId(), bookingDtoToReturn.getId());</span>
-<span class="fc" id="L124">            assertEquals(booking.getItem(), bookingDtoToReturn.getItem());</span>
-<span class="fc" id="L125">            assertEquals(booking.getBooker(), bookingDtoToReturn.getBooker());</span>
-<span class="fc" id="L126">            assertEquals(booking.getStart(), bookingDtoToReturn.getStart());</span>
-<span class="fc" id="L127">            assertEquals(booking.getEnd(), bookingDtoToReturn.getEnd());</span>
-<span class="fc" id="L128">            assertEquals(booking.getStatus(), bookingDtoToReturn.getStatus());</span>
+<span class="fc" id="L122">            assertEquals(booking.getId(), bookingDtoToReturn.getId());</span>
+<span class="fc" id="L123">            assertEquals(booking.getItem(), bookingDtoToReturn.getItem());</span>
+<span class="fc" id="L124">            assertEquals(booking.getBooker(), bookingDtoToReturn.getBooker());</span>
+<span class="fc" id="L125">            assertEquals(booking.getStart(), bookingDtoToReturn.getStart());</span>
+<span class="fc" id="L126">            assertEquals(booking.getEnd(), bookingDtoToReturn.getEnd());</span>
+<span class="fc" id="L127">            assertEquals(booking.getStatus(), bookingDtoToReturn.getStatus());</span>
         }
-<span class="fc" id="L130">    }</span>
+<span class="fc" id="L129">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.13.202504020838</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

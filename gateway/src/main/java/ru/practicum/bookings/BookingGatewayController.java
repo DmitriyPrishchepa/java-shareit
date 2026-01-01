@@ -1,5 +1,6 @@
 package ru.practicum.bookings;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +22,7 @@ public class BookingGatewayController {
     public ResponseEntity<Object> updateBookingApproval(
             @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable(value = "bookingId", required = false) String bookingId,
-            @RequestParam(value = "approved") boolean approved) {
+            @RequestParam(value = "approved") @NotNull boolean approved) {
         return bookingClient.updateBookingApproval(userId, bookingId, approved);
     }
 
@@ -35,7 +36,7 @@ public class BookingGatewayController {
     }
 
     @GetMapping("/owner")
-    public ResponseEntity<Object> getBookingsOfOwner(@RequestHeader("X-Sharer-User-Id") @Positive long ownerId,
+    public ResponseEntity<Object> getBookingsOfOwner(@RequestHeader("X-Sharer-User-Id") @Positive @NotNull long ownerId,
                                                      @RequestParam(name = "state", defaultValue = "all") String stateParam) {
         BookingState state = BookingState.from(stateParam)
                 .orElseThrow(() -> new IllegalArgumentException("Unknown state: " + stateParam));

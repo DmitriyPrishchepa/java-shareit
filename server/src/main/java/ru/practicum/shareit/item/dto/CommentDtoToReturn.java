@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.dto;
 
 import lombok.Data;
-import ru.practicum.shareit.booking.model.Booking;
 
 import java.time.LocalDateTime;
 
@@ -11,5 +10,4 @@ public class CommentDtoToReturn {
     private String text;
     private String authorName;
     private LocalDateTime created;
-    private Booking booking;
 }
