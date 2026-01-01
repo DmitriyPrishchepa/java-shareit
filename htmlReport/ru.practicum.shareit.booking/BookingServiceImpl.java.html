@@ -153,10 +153,10 @@ public class BookingServiceImpl implements BookingService {
     public List&lt;BookingDto&gt; findAllByBookingItemOwnerIdAndStatus(Long ownerId, BookingStateSearchParams state) {
         List&lt;Booking&gt; bookings;
 
-<span class="fc bfc" id="L156" title="All 6 branches covered.">        switch (state) {</span>
-<span class="fc" id="L157">            case PAST -&gt; bookings = bookingRepository.findPastBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
+<span class="pc bpc" id="L156" title="2 of 6 branches missed.">        switch (state) {</span>
+<span class="nc" id="L157">            case PAST -&gt; bookings = bookingRepository.findPastBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
 <span class="fc" id="L158">            case FUTURE -&gt; bookings = bookingRepository.findFutureBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
-<span class="fc" id="L159">            case CURRENT -&gt; bookings = bookingRepository.findCurrentBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
+<span class="nc" id="L159">            case CURRENT -&gt; bookings = bookingRepository.findCurrentBookingsByOwnerId(ownerId, LocalDateTime.now());</span>
             case WAITING -&gt;
 <span class="fc" id="L161">                    bookings = bookingRepository.findAllByOwnerIdAndStatus(ownerId, BookingStateSearchParams.WAITING);</span>
             case REJECTED -&gt;
@@ -185,10 +185,10 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     @Override
     public List&lt;BookingDto&gt; findAllByItemOwnerId(Long ownerId) {
-<span class="nc" id="L188">        List&lt;Booking&gt; bookings = bookingRepository.findAllByItemOwnerId(ownerId);</span>
+<span class="fc" id="L188">        List&lt;Booking&gt; bookings = bookingRepository.findAllByItemOwnerId(ownerId);</span>
 
-<span class="nc bnc" id="L190" title="All 2 branches missed.">        if (bookings.isEmpty()) {</span>
-<span class="nc" id="L191">            throw new IllegalArgumentException(&quot;No bookings are found&quot;);</span>
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">        if (bookings.isEmpty()) {</span>
+<span class="fc" id="L191">            throw new IllegalArgumentException(&quot;No bookings are found&quot;);</span>
         }
 
 <span class="nc bnc" id="L194" title="All 4 branches missed.">        if (bookings.stream().anyMatch(booking -&gt; !booking.getItem().getOwnerId().equals(ownerId))) {</span>

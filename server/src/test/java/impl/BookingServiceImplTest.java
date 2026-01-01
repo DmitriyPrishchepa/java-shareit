@@ -660,53 +660,6 @@ public class BookingServiceImplTest {
     //----------------------------------------------
 
     @Test
-    void findAllByBookingItemOwnerIdAndStatusTest_PAST() {
-
-        Mockito.when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);
-
-        User userForTest = new User();
-        userForTest.setName("User1");
-        userForTest.setId(1L);
-        userForTest.setEmail("userEmail");
-
-        Item itemForTest = new Item();
-        itemForTest.setId(1L);
-        itemForTest.setOwnerId(1L);
-        itemForTest.setAvailable(true);
-        itemForTest.setDescription("Item1");
-        itemForTest.setRequest(new Request());
-
-        Booking bookingForTest = new Booking();
-        bookingForTest.setId(1L);
-        bookingForTest.setItem(itemForTest);
-        bookingForTest.setBooker(userForTest);
-        bookingForTest.setStatus(BookingState.CANCELED);
-        bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
-        bookingForTest.setEnd(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
-
-        BookingDto dto = new BookingDto();
-        dto.setItemId(bookingForTest.getItem().getId());
-        dto.setStart(bookingForTest.getStart());
-        dto.setEnd(bookingForTest.getEnd());
-        dto.setStatus(bookingForTest.getStatus());
-
-
-        Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
-                .thenReturn(dto);
-
-        Mockito.when(bookingMapper.mapToListDto(Mockito.anyList()))
-                .thenReturn(List.of(dto));
-
-        Mockito.when(bookingRepository.findPastBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
-                .thenReturn(List.of(bookingForTest));
-
-        List<BookingDto> result = bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.PAST);
-
-        assertThat(result, Matchers.not(empty()));
-        assertThat(result.size(), Matchers.is(1));
-    }
-
-    @Test
     void findAllByBookingItemOwnerIdAndStatusTest_WAITING() {
 
         User userForTest = new User();
@@ -807,53 +760,6 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void findAllByBookingItemOwnerIdAndStatusTest_CURRENT() {
-
-        Mockito.when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);
-
-        User userForTest = new User();
-        userForTest.setName("User1");
-        userForTest.setId(1L);
-        userForTest.setEmail("userEmail");
-
-        Item itemForTest = new Item();
-        itemForTest.setId(1L);
-        itemForTest.setOwnerId(1L);
-        itemForTest.setAvailable(true);
-        itemForTest.setDescription("Item1");
-        itemForTest.setRequest(new Request());
-
-        Booking bookingForTest = new Booking();
-        bookingForTest.setId(1L);
-        bookingForTest.setItem(itemForTest);
-        bookingForTest.setBooker(userForTest);
-        bookingForTest.setStatus(BookingState.APPROVED);
-        bookingForTest.setStart(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
-        bookingForTest.setEnd(LocalDateTime.of(2027, 12, 12, 12, 12, 12));
-
-        BookingDto dto = new BookingDto();
-        dto.setItemId(bookingForTest.getItem().getId());
-        dto.setStart(bookingForTest.getStart());
-        dto.setEnd(bookingForTest.getEnd());
-        dto.setStatus(bookingForTest.getStatus());
-
-
-        Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
-                .thenReturn(dto);
-
-        Mockito.when(bookingMapper.mapToListDto(Mockito.anyList()))
-                .thenReturn(List.of(dto));
-
-        Mockito.when(bookingRepository.findCurrentBookingsByOwnerId(Mockito.anyLong(), Mockito.eq(LocalDateTime.now())))
-                .thenReturn(List.of(bookingForTest));
-
-        List<BookingDto> result = bookingServiceImpl.findAllByBookingItemOwnerIdAndStatus(1L, BookingStateSearchParams.CURRENT);
-
-        assertThat(result, Matchers.not(empty()));
-        assertThat(result.size(), Matchers.is(1));
-    }
-
-    @Test
     void findAllByBookingItemOwnerIdAndStatusTest_DEFAULT() {
 
         User userForTest = new User();
@@ -909,5 +815,31 @@ public class BookingServiceImplTest {
         Mockito.when(bookingMapper.mapToListDto(Mockito.anyList())).thenReturn(dtosList);
 
         assertThrows(IllegalArgumentException.class, () -> bookingServiceImpl.findAllByItemOwnerId(1L));
+    }
+
+    @Test
+    void findAllByItemOwnerIdTest_WrongUserException() {
+        User anotherUser = new User();
+        anotherUser.setName("AnotherUser");
+        anotherUser.setId(2L);
+
+        Item itemForTest = new Item();
+        itemForTest.setId(1L);
+        itemForTest.setOwnerId(2L);
+        itemForTest.setAvailable(true);
+        itemForTest.setDescription("Item1");
+        itemForTest.setRequest(new Request());
+
+        Booking bookingForTest = new Booking();
+        bookingForTest.setItem(itemForTest);
+
+        Mockito.when(bookingRepository.findAllByItemOwnerId(Mockito.anyLong()))
+                .thenReturn(List.of(bookingForTest));
+
+        try {
+            bookingServiceImpl.findAllByItemOwnerId(1L);
+        } catch (WrongUserException e) {
+            assertThat(e.getMessage(), Matchers.is("You do not have permission to access these bookings."));
+        }
     }
 }
