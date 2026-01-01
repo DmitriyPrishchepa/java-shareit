@@ -681,6 +681,8 @@ public class BookingServiceImplTest {
         bookingForTest.setItem(itemForTest);
         bookingForTest.setBooker(userForTest);
         bookingForTest.setStatus(BookingState.CANCELED);
+        bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
+        bookingForTest.setEnd(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
 
         BookingDto dto = new BookingDto();
         dto.setItemId(bookingForTest.getItem().getId());
@@ -688,8 +690,6 @@ public class BookingServiceImplTest {
         dto.setEnd(bookingForTest.getEnd());
         dto.setStatus(bookingForTest.getStatus());
 
-        bookingForTest.setStart(LocalDateTime.of(2023, 12, 12, 12, 12, 12));
-        bookingForTest.setEnd(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
 
         Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
                 .thenReturn(dto);
@@ -828,6 +828,8 @@ public class BookingServiceImplTest {
         bookingForTest.setItem(itemForTest);
         bookingForTest.setBooker(userForTest);
         bookingForTest.setStatus(BookingState.APPROVED);
+        bookingForTest.setStart(LocalDateTime.of(2024, 12, 12, 12, 12, 12));
+        bookingForTest.setEnd(LocalDateTime.of(2027, 12, 12, 12, 12, 12));
 
         BookingDto dto = new BookingDto();
         dto.setItemId(bookingForTest.getItem().getId());
@@ -835,8 +837,6 @@ public class BookingServiceImplTest {
         dto.setEnd(bookingForTest.getEnd());
         dto.setStatus(bookingForTest.getStatus());
 
-        bookingForTest.setStart(LocalDateTime.of(2025, 12, 12, 12, 12, 12));
-        bookingForTest.setEnd(null);
 
         Mockito.when(bookingMapper.mapToDto(Mockito.eq(bookingForTest)))
                 .thenReturn(dto);
