@@ -7,6 +7,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.List;
@@ -32,6 +33,9 @@ public class BookingMapper {
     public Booking mapFromDto(BookingDto bookingDto) {
         Booking booking = new Booking();
 
+        Item item = itemRepository.getReferenceById(bookingDto.getItemId());
+
+        booking.setItem(item);
         booking.setStart(bookingDto.getStart());
         booking.setEnd(bookingDto.getEnd());
 

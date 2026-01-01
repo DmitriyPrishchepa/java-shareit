@@ -9,7 +9,6 @@ import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.util.BookingState;
 import ru.practicum.shareit.exception.exceptions.BookingValidationException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
 import ru.practicum.shareit.exception.exceptions.MissingParameterException;
@@ -162,30 +161,29 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     public CommentDtoToReturn addComment(Long userId, Long itemId, String text) {
 
-        User user = userRepository.getReferenceById(userId);
-
-        Item item = itemRepository.getReferenceById(itemId);
-
-        LocalDateTime dateTime = LocalDateTime.now();
-
         Booking booking = bookingRepository.findByItemId(itemId);
 
-        if (!(Objects.equals(booking.getItem().getId(), item.getId()) &&
-                Objects.equals(booking.getBooker().getId(), user.getId()))) {
+        Item item = booking.getItem();
+
+        if (!Objects.equals(booking.getBooker().getId(), userId)) {
             throw new WrongUserException("You cannot leave a comment");
         }
 
-        if (booking.getStatus().equals(BookingState.APPROVED)) {
+        if (booking.getEnd().isAfter(LocalDateTime.now())) {
             throw new BookingValidationException("ex");
         }
+
+        User booker = booking.getBooker();
 
         Comment comment = new Comment();
         comment.setText(text.trim());
         comment.setItem(item);
-        comment.setAuthor(user);
-        comment.setCreated(dateTime);
+        comment.setAuthor(booker);
+        comment.setCreated(LocalDateTime.now());
 
         Comment commentSaved = commentRepository.save(comment);
-        return commentMapper.mapToReturnDto(commentSaved);
+        CommentDtoToReturn mapped = commentMapper.mapToReturnDto(commentSaved);
+        mapped.setBooking(booking);
+        return mapped;
     }
 }

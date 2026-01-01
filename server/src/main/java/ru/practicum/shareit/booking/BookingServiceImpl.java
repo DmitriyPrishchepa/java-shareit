@@ -57,7 +57,6 @@ public class BookingServiceImpl implements BookingService {
         }
 
         Booking booking = bookingMapper.mapFromDto(bookingDto);
-        booking.setItem(item);
         booking.setBooker(booker);
         booking.setStatus(BookingState.WAITING);
 
