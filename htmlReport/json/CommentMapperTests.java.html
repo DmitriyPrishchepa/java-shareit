@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CommentMapperTests.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">json</a> &gt; <span class="el_source">CommentMapperTests.java</span></div><h1>CommentMapperTests.java</h1><pre class="source lang-java linenums">package json;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest(classes = {CommentMapper.class})
+<span class="fc" id="L16">public class CommentMapperTests {</span>
+
+    @Autowired
+    private CommentMapper commentMapper;
+
+    @Test
+    void mapToReturnDto() {
+<span class="fc" id="L23">        Comment comment = new Comment();</span>
+<span class="fc" id="L24">        comment.setId(1L);</span>
+<span class="fc" id="L25">        comment.setText(&quot;\\\&quot;text\\\&quot;: \\\&quot;Пример комментария для обработки\\\&quot;&quot;);</span>
+<span class="fc" id="L26">        comment.setCreated(LocalDateTime.now());</span>
+<span class="fc" id="L27">        User author = new User();</span>
+<span class="fc" id="L28">        author.setName(&quot;Имя автора&quot;);</span>
+<span class="fc" id="L29">        comment.setAuthor(author);</span>
+
+<span class="fc" id="L31">        CommentDtoToReturn commentDto = mapToReturnDto(comment);</span>
+
+<span class="fc" id="L33">        assertEquals(comment.getId(), commentDto.getId());</span>
+
+<span class="fc" id="L35">        assertEquals(comment.getAuthor().getName(), commentDto.getAuthorName());</span>
+<span class="fc" id="L36">        assertEquals(comment.getCreated(), commentDto.getCreated());</span>
+<span class="fc" id="L37">    }</span>
+
+    private CommentDtoToReturn mapToReturnDto(Comment comment) {
+<span class="fc" id="L40">        CommentDtoToReturn commentDto = new CommentDtoToReturn();</span>
+<span class="fc" id="L41">        commentDto.setId(comment.getId());</span>
+
+<span class="fc" id="L43">        String text = comment.getText();</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (text.contains(&quot;\&quot;: \&quot;&quot;)) {</span>
+<span class="nc" id="L45">            int startIndex = text.indexOf(&quot;\&quot;: \&quot;&quot;) + 4;</span>
+<span class="nc" id="L46">            int endIndex = text.lastIndexOf(&quot;\&quot;&quot;);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            if (startIndex &lt; endIndex) {</span>
+<span class="nc" id="L48">                String result = text.substring(startIndex, endIndex);</span>
+<span class="nc" id="L49">                commentDto.setText(result);</span>
+<span class="nc" id="L50">            } else {</span>
+<span class="nc" id="L51">                commentDto.setText(&quot;&quot;);</span>
+            }
+<span class="nc" id="L53">        } else {</span>
+<span class="fc" id="L54">            commentDto.setText(&quot;&quot;);</span>
+        }
+
+<span class="fc" id="L57">        commentDto.setAuthorName(comment.getAuthor().getName());</span>
+<span class="fc" id="L58">        commentDto.setCreated(comment.getCreated());</span>
+
+<span class="fc" id="L60">        return commentDto;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

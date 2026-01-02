@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BookingMapperTests.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">json</a> &gt; <span class="el_source">BookingMapperTests.java</span></div><h1>BookingMapperTests.java</h1><pre class="source lang-java linenums">package json;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoToReturn;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@SpringBootTest(classes = {BookingMapper.class})
+<span class="fc" id="L23">class BookingMapperTests {</span>
+
+    @Autowired
+    private BookingMapper bookingMapper;
+
+    @MockBean
+    private ItemRepository itemRepository;
+
+    @MockBean
+    private UserRepository userRepository;
+
+    @Test
+    void testMapToDto() {
+<span class="fc" id="L36">        Booking booking = new Booking();</span>
+<span class="fc" id="L37">        booking.setId(1L);</span>
+<span class="fc" id="L38">        booking.setItem(new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true));</span>
+<span class="fc" id="L39">        booking.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L40">        booking.setEnd(LocalDateTime.now().plusDays(5));</span>
+<span class="fc" id="L41">        booking.setStatus(BookingState.WAITING);</span>
+<span class="fc" id="L42">        booking.setBooker(new User(3L, &quot;username&quot;, &quot;user@example.com&quot;));</span>
+
+<span class="fc" id="L44">        BookingDto bookingDto = bookingMapper.mapToDto(booking);</span>
+
+<span class="fc" id="L46">        assertEquals(booking.getItem().getId(), bookingDto.getItemId());</span>
+<span class="fc" id="L47">        assertEquals(booking.getStart(), bookingDto.getStart());</span>
+<span class="fc" id="L48">        assertEquals(booking.getEnd(), bookingDto.getEnd());</span>
+<span class="fc" id="L49">        assertEquals(booking.getStatus(), bookingDto.getStatus());</span>
+<span class="fc" id="L50">    }</span>
+
+    @Test
+    void testMapFromDto() {
+<span class="fc" id="L54">        BookingDto bookingDto = new BookingDto();</span>
+<span class="fc" id="L55">        bookingDto.setItemId(2L);</span>
+<span class="fc" id="L56">        bookingDto.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L57">        bookingDto.setEnd(LocalDateTime.now().plusDays(5));</span>
+<span class="fc" id="L58">        bookingDto.setStatus(BookingState.WAITING);</span>
+
+<span class="fc" id="L60">        Item item = new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true);</span>
+<span class="fc" id="L61">        Booking booking = bookingMapper.mapFromDto(bookingDto);</span>
+<span class="fc" id="L62">        booking.setItem(item);</span>
+
+<span class="fc" id="L64">        assertEquals(bookingDto.getItemId(), booking.getItem().getId());</span>
+<span class="fc" id="L65">        assertEquals(bookingDto.getStart(), booking.getStart());</span>
+<span class="fc" id="L66">        assertEquals(bookingDto.getEnd(), booking.getEnd());</span>
+<span class="fc" id="L67">    }</span>
+
+    @Test
+    void testMapToBookingDtoReturned() {
+        // Создаем объект Booking для тестирования
+<span class="fc" id="L72">        Booking booking = new Booking();</span>
+<span class="fc" id="L73">        booking.setId(1L);</span>
+<span class="fc" id="L74">        booking.setItem(new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true));</span>
+<span class="fc" id="L75">        booking.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L76">        booking.setEnd(LocalDateTime.now().plusDays(5));</span>
+<span class="fc" id="L77">        booking.setStatus(BookingState.WAITING);</span>
+<span class="fc" id="L78">        booking.setBooker(new User(3L, &quot;username&quot;, &quot;user@example.com&quot;));</span>
+
+        // Преобразуем Booking в BookingDtoToReturn
+<span class="fc" id="L81">        BookingDtoToReturn bookingDtoToReturn = bookingMapper.mapToBookingDtoReturned(booking);</span>
+
+        // Проверяем, что все поля были корректно отображены
+<span class="fc" id="L84">        assertEquals(booking.getId(), bookingDtoToReturn.getId());</span>
+<span class="fc" id="L85">        assertEquals(booking.getItem(), bookingDtoToReturn.getItem());</span>
+<span class="fc" id="L86">        assertEquals(booking.getBooker(), bookingDtoToReturn.getBooker());</span>
+<span class="fc" id="L87">        assertEquals(booking.getStart(), bookingDtoToReturn.getStart());</span>
+<span class="fc" id="L88">        assertEquals(booking.getEnd(), bookingDtoToReturn.getEnd());</span>
+<span class="fc" id="L89">        assertEquals(booking.getStatus(), bookingDtoToReturn.getStatus());</span>
+<span class="fc" id="L90">    }</span>
+
+    @Test
+    void testMapToBookingDtoReturnedList() {
+        // Создаем список объектов Booking для тестирования
+<span class="fc" id="L95">        Booking booking1 = new Booking();</span>
+<span class="fc" id="L96">        booking1.setId(1L);</span>
+<span class="fc" id="L97">        booking1.setItem(new Item(2L, &quot;Item Name&quot;, &quot;Description&quot;, true));</span>
+<span class="fc" id="L98">        booking1.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L99">        booking1.setEnd(LocalDateTime.now().plusDays(5));</span>
+<span class="fc" id="L100">        booking1.setStatus(BookingState.WAITING);</span>
+<span class="fc" id="L101">        booking1.setBooker(new User(3L, &quot;username&quot;, &quot;user@example.com&quot;));</span>
+
+<span class="fc" id="L103">        Booking booking2 = new Booking();</span>
+<span class="fc" id="L104">        booking2.setId(4L);</span>
+<span class="fc" id="L105">        booking2.setItem(new Item(5L, &quot;Another Item&quot;, &quot;Another Description&quot;, false));</span>
+<span class="fc" id="L106">        booking2.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L107">        booking2.setEnd(LocalDateTime.now().plusDays(3));</span>
+<span class="fc" id="L108">        booking2.setStatus(BookingState.APPROVED);</span>
+<span class="fc" id="L109">        booking2.setBooker(new User(6L, &quot;anotherUser&quot;, &quot;another@example.com&quot;));</span>
+
+<span class="fc" id="L111">        List&lt;Booking&gt; bookings = List.of(booking1, booking2);</span>
+
+        // Преобразуем список Booking в список BookingDtoToReturn
+<span class="fc" id="L114">        List&lt;BookingDtoToReturn&gt; bookingDtosToReturn = bookingMapper.mapToBookingDtoReturned(bookings);</span>
+
+        // Проверяем, что все поля были корректно отображены
+<span class="fc" id="L117">        assertEquals(bookings.size(), bookingDtosToReturn.size());</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for (int i = 0; i &lt; bookings.size(); i++) {</span>
+<span class="fc" id="L119">            Booking booking = bookings.get(i);</span>
+<span class="fc" id="L120">            BookingDtoToReturn bookingDtoToReturn = bookingDtosToReturn.get(i);</span>
+
+<span class="fc" id="L122">            assertEquals(booking.getId(), bookingDtoToReturn.getId());</span>
+<span class="fc" id="L123">            assertEquals(booking.getItem(), bookingDtoToReturn.getItem());</span>
+<span class="fc" id="L124">            assertEquals(booking.getBooker(), bookingDtoToReturn.getBooker());</span>
+<span class="fc" id="L125">            assertEquals(booking.getStart(), bookingDtoToReturn.getStart());</span>
+<span class="fc" id="L126">            assertEquals(booking.getEnd(), bookingDtoToReturn.getEnd());</span>
+<span class="fc" id="L127">            assertEquals(booking.getStatus(), bookingDtoToReturn.getStatus());</span>
+        }
+<span class="fc" id="L129">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

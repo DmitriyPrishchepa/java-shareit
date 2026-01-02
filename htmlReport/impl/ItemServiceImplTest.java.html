@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemServiceImplTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">impl</a> &gt; <span class="el_source">ItemServiceImplTest.java</span></div><h1>ItemServiceImplTest.java</h1><pre class="source lang-java linenums">package impl;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.util.BookingState;
+import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
+import ru.practicum.shareit.exception.exceptions.WrongUserException;
+import ru.practicum.shareit.item.CommentRepository;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.ItemServiceImpl;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.dto.ItemWithCommentsToReturn;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+<span class="fc" id="L52">public class ItemServiceImplTest {</span>
+
+    @Mock
+    ItemRepository itemRepository;
+
+    @Mock
+    ItemMapper itemMapper;
+
+    @Mock
+    UserService userService;
+
+    @Mock
+    CommentMapper commentMapper;
+
+    @Mock
+    CommentRepository commentRepository;
+
+    @Mock
+    UserRepository userRepository;
+
+    @Mock
+    BookingRepository bookingRepository;
+
+    @Mock
+    BookingMapper bookingMapper;
+
+    @InjectMocks
+    ItemServiceImpl itemServiceImpl;
+
+    @Mock
+    EntityManager entityManager;
+
+    ItemDto itemDto;
+    UserDto userDto;
+    BookingDto bookingDto;
+    CommentDtoToReturn commentDto;
+    TypedQuery&lt;User&gt; mockUserQuery;
+    TypedQuery&lt;Item&gt; mockItemQuery;
+    User mockedUser;
+    Item mockedItem;
+    Booking mockedBooking;
+
+    @BeforeEach
+    void setUp() {
+
+<span class="fc" id="L97">        userDto = new UserDto();</span>
+<span class="fc" id="L98">        userDto.setId(1L);</span>
+<span class="fc" id="L99">        userDto.setName(&quot;User&quot;);</span>
+<span class="fc" id="L100">        userDto.setEmail(&quot;user@mail.ru&quot;);</span>
+
+<span class="fc" id="L102">        itemDto = new ItemDto();</span>
+<span class="fc" id="L103">        itemDto.setId(1L);</span>
+<span class="fc" id="L104">        itemDto.setName(&quot;ItemDtoName&quot;);</span>
+<span class="fc" id="L105">        itemDto.setDescription(&quot;ItemDtoDescription&quot;);</span>
+<span class="fc" id="L106">        itemDto.setOwnerId(1L);</span>
+<span class="fc" id="L107">        itemDto.setAvailable(true);</span>
+
+<span class="fc" id="L109">        commentDto = new CommentDtoToReturn();</span>
+<span class="fc" id="L110">        commentDto.setId(1L);</span>
+<span class="fc" id="L111">        commentDto.setText(&quot;comment&quot;);</span>
+<span class="fc" id="L112">        commentDto.setAuthorName(&quot;Jack&quot;);</span>
+<span class="fc" id="L113">        commentDto.setCreated(LocalDateTime.of(2025, 10, 10, 10, 10, 10));</span>
+
+<span class="fc" id="L115">        mockedUser = Mockito.mock(User.class);</span>
+<span class="fc" id="L116">        when(mockedUser.getId()).thenReturn(1L);</span>
+<span class="fc" id="L117">        when(mockedUser.getName()).thenReturn(&quot;User1&quot;);</span>
+<span class="fc" id="L118">        when(mockedUser.getEmail()).thenReturn(&quot;user1@yandex.ru&quot;);</span>
+
+<span class="fc" id="L120">        mockedItem = Mockito.mock(Item.class);</span>
+<span class="fc" id="L121">        when(mockedItem.getId()).thenReturn(itemDto.getId());</span>
+<span class="fc" id="L122">        when(mockedItem.getName()).thenReturn(itemDto.getName());</span>
+<span class="fc" id="L123">        when(mockedItem.getDescription()).thenReturn(itemDto.getDescription());</span>
+<span class="fc" id="L124">        when(mockedItem.getOwnerId()).thenReturn(itemDto.getOwnerId());</span>
+
+        //mock TypedQuery class
+
+<span class="fc" id="L128">        mockUserQuery = Mockito.mock(TypedQuery.class);</span>
+<span class="fc" id="L129">        mockItemQuery = Mockito.mock(TypedQuery.class);</span>
+
+        //mock set parameter
+
+<span class="fc" id="L133">        when(mockUserQuery.setParameter(Mockito.anyString(), Mockito.anyString()))</span>
+<span class="fc" id="L134">                .thenReturn(mockUserQuery);</span>
+
+<span class="fc" id="L136">        when(mockItemQuery.setParameter(Mockito.anyString(), Mockito.anyString()))</span>
+<span class="fc" id="L137">                .thenReturn(mockItemQuery);</span>
+
+        //mock single result
+
+<span class="fc" id="L141">        when(mockUserQuery.getSingleResult())</span>
+<span class="fc" id="L142">                .thenReturn(mockedUser);</span>
+
+<span class="fc" id="L144">        when(mockItemQuery.getSingleResult())</span>
+<span class="fc" id="L145">                .thenReturn(mockedItem);</span>
+
+        //--------------------------------------
+
+        //mock create query
+
+<span class="fc" id="L151">        when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(User.class)))</span>
+<span class="fc" id="L152">                .thenReturn(mockUserQuery);</span>
+
+<span class="fc" id="L154">        when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(Item.class)))</span>
+<span class="fc" id="L155">                .thenReturn(mockItemQuery);</span>
+
+        //---------------------------------------
+
+<span class="fc" id="L159">        bookingDto = new BookingDto();</span>
+<span class="fc" id="L160">        bookingDto.setItemId(1L);</span>
+<span class="fc" id="L161">        bookingDto.setStatus(BookingState.WAITING);</span>
+<span class="fc" id="L162">        bookingDto.setStart(LocalDateTime.of(2024, 11, 11, 11, 11, 11));</span>
+<span class="fc" id="L163">        bookingDto.setEnd(LocalDateTime.of(2024, 12, 12, 12, 12, 12));</span>
+
+<span class="fc" id="L165">        mockedBooking = mock(Booking.class);</span>
+
+<span class="fc" id="L167">        mockedBooking = mock(Booking.class);</span>
+<span class="fc" id="L168">        Mockito.when(mockedBooking.getId()).thenReturn(1L);</span>
+<span class="fc" id="L169">        Mockito.when(mockedBooking.getStart()).thenReturn(bookingDto.getStart());</span>
+<span class="fc" id="L170">        Mockito.when(mockedBooking.getEnd()).thenReturn(bookingDto.getEnd());</span>
+<span class="fc" id="L171">        Mockito.when(mockedBooking.getStatus()).thenReturn(bookingDto.getStatus());</span>
+<span class="fc" id="L172">        Mockito.when(mockedBooking.getItem()).thenReturn(mockedItem);</span>
+<span class="fc" id="L173">        Mockito.when(mockedBooking.getBooker()).thenReturn(mockedUser);</span>
+<span class="fc" id="L174">    }</span>
+
+    @Test
+    void addItemTest() {
+
+<span class="fc" id="L179">        when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);</span>
+
+<span class="fc" id="L181">        when(itemMapper.mapFromDto(Mockito.any(ItemDto.class)))</span>
+<span class="fc" id="L182">                .thenReturn(mockedItem);</span>
+
+<span class="fc" id="L184">        when(mockedItem.getOwnerId())</span>
+<span class="fc" id="L185">                .thenReturn(1L);</span>
+
+<span class="fc" id="L187">        when(itemRepository.save(Mockito.eq(mockedItem)))</span>
+<span class="fc" id="L188">                .thenReturn(mockedItem);</span>
+
+<span class="fc" id="L190">        when(itemMapper.mapToDto(Mockito.any(Item.class)))</span>
+<span class="fc" id="L191">                .thenReturn(itemDto);</span>
+
+<span class="fc" id="L193">        ItemDto item = itemServiceImpl.addItem(userDto.getId(), itemDto);</span>
+
+<span class="fc" id="L195">        assertThat(item.getId(), notNullValue());</span>
+<span class="fc" id="L196">        assertThat(item.getName(), equalTo(&quot;ItemDtoName&quot;));</span>
+<span class="fc" id="L197">        assertThat(item.getDescription(), equalTo(&quot;ItemDtoDescription&quot;));</span>
+<span class="fc" id="L198">    }</span>
+
+
+    @Test
+    void addItemTest_MissingParameter() {
+        try {
+<span class="nc" id="L204">            itemServiceImpl.addItem(null, itemDto);</span>
+<span class="fc" id="L205">        } catch (MissingParameterException e) {</span>
+<span class="fc" id="L206">            assertEquals(&quot;X-Sharer-User-Id header required&quot;, e.getMessage());</span>
+<span class="nc" id="L207">        }</span>
+<span class="fc" id="L208">    }</span>
+
+    @Test
+    void addItemTest_UserNotFound() {
+<span class="fc" id="L212">        when(userRepository.existsById(Mockito.anyLong())).thenReturn(false);</span>
+
+        try {
+<span class="nc" id="L215">            itemServiceImpl.addItem(1L, itemDto);</span>
+<span class="fc" id="L216">        } catch (ElementNotFoundException e) {</span>
+<span class="fc" id="L217">            assertEquals(&quot;User not found&quot;, e.getMessage());</span>
+<span class="nc" id="L218">        }</span>
+<span class="fc" id="L219">    }</span>
+
+    @Test
+    void updateItem_Success() {
+
+<span class="fc" id="L224">        ItemDto newItemDto = new ItemDto();</span>
+<span class="fc" id="L225">        newItemDto.setId(1L);</span>
+<span class="fc" id="L226">        newItemDto.setName(&quot;newItemDto2&quot;);</span>
+<span class="fc" id="L227">        newItemDto.setDescription(&quot;newItemDto2Description&quot;);</span>
+<span class="fc" id="L228">        newItemDto.setAvailable(true);</span>
+<span class="fc" id="L229">        newItemDto.setOwnerId(mockedUser.getId());</span>
+<span class="fc" id="L230">        newItemDto.setRequestId(null);</span>
+
+<span class="fc" id="L232">        Item itemFromNewDto = new Item();</span>
+<span class="fc" id="L233">        itemFromNewDto.setId(newItemDto.getId());</span>
+<span class="fc" id="L234">        itemFromNewDto.setName(newItemDto.getName());</span>
+<span class="fc" id="L235">        itemFromNewDto.setDescription(newItemDto.getDescription());</span>
+<span class="fc" id="L236">        itemFromNewDto.setOwnerId(newItemDto.getOwnerId());</span>
+<span class="fc" id="L237">        itemFromNewDto.setAvailable(newItemDto.getAvailable());</span>
+
+<span class="fc" id="L239">        when(userRepository.existsById(Mockito.anyLong())).thenReturn(true);</span>
+<span class="fc" id="L240">        when(itemRepository.existsById(Mockito.anyLong())).thenReturn(true);</span>
+
+<span class="fc" id="L242">        when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedItem);</span>
+
+<span class="fc" id="L244">        when(itemMapper.mapFromDto(Mockito.eq(newItemDto)))</span>
+<span class="fc" id="L245">                .thenReturn(itemFromNewDto);</span>
+
+<span class="fc" id="L247">        Item newItem = new Item();</span>
+<span class="fc" id="L248">        newItem.setId(mockedItem.getId());</span>
+<span class="fc" id="L249">        newItem.setName(mockedItem.getName());</span>
+<span class="fc" id="L250">        newItem.setDescription(mockedItem.getDescription());</span>
+<span class="fc" id="L251">        newItem.setAvailable(mockedItem.getAvailable());</span>
+<span class="fc" id="L252">        newItem.setOwnerId(mockedItem.getOwnerId());</span>
+
+<span class="fc" id="L254">        when(itemRepository.save(Mockito.any(Item.class)))</span>
+<span class="fc" id="L255">                .thenReturn(newItem);</span>
+
+<span class="fc" id="L257">        when(itemMapper.mapToDto(Mockito.any(Item.class)))</span>
+<span class="fc" id="L258">                .thenReturn(newItemDto);</span>
+
+<span class="fc" id="L260">        ItemDto item = itemServiceImpl.updateItem(1L, 1L, newItemDto);</span>
+
+<span class="fc" id="L262">        assertEquals(item.getName(), newItemDto.getName());</span>
+<span class="fc" id="L263">    }</span>
+
+    @Test
+    void updateItem_MissingParameter() {
+        try {
+<span class="nc" id="L268">            itemServiceImpl.updateItem(null, 1L, itemDto);</span>
+<span class="fc" id="L269">        } catch (MissingParameterException e) {</span>
+<span class="fc" id="L270">            assertEquals(&quot;userId was missing&quot;, e.getMessage());</span>
+<span class="nc" id="L271">        }</span>
+<span class="fc" id="L272">    }</span>
+
+    @Test
+    void updateItem_UserNotFound() {
+
+<span class="fc" id="L277">        when(userRepository.existsById(Mockito.anyLong())).thenReturn(false);</span>
+
+        try {
+<span class="nc" id="L280">            itemServiceImpl.updateItem(1L, 1L, itemDto);</span>
+<span class="fc" id="L281">        } catch (ElementNotFoundException e) {</span>
+<span class="fc" id="L282">            assertEquals(&quot;User not found&quot;, e.getMessage());</span>
+<span class="nc" id="L283">        }</span>
+<span class="fc" id="L284">    }</span>
+
+    @Test
+    void getItemById_Success() {
+<span class="fc" id="L288">        Mockito.when(itemRepository.getReferenceById(Mockito.anyLong())).thenReturn(mockedItem);</span>
+
+<span class="fc" id="L290">        List&lt;Comment&gt; comments = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L291">        comments.add(new Comment());</span>
+<span class="fc" id="L292">        Mockito.when(</span>
+<span class="fc" id="L293">                commentRepository.findAllByItemAndUserId(Mockito.anyLong(), Mockito.anyLong())).thenReturn(comments);</span>
+
+<span class="fc" id="L295">        ItemWithCommentsToReturn resultDto = itemServiceImpl.getItemById(1L, 1L);</span>
+
+<span class="fc" id="L297">        assertEquals(1L, resultDto.getId());</span>
+<span class="fc" id="L298">        assertEquals(mockedItem.getName(), resultDto.getName());</span>
+<span class="fc" id="L299">        assertEquals(mockedItem.getDescription(), resultDto.getDescription());</span>
+<span class="fc" id="L300">        assertEquals(1L, resultDto.getOwnerId());</span>
+<span class="fc" id="L301">        assertNotNull(resultDto.getComments());</span>
+<span class="fc" id="L302">    }</span>
+
+    public Item createItemFromDto(
+            Long id,
+            String name,
+            String description,
+            boolean available,
+            Long ownerId
+    ) {
+<span class="fc" id="L311">        Item newItem = new Item();</span>
+<span class="fc" id="L312">        newItem.setId(id);</span>
+<span class="fc" id="L313">        newItem.setName(name);</span>
+<span class="fc" id="L314">        newItem.setDescription(description);</span>
+<span class="fc" id="L315">        newItem.setAvailable(available);</span>
+<span class="fc" id="L316">        newItem.setOwnerId(ownerId);</span>
+<span class="fc" id="L317">        return newItem;</span>
+    }
+
+    public BookingDto createDtoFromBooking(
+            Item item,
+            LocalDateTime start,
+            LocalDateTime end
+    ) {
+<span class="fc" id="L325">        BookingDto dto = new BookingDto();</span>
+<span class="fc" id="L326">        dto.setItemId(item.getId());</span>
+<span class="fc" id="L327">        dto.setStart(start);</span>
+<span class="fc" id="L328">        dto.setEnd(end);</span>
+<span class="fc" id="L329">        return dto;</span>
+    }
+
+    @Test
+    void getAllItemsFromUserTest() {
+
+<span class="fc" id="L335">        Long userId = 1L;</span>
+
+<span class="fc" id="L337">        ItemDto itemDto1 = new ItemDto();</span>
+<span class="fc" id="L338">        itemDto1.setId(1L);</span>
+<span class="fc" id="L339">        itemDto1.setName(&quot;Item 1&quot;);</span>
+<span class="fc" id="L340">        itemDto1.setDescription(&quot;Description of Item 1&quot;);</span>
+<span class="fc" id="L341">        itemDto1.setAvailable(true);</span>
+<span class="fc" id="L342">        itemDto1.setOwnerId(1L);</span>
+
+<span class="fc" id="L344">        ItemDto itemDto2 = new ItemDto();</span>
+<span class="fc" id="L345">        itemDto2.setId(2L);</span>
+<span class="fc" id="L346">        itemDto2.setName(&quot;Item 2&quot;);</span>
+<span class="fc" id="L347">        itemDto2.setDescription(&quot;Description of Item 2&quot;);</span>
+<span class="fc" id="L348">        itemDto2.setAvailable(false);</span>
+<span class="fc" id="L349">        itemDto2.setOwnerId(2L);</span>
+
+<span class="fc" id="L351">        Item item1 = createItemFromDto(</span>
+<span class="fc" id="L352">                itemDto1.getId(),</span>
+<span class="fc" id="L353">                itemDto1.getName(),</span>
+<span class="fc" id="L354">                itemDto1.getDescription(),</span>
+<span class="fc" id="L355">                itemDto1.getAvailable(),</span>
+<span class="fc" id="L356">                itemDto1.getOwnerId()</span>
+        );
+<span class="fc" id="L358">        Item item2 = createItemFromDto(</span>
+<span class="fc" id="L359">                itemDto2.getId(),</span>
+<span class="fc" id="L360">                itemDto2.getName(),</span>
+<span class="fc" id="L361">                itemDto2.getDescription(),</span>
+<span class="fc" id="L362">                itemDto2.getAvailable(),</span>
+<span class="fc" id="L363">                itemDto2.getOwnerId()</span>
+        );
+
+<span class="fc" id="L366">        Booking booking1 = new Booking();</span>
+<span class="fc" id="L367">        booking1.setItem(item1);</span>
+<span class="fc" id="L368">        booking1.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L369">        booking1.setEnd(LocalDateTime.now().plusDays(7));</span>
+
+<span class="fc" id="L371">        Booking booking2 = new Booking();</span>
+<span class="fc" id="L372">        booking2.setItem(item2);</span>
+<span class="fc" id="L373">        booking2.setStart(LocalDateTime.now());</span>
+<span class="fc" id="L374">        booking2.setEnd(LocalDateTime.now().plusDays(14));</span>
+
+<span class="fc" id="L376">        BookingDto bookingDto1 = createDtoFromBooking(</span>
+<span class="fc" id="L377">                booking1.getItem(),</span>
+<span class="fc" id="L378">                booking1.getStart(),</span>
+<span class="fc" id="L379">                booking1.getEnd()</span>
+        );
+
+<span class="fc" id="L382">        List&lt;Item&gt; itemsFromUser = List.of(item1, item2);</span>
+
+<span class="fc" id="L384">        PageRequest pageRequest = PageRequest.of(0, Integer.MAX_VALUE);</span>
+
+<span class="fc" id="L386">        Mockito.when(itemMapper.mapToDto(Mockito.any(Item.class)))</span>
+<span class="fc" id="L387">                .thenReturn(itemDto1);</span>
+
+<span class="fc" id="L389">        Mockito.when(itemRepository.findAllByOwnerId(Mockito.anyLong(), Mockito.eq(pageRequest)))</span>
+<span class="fc" id="L390">                .thenReturn(new PageImpl&lt;&gt;(itemsFromUser));</span>
+
+<span class="fc" id="L392">        List&lt;Booking&gt; allBookingsForAllItems = List.of(booking1, booking2);</span>
+<span class="fc" id="L393">        Mockito.when(bookingRepository.findAllByItemIdIn(Mockito.anyList())).thenReturn(allBookingsForAllItems);</span>
+
+<span class="fc" id="L395">        Mockito.when(bookingMapper.mapToDto(Mockito.any(Booking.class)))</span>
+<span class="fc" id="L396">                .thenReturn(bookingDto1);</span>
+
+<span class="fc" id="L398">        List&lt;ItemDtoWithBookings&gt; result = itemServiceImpl.getAllItemsFromUser(userId);</span>
+
+<span class="fc" id="L400">        assertEquals(2, result.size());</span>
+<span class="fc" id="L401">        assertEquals(&quot;Item 1&quot;, result.getFirst().getName());</span>
+<span class="fc" id="L402">        assertEquals(&quot;Description of Item 1&quot;, result.getFirst().getDescription());</span>
+<span class="fc" id="L403">        assertNotNull(result.getFirst().getBookings());</span>
+<span class="fc" id="L404">    }</span>
+
+    @Test
+    void searchItemTest() {
+<span class="fc" id="L408">        Long userId = 1L;</span>
+<span class="fc" id="L409">        String searchText = &quot;searchTerm&quot;;</span>
+
+<span class="fc" id="L411">        ItemDto itemDto = new ItemDto();</span>
+<span class="fc" id="L412">        itemDto.setId(1L);</span>
+<span class="fc" id="L413">        itemDto.setName(&quot;Item with searchTerm&quot;);</span>
+<span class="fc" id="L414">        itemDto.setDescription(&quot;This is a test item&quot;);</span>
+<span class="fc" id="L415">        itemDto.setAvailable(true);</span>
+
+<span class="fc" id="L417">        Mockito.when(itemMapper.mapToDto(Mockito.any(Item.class))).thenReturn(itemDto);</span>
+
+<span class="fc" id="L419">        Item mockedItem = new Item();</span>
+<span class="fc" id="L420">        mockedItem.setId(1L);</span>
+<span class="fc" id="L421">        mockedItem.setName(&quot;Item with searchTerm&quot;);</span>
+<span class="fc" id="L422">        mockedItem.setDescription(&quot;This is a test item&quot;);</span>
+<span class="fc" id="L423">        mockedItem.setAvailable(true);</span>
+
+<span class="fc" id="L425">        Mockito.when(itemRepository.findItemsByNameContaining(Mockito.anyString()))</span>
+<span class="fc" id="L426">                .thenReturn(List.of(mockedItem));</span>
+
+<span class="fc" id="L428">        List&lt;ItemDto&gt; result = itemServiceImpl.searchItem(userId, searchText);</span>
+
+<span class="fc" id="L430">        assertEquals(1, result.size());</span>
+<span class="fc" id="L431">        assertEquals(&quot;Item with searchTerm&quot;, result.getFirst().getName());</span>
+<span class="fc" id="L432">        assertTrue(result.getFirst().getAvailable());</span>
+<span class="fc" id="L433">    }</span>
+
+    @Test
+    void addCommentTest_WrongUserException_Test() {
+<span class="fc" id="L437">        Long userId = 1L;</span>
+<span class="fc" id="L438">        Long itemId = 1L;</span>
+<span class="fc" id="L439">        String text = &quot;This is a comment&quot;;</span>
+
+<span class="fc" id="L441">        User user = new User();</span>
+<span class="fc" id="L442">        user.setId(userId);</span>
+
+<span class="fc" id="L444">        Item item = new Item();</span>
+<span class="fc" id="L445">        item.setId(itemId);</span>
+
+<span class="fc" id="L447">        Booking booking = new Booking();</span>
+<span class="fc" id="L448">        booking.setItem(new Item());</span>
+<span class="fc" id="L449">        booking.setBooker(new User());</span>
+
+<span class="fc" id="L451">        Mockito.when(userRepository.getReferenceById(userId)).thenReturn(user);</span>
+<span class="fc" id="L452">        Mockito.when(itemRepository.getReferenceById(itemId)).thenReturn(item);</span>
+<span class="fc" id="L453">        Mockito.when(bookingRepository.findByItemId(itemId)).thenReturn(booking);</span>
+
+        try {
+<span class="nc" id="L456">            itemServiceImpl.addComment(userId, itemId, text);</span>
+<span class="fc" id="L457">        } catch (WrongUserException e) {</span>
+<span class="fc" id="L458">            assertEquals(&quot;You cannot leave a comment&quot;, e.getMessage());</span>
+<span class="nc" id="L459">        }</span>
+<span class="fc" id="L460">    }</span>
+
+    @Test
+    void addComment_Success() {
+<span class="fc" id="L464">        Long userId = 1L;</span>
+<span class="fc" id="L465">        Long itemId = 1L;</span>
+<span class="fc" id="L466">        String text = &quot;This is a comment&quot;;</span>
+
+<span class="fc" id="L468">        User user = new User();</span>
+<span class="fc" id="L469">        user.setId(userId);</span>
+
+<span class="fc" id="L471">        Item item = new Item();</span>
+<span class="fc" id="L472">        item.setId(itemId);</span>
+
+<span class="fc" id="L474">        Booking booking = new Booking();</span>
+<span class="fc" id="L475">        booking.setItem(item);</span>
+<span class="fc" id="L476">        booking.setBooker(user);</span>
+<span class="fc" id="L477">        booking.setStart(bookingDto.getStart());</span>
+<span class="fc" id="L478">        booking.setEnd(bookingDto.getEnd());</span>
+<span class="fc" id="L479">        booking.setStatus(BookingState.CANCELED);</span>
+
+<span class="fc" id="L481">        CommentDtoToReturn commentDtoToReturn = new CommentDtoToReturn();</span>
+<span class="fc" id="L482">        commentDtoToReturn.setId(1L);</span>
+<span class="fc" id="L483">        commentDtoToReturn.setText(&quot;&quot;);</span>
+<span class="fc" id="L484">        commentDtoToReturn.setAuthorName(user.getName());</span>
+
+<span class="fc" id="L486">        Mockito.when(userRepository.getReferenceById(userId)).thenReturn(user);</span>
+<span class="fc" id="L487">        Mockito.when(itemRepository.getReferenceById(itemId)).thenReturn(item);</span>
+<span class="fc" id="L488">        Mockito.when(bookingRepository.findByItemId(itemId)).thenReturn(booking);</span>
+
+<span class="fc" id="L490">        itemServiceImpl.addComment(userId, itemId, text);</span>
+
+<span class="fc" id="L492">        verify(commentRepository, times(1)).save(Mockito.any(Comment.class));</span>
+<span class="fc" id="L493">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

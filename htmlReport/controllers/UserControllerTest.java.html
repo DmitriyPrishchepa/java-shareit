@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserControllerTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">controllers</a> &gt; <span class="el_source">UserControllerTest.java</span></div><h1>UserControllerTest.java</h1><pre class="source lang-java linenums">package controllers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.user.UserController;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L30">public class UserControllerTest {</span>
+    @Mock
+    private UserService userService;
+
+    @InjectMocks
+    private UserController controller;
+
+<span class="fc" id="L37">    private final ObjectMapper mapper = new ObjectMapper();</span>
+
+    private MockMvc mvc;
+
+    private UserDto userDto;
+    private UserDto userDto2;
+
+    private List&lt;UserDto&gt; usersList;
+
+    // Регистрация модуля для работы с LocalDate
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L49">        mvc = MockMvcBuilders</span>
+<span class="fc" id="L50">                .standaloneSetup(controller)</span>
+<span class="fc" id="L51">                .build();</span>
+
+<span class="fc" id="L53">        userDto = new UserDto();</span>
+<span class="fc" id="L54">        userDto.setId(1L);</span>
+<span class="fc" id="L55">        userDto.setName(&quot;userDto1&quot;);</span>
+<span class="fc" id="L56">        userDto.setEmail(&quot;user1dto@mail.ru&quot;);</span>
+
+<span class="fc" id="L58">        userDto2 = new UserDto();</span>
+<span class="fc" id="L59">        userDto2.setId(1L);</span>
+<span class="fc" id="L60">        userDto2.setName(&quot;userDto2&quot;);</span>
+<span class="fc" id="L61">        userDto2.setEmail(&quot;user2dto@mail.ru&quot;);</span>
+
+<span class="fc" id="L63">        usersList = List.of(userDto, userDto2);</span>
+<span class="fc" id="L64">    }</span>
+
+    @Test
+    void saveNewUser() throws Exception {
+<span class="fc" id="L68">        when(userService.createUser(any()))</span>
+<span class="fc" id="L69">                .thenReturn(userDto);</span>
+
+<span class="fc" id="L71">        mvc.perform(post(&quot;/users&quot;)</span>
+<span class="fc" id="L72">                        .content(mapper.writeValueAsString(userDto))</span>
+<span class="fc" id="L73">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L74">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L75">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L76">                .andExpect(status().isOk())</span>
+<span class="fc" id="L77">                .andExpect(jsonPath(&quot;$.id&quot;, is(userDto.getId()), Long.class))</span>
+<span class="fc" id="L78">                .andExpect(jsonPath(&quot;$.name&quot;, is(userDto.getName())))</span>
+<span class="fc" id="L79">                .andExpect(jsonPath(&quot;$.email&quot;, is(userDto.getEmail())));</span>
+<span class="fc" id="L80">    }</span>
+
+    @Test
+    void updateUserTest() throws Exception {
+<span class="fc" id="L84">        UserDto updatedDto = new UserDto();</span>
+<span class="fc" id="L85">        updatedDto.setId(1L);</span>
+<span class="fc" id="L86">        updatedDto.setName(&quot;updatedDto&quot;);</span>
+<span class="fc" id="L87">        updatedDto.setEmail(&quot;user1dto@mail.ru&quot;);</span>
+
+<span class="fc" id="L89">        when(userService.updateUser(Mockito.anyLong(), Mockito.any(UserDto.class)))</span>
+<span class="fc" id="L90">                .thenReturn(updatedDto);</span>
+
+<span class="fc" id="L92">        mvc.perform(patch(&quot;/users/&quot; + userDto.getId())</span>
+<span class="fc" id="L93">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L94">                        .content(mapper.writeValueAsString(userDto))</span>
+<span class="fc" id="L95">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L96">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L97">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L98">                .andExpect(status().isOk())</span>
+<span class="fc" id="L99">                .andExpect(jsonPath(&quot;$.name&quot;, is(updatedDto.getName()), String.class));</span>
+<span class="fc" id="L100">    }</span>
+
+    @Test
+    void getUserByIdTest() throws Exception {
+<span class="fc" id="L104">        when(userService.getUserById(Mockito.anyLong()))</span>
+<span class="fc" id="L105">                .thenReturn(userDto2);</span>
+
+<span class="fc" id="L107">        mvc.perform(get(&quot;/users/&quot; + userDto2.getId())</span>
+<span class="fc" id="L108">                        .header(&quot;X-Sharer-User-Id&quot;, userDto2.getId())</span>
+<span class="fc" id="L109">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L110">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L111">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L112">                .andExpect(status().isOk())</span>
+<span class="fc" id="L113">                .andExpect(jsonPath(&quot;$.id&quot;, is(userDto2.getId()), Long.class))</span>
+<span class="fc" id="L114">                .andExpect(jsonPath(&quot;$.name&quot;, is(userDto2.getName()), String.class))</span>
+<span class="fc" id="L115">                .andExpect(jsonPath(&quot;$.email&quot;, is(userDto2.getEmail()), String.class));</span>
+<span class="fc" id="L116">    }</span>
+
+    @Test
+    void deleteUserTest() throws Exception {
+<span class="fc" id="L120">        mvc.perform(delete(&quot;/users/&quot; + userDto.getId())</span>
+<span class="fc" id="L121">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L122">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L123">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L124">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L125">                .andExpect(status().isOk());</span>
+
+<span class="fc" id="L127">        verify(userService).deleteUser(userDto.getId());</span>
+<span class="fc" id="L128">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

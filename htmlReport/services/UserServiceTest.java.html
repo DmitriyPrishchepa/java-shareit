@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">services</a> &gt; <span class="el_source">UserServiceTest.java</span></div><h1>UserServiceTest.java</h1><pre class="source lang-java linenums">package services;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
+import ru.practicum.shareit.exception.exceptions.DuplicateException;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+<span class="fc" id="L25">public class UserServiceTest {</span>
+
+    @Mock
+    UserService userService;
+
+    @Mock
+    EntityManager entityManager;
+
+    UserDto dto;
+    TypedQuery&lt;User&gt; mockQuery;
+    User mockedUser;
+
+    private UserDto makeUserDto(
+            String name,
+            String email
+    ) {
+<span class="fc" id="L41">        UserDto dto = new UserDto();</span>
+<span class="fc" id="L42">        dto.setName(name);</span>
+<span class="fc" id="L43">        dto.setEmail(email);</span>
+<span class="fc" id="L44">        return dto;</span>
+    }
+
+    @BeforeEach
+    void setUp() {
+<span class="fc" id="L49">        dto = makeUserDto(&quot;User1&quot;, &quot;user1@yandex.ru&quot;);</span>
+
+<span class="fc" id="L51">        mockedUser = Mockito.mock(User.class);</span>
+<span class="fc" id="L52">        Mockito.when(mockedUser.getId()).thenReturn(1L);</span>
+<span class="fc" id="L53">        Mockito.when(mockedUser.getName()).thenReturn(&quot;User1&quot;);</span>
+<span class="fc" id="L54">        Mockito.when(mockedUser.getEmail()).thenReturn(&quot;user1@yandex.ru&quot;);</span>
+
+<span class="fc" id="L56">        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))</span>
+<span class="fc" id="L57">                .thenReturn(dto);</span>
+
+<span class="fc" id="L59">        mockQuery = Mockito.mock(TypedQuery.class);</span>
+
+<span class="fc" id="L61">        Mockito.when(mockQuery.setParameter(Mockito.anyString(), Mockito.anyString()))</span>
+<span class="fc" id="L62">                .thenReturn(mockQuery);</span>
+
+<span class="fc" id="L64">        Mockito.when(mockQuery.getSingleResult())</span>
+<span class="fc" id="L65">                .thenReturn(mockedUser);</span>
+
+<span class="fc" id="L67">        Mockito.when(entityManager.createQuery(Mockito.anyString(), Mockito.eq(User.class)))</span>
+<span class="fc" id="L68">                .thenReturn(mockQuery);</span>
+<span class="fc" id="L69">    }</span>
+
+    @Test
+    void saveUserTest() {
+<span class="fc" id="L73">        UserDto userDto = userService.createUser(dto);</span>
+
+<span class="fc" id="L75">        TypedQuery&lt;User&gt; query = entityManager.createQuery(&quot;Select u from User u &quot;, User.class);</span>
+<span class="fc" id="L76">        User user = query.getSingleResult();</span>
+
+<span class="fc" id="L78">        assertThat(user.getId(), notNullValue());</span>
+<span class="fc" id="L79">        assertThat(user.getName(), equalTo(userDto.getName()));</span>
+<span class="fc" id="L80">    }</span>
+
+    @Test
+    void updateUserTest() {
+
+<span class="fc" id="L85">        UserDto updatedUserDto = new UserDto();</span>
+<span class="fc" id="L86">        updatedUserDto.setId(1L);</span>
+<span class="fc" id="L87">        updatedUserDto.setName(&quot;NewName&quot;);</span>
+<span class="fc" id="L88">        updatedUserDto.setEmail(&quot;newEmail@yandex.ru&quot;);</span>
+
+<span class="fc" id="L90">        Mockito.when(userService.updateUser(Mockito.anyInt(), Mockito.eq(updatedUserDto)))</span>
+<span class="fc" id="L91">                .thenReturn(updatedUserDto);</span>
+
+<span class="fc" id="L93">        userService.updateUser(mockedUser.getId(), updatedUserDto);</span>
+
+<span class="fc" id="L95">        TypedQuery&lt;User&gt; updatedQuery = entityManager.createQuery(&quot;Select u from User u &quot;, User.class);</span>
+<span class="fc" id="L96">        User userUpdated = updatedQuery.getSingleResult();</span>
+
+<span class="fc" id="L98">        Mockito.when(mockedUser.getName())</span>
+<span class="fc" id="L99">                .thenReturn(updatedUserDto.getName());</span>
+
+<span class="fc" id="L101">        Mockito.when(mockedUser.getEmail())</span>
+<span class="fc" id="L102">                .thenReturn(updatedUserDto.getEmail());</span>
+
+<span class="fc" id="L104">        assertThat(userUpdated.getId(), notNullValue());</span>
+<span class="fc" id="L105">        assertThat(userUpdated.getName(), equalTo(updatedUserDto.getName()));</span>
+<span class="fc" id="L106">        assertThat(userUpdated.getEmail(), equalTo(updatedUserDto.getEmail()));</span>
+<span class="fc" id="L107">    }</span>
+
+    @Test
+    void getUserByIdTest() {
+
+<span class="fc" id="L112">        Mockito.when(userService.getUserById(Mockito.anyLong()))</span>
+<span class="fc" id="L113">                .thenReturn(dto);</span>
+
+<span class="fc" id="L115">        userService.createUser(dto);</span>
+
+<span class="fc" id="L117">        UserDto foundDto = userService.getUserById(1L);</span>
+
+<span class="fc" id="L119">        System.out.println(foundDto);</span>
+
+<span class="fc" id="L121">        TypedQuery&lt;User&gt; query = entityManager.createQuery(&quot;Select u from User u where u.email = :email&quot;, User.class);</span>
+<span class="fc" id="L122">        User user = query.setParameter(&quot;email&quot;, &quot;user1@yandex.ru&quot;).getSingleResult();</span>
+
+<span class="fc" id="L124">        assertThat(user.getId(), notNullValue());</span>
+<span class="fc" id="L125">        assertThat(user.getName(), equalTo(foundDto.getName()));</span>
+<span class="fc" id="L126">    }</span>
+
+    @Test
+    public void deleteUserTest() {
+<span class="fc" id="L130">        dto.setId(1L);</span>
+<span class="fc" id="L131">        userService.createUser(dto);</span>
+
+<span class="fc" id="L133">        userService.deleteUser(1L);</span>
+
+<span class="fc" id="L135">        Mockito.verify(userService, Mockito.times(1)).deleteUser(1L);</span>
+<span class="fc" id="L136">    }</span>
+
+    @Test
+    void duplicateUserExceptionTest() {
+<span class="fc" id="L140">        Mockito.when(userService.createUser(Mockito.any(UserDto.class)))</span>
+<span class="fc" id="L141">                .thenThrow(DuplicateException.class);</span>
+
+<span class="fc" id="L143">        assertThrows(DuplicateException.class, () -&gt; {</span>
+<span class="nc" id="L144">            userService.createUser(dto);</span>
+<span class="nc" id="L145">        });</span>
+<span class="fc" id="L146">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

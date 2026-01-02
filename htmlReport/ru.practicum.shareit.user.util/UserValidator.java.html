@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">ru.practicum.shareit.user.util</a> &gt; <span class="el_source">UserValidator.java</span></div><h1>UserValidator.java</h1><pre class="source lang-java linenums">package ru.practicum.shareit.user.util;
+
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
+import ru.practicum.shareit.exception.exceptions.UserValidationException;
+import ru.practicum.shareit.user.model.User;
+
+<span class="nc" id="L7">public class UserValidator {</span>
+
+    public static void validateUser(User user) {
+
+<span class="fc bfc" id="L11" title="All 2 branches covered.">        if (user.getEmail() == null) {</span>
+<span class="fc" id="L12">            throw new MissingParameterException(&quot;Email cannot be null&quot;);</span>
+        }
+
+<span class="fc bfc" id="L15" title="All 2 branches covered.">        if (!user.getEmail().contains(&quot;@&quot;)) {</span>
+<span class="fc" id="L16">            throw new UserValidationException(&quot;Email is invalid&quot;);</span>
+        }
+<span class="fc" id="L18">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

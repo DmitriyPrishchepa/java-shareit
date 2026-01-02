@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">ru.practicum.shareit.item.util</a> &gt; <span class="el_source">ItemValidator.java</span></div><h1>ItemValidator.java</h1><pre class="source lang-java linenums">package ru.practicum.shareit.item.util;
+
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
+import ru.practicum.shareit.item.model.Item;
+
+<span class="fc" id="L6">public class ItemValidator {</span>
+    public static void validateItemFields(Item item) {
+
+<span class="fc bfc" id="L9" title="All 2 branches covered.">        if (item.getAvailable() == null) {</span>
+<span class="fc" id="L10">            throw new MissingParameterException(&quot;Available cannot be null&quot;);</span>
+        }
+
+<span class="pc bpc" id="L13" title="1 of 4 branches missed.">        if (item.getName() == null || item.getName().isBlank()) {</span>
+<span class="fc" id="L14">            throw new MissingParameterException(&quot;Name cannot be null or blank&quot;);</span>
+        }
+
+<span class="pc bpc" id="L17" title="1 of 4 branches missed.">        if (item.getDescription() == null || item.getDescription().isBlank()) {</span>
+<span class="fc" id="L18">            throw new MissingParameterException(&quot;Description cannot be null or blank&quot;);</span>
+        }
+<span class="fc" id="L20">    }</span>
+
+    public static Item validateAndUpdateItemFields(Item existingItem, Item item) {
+<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        if (item.getName() != null) {</span>
+<span class="fc" id="L24">            existingItem.setName(item.getName());</span>
+        }
+<span class="fc bfc" id="L26" title="All 2 branches covered.">        if (item.getDescription() != null) {</span>
+<span class="fc" id="L27">            existingItem.setDescription(item.getDescription());</span>
+        }
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (item.getAvailable() != null) {</span>
+<span class="fc" id="L30">            existingItem.setAvailable(item.getAvailable());</span>
+        }
+<span class="fc" id="L32">        return existingItem;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

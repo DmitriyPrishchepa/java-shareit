@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RequestControllerTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">controllers</a> &gt; <span class="el_source">RequestControllerTest.java</span></div><h1>RequestControllerTest.java</h1><pre class="source lang-java linenums">package controllers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.item.ItemController;
+import ru.practicum.shareit.item.ItemService;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.request.RequestController;
+import ru.practicum.shareit.request.RequestService;
+import ru.practicum.shareit.request.model.Request;
+import ru.practicum.shareit.request.model.Response;
+import ru.practicum.shareit.user.UserController;
+import ru.practicum.shareit.user.UserService;
+import ru.practicum.shareit.user.dto.UserDto;
+
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.Matchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(MockitoExtension.class)
+<span class="fc" id="L40">public class RequestControllerTest {</span>
+
+    @Mock
+    ItemService itemService;
+
+    @InjectMocks
+    ItemController itemController;
+
+    @Mock
+    UserService userService;
+
+    @InjectMocks
+    UserController userController;
+
+    @Mock
+    RequestService requestService;
+
+    @InjectMocks
+    RequestController requestController;
+
+<span class="fc" id="L60">    private final ObjectMapper mapper = new ObjectMapper();</span>
+
+    private ItemDto itemDto;
+    private Request request;
+    private UserDto userDto;
+    private MockMvc mockMvc;
+
+    private ItemDto makeItemDto(
+            Long id,
+            Long ownerId,
+            String name,
+            String description,
+            Boolean available
+    ) {
+<span class="fc" id="L74">        ItemDto dto = new ItemDto();</span>
+<span class="fc" id="L75">        dto.setId(id);</span>
+<span class="fc" id="L76">        dto.setOwnerId(ownerId);</span>
+<span class="fc" id="L77">        dto.setName(name);</span>
+<span class="fc" id="L78">        dto.setDescription(description);</span>
+<span class="fc" id="L79">        dto.setAvailable(available);</span>
+<span class="fc" id="L80">        dto.setRequestId(null);</span>
+
+<span class="fc" id="L82">        return dto;</span>
+    }
+
+    private UserDto makeUserDto(
+            Long id,
+            String name,
+            String email
+    ) {
+<span class="fc" id="L90">        UserDto dto = new UserDto();</span>
+<span class="fc" id="L91">        dto.setId(id);</span>
+<span class="fc" id="L92">        dto.setName(name);</span>
+<span class="fc" id="L93">        dto.setEmail(email);</span>
+
+<span class="fc" id="L95">        return dto;</span>
+    }
+
+    private Request makeRequest(
+            long id,
+            String description,
+            LocalDateTime created,
+            Long ownerId,
+            List&lt;Response&gt; responses,
+            List&lt;Item&gt; items
+    ) {
+<span class="fc" id="L106">        Request request = new Request();</span>
+<span class="fc" id="L107">        request.setId(id);</span>
+<span class="fc" id="L108">        request.setDescription(description);</span>
+<span class="fc" id="L109">        request.setOwnerId(ownerId);</span>
+<span class="fc" id="L110">        request.setItems(new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L111">        request.setResponses(new ArrayList&lt;&gt;());</span>
+<span class="fc" id="L112">        return request;</span>
+    }
+
+    @BeforeEach
+    void setUp() throws Exception {
+<span class="fc" id="L117">        mockMvc = MockMvcBuilders</span>
+<span class="fc" id="L118">                .standaloneSetup(itemController, userController, requestController)</span>
+<span class="fc" id="L119">                .build();</span>
+
+<span class="fc" id="L121">        itemDto = makeItemDto(</span>
+<span class="fc" id="L122">                1L,</span>
+<span class="fc" id="L123">                1L,</span>
+                &quot;itemDto&quot;,
+                &quot;itemDescription&quot;,
+<span class="fc" id="L126">                true</span>
+        );
+
+<span class="fc" id="L129">        userDto = makeUserDto(1L, &quot;userDto&quot;, &quot;userEmail&quot;);</span>
+
+<span class="fc" id="L131">        when(userService.createUser(any()))</span>
+<span class="fc" id="L132">                .thenReturn(userDto);</span>
+
+<span class="fc" id="L134">        mockMvc.perform(post(&quot;/users&quot;)</span>
+<span class="fc" id="L135">                        .content(mapper.writeValueAsString(userDto))</span>
+<span class="fc" id="L136">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L137">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L138">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L139">                .andExpect(status().isOk())</span>
+<span class="fc" id="L140">                .andExpect(jsonPath(&quot;$.id&quot;, is(userDto.getId()), Long.class))</span>
+<span class="fc" id="L141">                .andExpect(jsonPath(&quot;$.name&quot;, is(userDto.getName()), String.class));</span>
+
+<span class="fc" id="L143">        when(itemService.addItem(userDto.getId(), itemDto))</span>
+<span class="fc" id="L144">                .thenReturn(itemDto);</span>
+
+<span class="fc" id="L146">        mockMvc.perform(post(&quot;/items&quot;)</span>
+<span class="fc" id="L147">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L148">                        .content(mapper.writeValueAsString(itemDto))</span>
+<span class="fc" id="L149">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L150">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L151">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L152">                .andExpect(status().isOk())</span>
+<span class="fc" id="L153">                .andExpect(jsonPath(&quot;$.id&quot;, is(itemDto.getId()), Long.class))</span>
+<span class="fc" id="L154">                .andExpect(jsonPath(&quot;$.name&quot;, is(itemDto.getName()), String.class))</span>
+<span class="fc" id="L155">                .andExpect(jsonPath(&quot;$.description&quot;, is(itemDto.getDescription()), String.class));</span>
+
+<span class="fc" id="L157">        request = makeRequest(</span>
+                1L,
+                &quot;test description&quot;,
+<span class="fc" id="L160">                LocalDateTime.now(),</span>
+<span class="fc" id="L161">                userDto.getId(),</span>
+                new ArrayList&lt;&gt;(),
+                new ArrayList&lt;&gt;()
+        );
+<span class="fc" id="L165">    }</span>
+
+    @Test
+    void createRequestTest() throws Exception {
+
+<span class="fc" id="L170">        when(requestService.createRequest(Mockito.anyLong(), Mockito.anyString()))</span>
+<span class="fc" id="L171">                .thenReturn(request);</span>
+
+<span class="fc" id="L173">        mockMvc.perform(post(&quot;/requests&quot;)</span>
+<span class="fc" id="L174">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L175">                        .content(mapper.writeValueAsString(request))</span>
+<span class="fc" id="L176">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L177">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L178">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L179">                .andExpect(status().isOk())</span>
+<span class="fc" id="L180">                .andExpect(jsonPath(&quot;$.description&quot;, is(request.getDescription())))</span>
+<span class="fc" id="L181">                .andExpect(jsonPath(&quot;$.responses&quot;, is(request.getResponses())));</span>
+<span class="fc" id="L182">    }</span>
+
+    @Test
+    void getRequestByIdTest() throws Exception {
+<span class="fc" id="L186">        when(requestService.getRequestById(Mockito.anyLong(), Mockito.anyLong()))</span>
+<span class="fc" id="L187">                .thenReturn(request);</span>
+
+<span class="fc" id="L189">        mockMvc.perform(get(&quot;/requests/&quot; + request.getId())</span>
+<span class="fc" id="L190">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L191">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L192">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L193">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L194">                .andExpect(status().isOk())</span>
+<span class="fc" id="L195">                .andExpect(jsonPath(&quot;$.description&quot;, is(request.getDescription())))</span>
+<span class="fc" id="L196">                .andExpect(jsonPath(&quot;$.responses&quot;, is(request.getResponses())));</span>
+<span class="fc" id="L197">    }</span>
+
+    @Test
+    void getOtherUsersRequests() throws Exception {
+
+<span class="fc" id="L202">        Request requestOfUser2 = makeRequest(</span>
+                2L,
+                &quot;test description 2&quot;,
+<span class="fc" id="L205">                LocalDateTime.now(),</span>
+<span class="fc" id="L206">                2L,</span>
+                new ArrayList&lt;&gt;(),
+                new ArrayList&lt;&gt;()
+        );
+
+<span class="fc" id="L211">        Request requestOfUser3 = makeRequest(</span>
+                3L,
+                &quot;test description 3&quot;,
+<span class="fc" id="L214">                LocalDateTime.now(),</span>
+<span class="fc" id="L215">                3L,</span>
+                new ArrayList&lt;&gt;(),
+                new ArrayList&lt;&gt;()
+        );
+
+<span class="fc" id="L220">        List&lt;Request&gt; requests = List.of(requestOfUser2, requestOfUser3);</span>
+
+<span class="fc" id="L222">        when(requestService.getOtherUsersRequests(Mockito.anyLong()))</span>
+<span class="fc" id="L223">                .thenReturn(requests);</span>
+
+<span class="fc" id="L225">        mockMvc.perform(get(&quot;/requests/all&quot;)</span>
+<span class="fc" id="L226">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L227">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L228">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L229">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L230">                .andDo(mvcResult -&gt; {</span>
+<span class="fc" id="L231">                    String response = mvcResult.getResponse().getContentAsString();</span>
+<span class="fc" id="L232">                    System.out.println(&quot;Response: &quot; + response);</span>
+<span class="fc" id="L233">                })</span>
+<span class="fc" id="L234">                .andExpect(status().isOk())</span>
+<span class="fc" id="L235">                .andExpect(jsonPath(&quot;$&quot;, hasSize(requests.size())))</span>
+<span class="fc" id="L236">                .andExpect(jsonPath(&quot;$[*].id&quot;, containsInAnyOrder(</span>
+<span class="fc" id="L237">                        (int) requestOfUser2.getId(), (int) requestOfUser3.getId())));</span>
+<span class="fc" id="L238">    }</span>
+
+    @Test
+    void getUserRequestsWithResponsesTest() throws Exception {
+<span class="fc" id="L242">        Response response1 = new Response();</span>
+<span class="fc" id="L243">        response1.setId(1L);</span>
+<span class="fc" id="L244">        response1.setName(&quot;response1&quot;);</span>
+<span class="fc" id="L245">        response1.setRequest(request);</span>
+<span class="fc" id="L246">        response1.setItemId(itemDto.getId());</span>
+<span class="fc" id="L247">        response1.setOwnerId(1L);</span>
+
+<span class="fc" id="L249">        Response response2 = new Response();</span>
+<span class="fc" id="L250">        response2.setId(2L);</span>
+<span class="fc" id="L251">        response2.setName(&quot;response2&quot;);</span>
+<span class="fc" id="L252">        response2.setRequest(request);</span>
+<span class="fc" id="L253">        response2.setItemId(itemDto.getId());</span>
+<span class="fc" id="L254">        response2.setOwnerId(2L);</span>
+
+<span class="fc" id="L256">        List&lt;Response&gt; responses = List.of(response1, response2);</span>
+
+<span class="fc" id="L258">        request.setResponses(responses);</span>
+
+<span class="fc" id="L260">        System.out.println(&quot;Request responses: &quot; + request.getResponses());</span>
+
+<span class="fc" id="L262">        when(requestService.getUserRequestsWithResponses(Mockito.anyLong()))</span>
+<span class="fc" id="L263">                .thenReturn(List.of(request));</span>
+
+<span class="fc" id="L265">        mockMvc.perform(get(&quot;/requests&quot;)</span>
+<span class="fc" id="L266">                        .header(&quot;X-Sharer-User-Id&quot;, userDto.getId())</span>
+<span class="fc" id="L267">                        .characterEncoding(StandardCharsets.UTF_8)</span>
+<span class="fc" id="L268">                        .contentType(MediaType.APPLICATION_JSON)</span>
+<span class="fc" id="L269">                        .accept(MediaType.APPLICATION_JSON))</span>
+<span class="fc" id="L270">                .andDo(mvcResult -&gt; {</span>
+<span class="fc" id="L271">                    String response = mvcResult.getResponse().getContentAsString();</span>
+<span class="fc" id="L272">                    System.out.println(&quot;Response: &quot; + response);</span>
+<span class="fc" id="L273">                })</span>
+<span class="fc" id="L274">                .andExpect(jsonPath(&quot;$&quot;, hasSize(1)))</span>
+<span class="fc" id="L275">                .andExpect(jsonPath(&quot;$.[0].responses&quot;, hasSize(2)));</span>
+<span class="fc" id="L276">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

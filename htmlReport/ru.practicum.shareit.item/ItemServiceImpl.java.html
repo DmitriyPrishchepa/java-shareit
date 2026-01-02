@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ItemServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">java in server Coverage Results</a> &gt; <a href="index.source.html" class="el_package">ru.practicum.shareit.item</a> &gt; <span class="el_source">ItemServiceImpl.java</span></div><h1>ItemServiceImpl.java</h1><pre class="source lang-java linenums">package ru.practicum.shareit.item;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.booking.BookingRepository;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.exception.exceptions.BookingValidationException;
+import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
+import ru.practicum.shareit.exception.exceptions.MissingParameterException;
+import ru.practicum.shareit.exception.exceptions.WrongUserException;
+import ru.practicum.shareit.item.dto.CommentDtoToReturn;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
+import ru.practicum.shareit.item.dto.ItemWithCommentsToReturn;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.util.ItemValidator;
+import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.model.User;
+
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+<span class="fc" id="L34">@Slf4j</span>
+public class ItemServiceImpl implements ItemService {
+
+    private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+    private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
+    private final ItemMapper itemMapper;
+    private final BookingMapper bookingMapper;
+    private final CommentMapper commentMapper;
+
+    @Transactional
+    @Override
+    public ItemDto addItem(Long userId, ItemDto itemDto) {
+
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (userId == null) {</span>
+<span class="fc" id="L50">            throw new MissingParameterException(&quot;X-Sharer-User-Id header required&quot;);</span>
+        }
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (!userRepository.existsById(userId)) {</span>
+<span class="fc" id="L54">            throw new ElementNotFoundException(&quot;User not found&quot;);</span>
+        }
+
+<span class="fc" id="L57">        Item item = itemMapper.mapFromDto(itemDto);</span>
+
+<span class="fc" id="L59">        ItemValidator.validateItemFields(item);</span>
+
+<span class="fc" id="L61">        item.setOwnerId(userId);</span>
+
+<span class="fc" id="L63">        Item itemSaved = itemRepository.save(item);</span>
+<span class="fc" id="L64">        return itemMapper.mapToDto(itemSaved);</span>
+    }
+
+    @Transactional
+    @Override
+    public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (userId == null) {</span>
+<span class="fc" id="L71">            throw new MissingParameterException(&quot;userId was missing&quot;);</span>
+        }
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (!userRepository.existsById(userId)) {</span>
+<span class="fc" id="L75">            throw new ElementNotFoundException(&quot;User not found&quot;);</span>
+        }
+
+<span class="fc" id="L78">        itemRepository.existsById(itemId);</span>
+<span class="fc" id="L79">        Item existingItem = itemRepository.getReferenceById(itemId);</span>
+<span class="fc" id="L80">        Item updatedItem = ItemValidator.validateAndUpdateItemFields(existingItem, itemMapper.mapFromDto(itemDto));</span>
+
+<span class="fc" id="L82">        Item itemSaved = itemRepository.save(updatedItem);</span>
+
+<span class="fc" id="L84">        return itemMapper.mapToDto(itemSaved);</span>
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public ItemWithCommentsToReturn getItemById(Long userId, Long itemId) {
+
+<span class="fc" id="L91">        Item item = itemRepository.getReferenceById(itemId);</span>
+<span class="fc" id="L92">        List&lt;Comment&gt; comments = commentRepository.findAllByItemAndUserId(item.getOwnerId(), itemId);</span>
+<span class="fc" id="L93">        ItemWithCommentsToReturn dto = new ItemWithCommentsToReturn();</span>
+<span class="fc" id="L94">        dto.setId(item.getId());</span>
+<span class="fc" id="L95">        dto.setName(item.getName());</span>
+<span class="fc" id="L96">        dto.setDescription(item.getDescription());</span>
+<span class="fc" id="L97">        dto.setOwnerId(item.getOwnerId());</span>
+<span class="fc" id="L98">        dto.setAvailable(item.getAvailable());</span>
+<span class="fc" id="L99">        dto.setLastBooking(null);</span>
+<span class="fc" id="L100">        dto.setNextBooking(null);</span>
+<span class="fc" id="L101">        dto.setComments(comments);</span>
+<span class="fc" id="L102">        return dto;</span>
+    }
+
+    //интеграционное тестирование
+    @Transactional(readOnly = true)
+    @Override
+    public List&lt;ItemDtoWithBookings&gt; getAllItemsFromUser(Long userId) {
+<span class="fc" id="L109">        PageRequest pageRequest = PageRequest.of(0, Integer.MAX_VALUE);</span>
+
+<span class="fc" id="L111">        List&lt;ItemDto&gt; itemsOfUser = itemRepository.findAllByOwnerId(userId, pageRequest)</span>
+<span class="fc" id="L112">                .getContent().stream().map(itemMapper::mapToDto).toList();</span>
+
+        // Загружаем все бронирования для всех элементов пользователя
+<span class="fc" id="L115">        List&lt;Long&gt; itemsIds = itemsOfUser.stream().map(ItemDto::getId).toList();</span>
+<span class="fc" id="L116">        List&lt;Booking&gt; allBookingsForAllItems = bookingRepository.findAllByItemIdIn(itemsIds);</span>
+
+        // Группируем бронирования по идентификаторам элементов
+<span class="fc" id="L119">        Map&lt;Long, List&lt;Booking&gt;&gt; bookingsByItemId = allBookingsForAllItems.stream()</span>
+<span class="fc" id="L120">                .collect(Collectors.groupingBy(booking -&gt; booking.getItem().getId()));</span>
+
+<span class="fc" id="L122">        return itemsOfUser.stream()</span>
+<span class="fc" id="L123">                .map(itemDto -&gt; {</span>
+<span class="fc" id="L124">                    ItemDtoWithBookings itemDtoWithBookings = new ItemDtoWithBookings();</span>
+<span class="fc" id="L125">                    itemDtoWithBookings.setId(itemDto.getId());</span>
+<span class="fc" id="L126">                    itemDtoWithBookings.setName(itemDto.getName());</span>
+<span class="fc" id="L127">                    itemDtoWithBookings.setDescription(itemDto.getDescription());</span>
+<span class="fc" id="L128">                    itemDtoWithBookings.setAvailable(itemDto.getAvailable());</span>
+
+<span class="fc" id="L130">                    List&lt;BookingDto&gt; bookingsDto = bookingsByItemId.getOrDefault(</span>
+<span class="fc" id="L131">                                    itemDto.getId(), Collections.emptyList()</span>
+                            )
+<span class="fc" id="L133">                            .stream()</span>
+<span class="fc" id="L134">                            .map(bookingMapper::mapToDto)</span>
+<span class="fc" id="L135">                            .toList();</span>
+
+<span class="fc" id="L137">                    itemDtoWithBookings.setBookings(bookingsDto);</span>
+
+<span class="fc" id="L139">                    return itemDtoWithBookings;</span>
+<span class="fc" id="L140">                }).toList();</span>
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List&lt;ItemDto&gt; searchItem(Long userId, String searchText) {
+
+<span class="fc" id="L147">        List&lt;ItemDto&gt; itemsFound = itemRepository.findItemsByNameContaining(searchText)</span>
+<span class="fc" id="L148">                .stream()</span>
+<span class="fc" id="L149">                .filter(Item::getAvailable) // Фильтруем, оставляя только те элементы, где available = true</span>
+<span class="fc" id="L150">                .map(itemMapper::mapToDto)</span>
+<span class="fc" id="L151">                .toList();</span>
+
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">        if (searchText.isEmpty()) {</span>
+<span class="nc" id="L154">            return new ArrayList&lt;&gt;();</span>
+        }
+
+<span class="fc" id="L157">        return itemsFound;</span>
+    }
+
+    //интеграционное тестирование
+    @Transactional
+    public CommentDtoToReturn addComment(Long userId, Long itemId, String text) {
+
+<span class="fc" id="L164">        Booking booking = bookingRepository.findByItemId(itemId);</span>
+
+<span class="fc" id="L166">        Item item = booking.getItem();</span>
+
+<span class="fc bfc" id="L168" title="All 2 branches covered.">        if (!Objects.equals(booking.getBooker().getId(), userId)) {</span>
+<span class="fc" id="L169">            throw new WrongUserException(&quot;You cannot leave a comment&quot;);</span>
+        }
+
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">        if (booking.getEnd().isAfter(LocalDateTime.now())) {</span>
+<span class="nc" id="L173">            throw new BookingValidationException(&quot;ex&quot;);</span>
+        }
+
+<span class="fc" id="L176">        User booker = booking.getBooker();</span>
+
+<span class="fc" id="L178">        Comment comment = new Comment();</span>
+<span class="fc" id="L179">        comment.setText(text.trim());</span>
+<span class="fc" id="L180">        comment.setItem(item);</span>
+<span class="fc" id="L181">        comment.setAuthor(booker);</span>
+<span class="fc" id="L182">        comment.setCreated(LocalDateTime.now());</span>
+
+<span class="fc" id="L184">        Comment commentSaved = commentRepository.save(comment);</span>
+<span class="fc" id="L185">        return commentMapper.mapToReturnDto(commentSaved);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
