@@ -169,10 +169,10 @@ public class BookingServiceTest {
     @Test
     void updateBookingApprovalTest() {
 
-        Mockito.when(bookingService.updateBookingApproval(Mockito.anyLong(), Mockito.anyString(), Mockito.anyBoolean()))
+        Mockito.when(bookingService.updateBookingApproval(Mockito.anyLong(), Mockito.anyLong(), Mockito.anyBoolean()))
                 .thenReturn(returnedBookingDto);
 
-        returnedBookingDto = bookingService.updateBookingApproval(1L, "1L", true);
+        returnedBookingDto = bookingService.updateBookingApproval(1L, 1L, true);
 
         assertThat(returnedBookingDto.getStatus(), equalTo(BookingState.WAITING));
         assertThat(returnedBookingDto.getStart(), equalTo(bookingDto.getStart()));

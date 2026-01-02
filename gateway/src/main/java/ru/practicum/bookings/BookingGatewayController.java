@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.bookings.dto.BookItemRequestDto;
 import ru.practicum.bookings.dto.BookingState;
+import ru.practicum.exception.exceptions.MissingParameterException;
 
 @RestController
 @RequestMapping(path = "/bookings")
@@ -23,7 +24,10 @@ public class BookingGatewayController {
             @RequestHeader("X-Sharer-User-Id") long userId,
             @PathVariable(value = "bookingId", required = false) String bookingId,
             @RequestParam(value = "approved") @NotNull boolean approved) {
-        return bookingClient.updateBookingApproval(userId, bookingId, approved);
+
+        Long validatedBookingId = validateBookingId(bookingId);
+
+        return bookingClient.updateBookingApproval(userId, validatedBookingId, approved);
     }
 
     @GetMapping
@@ -56,5 +60,19 @@ public class BookingGatewayController {
                                              @PathVariable @Positive Long bookingId) {
         log.info("Get booking {}, userId={}", bookingId, userId);
         return bookingClient.getBooking(userId, bookingId);
+    }
+
+    public Long validateBookingId(String bookingId) {
+        if (bookingId == null || bookingId.isEmpty()) {
+            throw new MissingParameterException("booking id is missing");
+        }
+        long id;
+        try {
+            id = Long.parseLong(bookingId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid booking id: " + bookingId);
+        }
+
+        return id;
     }
 }

@@ -13,7 +13,6 @@ import ru.practicum.shareit.booking.util.BookingState;
 import ru.practicum.shareit.booking.util.BookingStateSearchParams;
 import ru.practicum.shareit.exception.exceptions.BookingValidationException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
-import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.exception.exceptions.WrongUserException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -67,11 +66,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Transactional
     @Override
-    public BookingDtoToReturn updateBookingApproval(Long userId, String bookingId, boolean approved) {
+    public BookingDtoToReturn updateBookingApproval(Long userId, Long bookingId, boolean approved) {
 
-        Long validatedBookingId = validateBookingId(bookingId);
-
-        Booking booking = checkExitstingBooking(validatedBookingId);
+        Booking booking = checkExitstingBooking(bookingId);
 
         if (!booking.getItem().getOwnerId().equals(userId)) {
             throw new WrongUserException("You are not the owner of the item and cannot update the booking.");
@@ -203,19 +200,5 @@ public class BookingServiceImpl implements BookingService {
         } catch (EntityNotFoundException e) {
             throw new ElementNotFoundException("Booking not found");
         }
-    }
-
-    public Long validateBookingId(String bookingId) {
-        if (bookingId == null || bookingId.isEmpty()) {
-            throw new MissingParameterException("booking id is missing");
-        }
-        long id;
-        try {
-            id = Long.parseLong(bookingId);
-        } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid booking id: " + bookingId);
-        }
-
-        return id;
     }
 }

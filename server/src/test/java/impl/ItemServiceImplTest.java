@@ -19,7 +19,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.util.BookingState;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
-import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.exception.exceptions.WrongUserException;
 import ru.practicum.shareit.item.CommentRepository;
 import ru.practicum.shareit.item.ItemRepository;
@@ -199,15 +198,6 @@ public class ItemServiceImplTest {
 
 
     @Test
-    void addItemTest_MissingParameter() {
-        try {
-            itemServiceImpl.addItem(null, itemDto);
-        } catch (MissingParameterException e) {
-            assertEquals("X-Sharer-User-Id header required", e.getMessage());
-        }
-    }
-
-    @Test
     void addItemTest_UserNotFound() {
         when(userRepository.existsById(Mockito.anyLong())).thenReturn(false);
 
@@ -260,15 +250,6 @@ public class ItemServiceImplTest {
         ItemDto item = itemServiceImpl.updateItem(1L, 1L, newItemDto);
 
         assertEquals(item.getName(), newItemDto.getName());
-    }
-
-    @Test
-    void updateItem_MissingParameter() {
-        try {
-            itemServiceImpl.updateItem(null, 1L, itemDto);
-        } catch (MissingParameterException e) {
-            assertEquals("userId was missing", e.getMessage());
-        }
     }
 
     @Test

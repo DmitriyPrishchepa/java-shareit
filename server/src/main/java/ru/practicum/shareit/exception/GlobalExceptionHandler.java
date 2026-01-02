@@ -40,16 +40,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handelMissingParameter(MissingParameterException e) {
-        log.error("Missing parameter");
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse manageUnhandledExceptions(Exception e) {
+        log.error("Unhandled exception");
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse manageUnhandledExceptions(Exception e) {
-        log.error("Unhandled exception");
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handelMissingParameter(MissingParameterException e) {
+        log.error("Missing parameter");
         return new ErrorResponse(e.getMessage());
     }
 

@@ -31,7 +31,6 @@ public class RequestServiceImpl implements RequestService {
         int startIndex = description.indexOf("\"description\": \"") + "\"description: \"".length() + 1;
         int endIndex = description.lastIndexOf("\"");
 
-        // Извлекаем подстроку
         String cleanedDescription = description.substring(startIndex, endIndex);
 
         saved.setDescription(cleanedDescription);

@@ -193,7 +193,7 @@ public class BookingControllerTest {
         rejectedDto.setEnd(bookingDto.getEnd());
         rejectedDto.setStatus(BookingState.REJECTED);
 
-        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyString(), Mockito.eq(true)))
+        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyLong(), Mockito.eq(true)))
                 .thenReturn(approvedDto);
 
         mockMvc.perform(patch("/bookings/" + result.getId())
@@ -205,7 +205,7 @@ public class BookingControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is(BookingState.APPROVED.toString())));
 
-        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyString(), Mockito.eq(false)))
+        when(bookingController.updateBookingApproval(Mockito.anyLong(), Mockito.anyLong(), Mockito.eq(false)))
                 .thenReturn(rejectedDto);
 
         mockMvc.perform(patch("/bookings/" + result.getId())

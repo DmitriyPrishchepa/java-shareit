@@ -11,7 +11,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exception.exceptions.BookingValidationException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
-import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.exception.exceptions.WrongUserException;
 import ru.practicum.shareit.item.dto.CommentDtoToReturn;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -46,17 +45,11 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto addItem(Long userId, ItemDto itemDto) {
 
-        if (userId == null) {
-            throw new MissingParameterException("X-Sharer-User-Id header required");
-        }
-
         if (!userRepository.existsById(userId)) {
             throw new ElementNotFoundException("User not found");
         }
 
         Item item = itemMapper.mapFromDto(itemDto);
-
-        ItemValidator.validateItemFields(item);
 
         item.setOwnerId(userId);
 
@@ -67,9 +60,6 @@ public class ItemServiceImpl implements ItemService {
     @Transactional
     @Override
     public ItemDto updateItem(Long userId, Long itemId, ItemDto itemDto) {
-        if (userId == null) {
-            throw new MissingParameterException("userId was missing");
-        }
 
         if (!userRepository.existsById(userId)) {
             throw new ElementNotFoundException("User not found");

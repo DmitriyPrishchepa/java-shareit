@@ -24,7 +24,6 @@ import ru.practicum.shareit.booking.util.BookingState;
 import ru.practicum.shareit.booking.util.BookingStateSearchParams;
 import ru.practicum.shareit.exception.exceptions.BookingValidationException;
 import ru.practicum.shareit.exception.exceptions.ElementNotFoundException;
-import ru.practicum.shareit.exception.exceptions.MissingParameterException;
 import ru.practicum.shareit.exception.exceptions.WrongUserException;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.ItemService;
@@ -356,24 +355,6 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    void updateBookingApprovalTest_ValidationException_isMissing() {
-        try {
-            bookingServiceImpl.updateBookingApproval(1L, null, true);
-        } catch (MissingParameterException e) {
-            assertEquals("booking id is missing", e.getMessage());
-        }
-    }
-
-    @Test
-    void updateBookingApprovalTest_ValidationException_IllegalArgument() {
-        try {
-            bookingServiceImpl.updateBookingApproval(1L, "abc1", true);
-        } catch (IllegalArgumentException e) {
-            assertEquals("Invalid booking id: " + "abc1", e.getMessage());
-        }
-    }
-
-    @Test
     void updateBookingApproval_WrongUser() {
 
         Mockito.when(bookingRepository.existsById(Mockito.anyLong())).thenReturn(true);
@@ -385,7 +366,7 @@ public class BookingServiceImplTest {
                 .thenReturn(3L);
 
         try {
-            bookingServiceImpl.updateBookingApproval(1L, "1", true);
+            bookingServiceImpl.updateBookingApproval(1L, 1L, true);
         } catch (WrongUserException e) {
             assertEquals("You are not the owner of the item and cannot update the booking.", e.getMessage());
         }
@@ -410,7 +391,7 @@ public class BookingServiceImplTest {
         Mockito.when(bookingMapper.mapToBookingDtoReturned(Mockito.any(Booking.class)))
                 .thenReturn(returnedBookingDto);
 
-        BookingDtoToReturn resultDto = bookingServiceImpl.updateBookingApproval(1L, "1", true);
+        BookingDtoToReturn resultDto = bookingServiceImpl.updateBookingApproval(1L, 1L, true);
 
         assertEquals(BookingState.APPROVED, resultDto.getStatus());
     }
@@ -431,7 +412,7 @@ public class BookingServiceImplTest {
         Mockito.when(bookingMapper.mapToBookingDtoReturned(Mockito.any(Booking.class)))
                 .thenReturn(returnedBookingDto);
 
-        BookingDtoToReturn resultDto = bookingServiceImpl.updateBookingApproval(1L, "1", false);
+        BookingDtoToReturn resultDto = bookingServiceImpl.updateBookingApproval(1L, 1L, false);
 
         assertEquals(BookingState.REJECTED, resultDto.getStatus());
     }

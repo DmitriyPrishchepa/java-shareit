@@ -4,19 +4,23 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.users.dto.UserDto;
+import ru.practicum.users.validation.UserValidator;
 
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class UserGatewayController {
 
     private final UserClient userClient;
 
     @PostMapping
     public ResponseEntity<Object> createUser(@RequestBody UserDto userDto) {
+        UserValidator.validateUser(userDto);
         log.info("User created {}", userDto);
         return userClient.createUser(userDto);
     }

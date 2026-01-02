@@ -4,13 +4,17 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.exception.exceptions.MissingParameterException;
 import ru.practicum.items.dto.ItemDto;
+import ru.practicum.items.validation.ItemValidator;
 
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
 @Slf4j
+@Validated
 public class ItemGatewayController {
     private final ItemClient itemClient;
 
@@ -18,6 +22,10 @@ public class ItemGatewayController {
     public ResponseEntity<Object> addItem(
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
             @RequestBody ItemDto item) {
+        if (userId == null) {
+            throw new MissingParameterException("X-Sharer-User-Id header required");
+        }
+        ItemValidator.validateItemFields(item);
         log.info("Item created is {}", item);
         return itemClient.addItem(userId, item);
     }
@@ -28,6 +36,9 @@ public class ItemGatewayController {
             @RequestHeader("X-Sharer-User-Id") @Positive Long userId,
             @RequestBody ItemDto itemDto
     ) {
+        if (userId == null) {
+            throw new MissingParameterException("userId was missing");
+        }
         log.info("Updated item looks like {}", itemDto);
         return itemClient.updateItem(itemId, userId, itemDto);
     }

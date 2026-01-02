@@ -8,7 +8,6 @@ import ru.practicum.shareit.exception.exceptions.DuplicateException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.mapper.UserMapper;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.util.UserValidator;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +26,6 @@ public class UserServiceImpl implements UserService {
         if (userWithEmail != null) {
             throw new DuplicateException("Email already exists");
         }
-
-        UserValidator.validateUser(userMapper.mapFromDto(userDto));
 
         User user = userRepository.save(userMapper.mapFromDto(userDto));
         return userMapper.mapToDto(user);

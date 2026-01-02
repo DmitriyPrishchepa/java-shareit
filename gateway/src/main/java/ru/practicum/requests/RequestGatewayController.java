@@ -4,12 +4,14 @@ import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/requests")
 @Slf4j
+@Validated
 public class RequestGatewayController {
 
     private final RequestClient requestClient;
